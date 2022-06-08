@@ -222,7 +222,7 @@ class ClearingHouse:
     def repeg(self, market: Market, new_peg: int):
 
         cost, mark_delta = calculate_repeg_cost(market, new_peg)
-        print('repeg cost:', cost)
+        # print('repeg cost:', cost)
         market.amm.peg_multiplier = new_peg
 
         # market.total_fees -= cost*1e6
@@ -465,17 +465,26 @@ class ClearingHouse:
         market = self.markets[market_index]
         oracle_price = market.amm.oracle.get_price(now)
 
+        budget_cost = max(0, (market.amm.total_fee_minus_distributions/1e6)/2)
+        # print('BUDGET_COST', budget_cost)
+
         if 'PreFreePeg' in market.amm.strategies:
-            freepeg_cost, base_scale, quote_scale, new_peg = calculate_freepeg_cost(market, oracle_price)
-            print('freepegging:', 'scales:', base_scale, quote_scale,  'peg:', market.amm.peg_multiplier, '->', new_peg)
+            freepeg_cost, base_scale, quote_scale, new_peg = calculate_freepeg_cost(market, oracle_price, budget_cost)
+            # if abs(freepeg_cost) > 1e-4:
+                # print('NOW:', now)
+                # print(freepeg_cost)
+                # print('freepegging:', 'scales:', base_scale, quote_scale,  'peg:', market.amm.peg_multiplier, '->', new_peg)
+
+            # print('NOW:', now)
             market.amm.base_asset_reserve *= base_scale
             market.amm.quote_asset_reserve *= quote_scale
             market.amm.peg_multiplier = new_peg  
             market.amm.sqrt_k = np.sqrt(market.amm.base_asset_reserve * market.amm.quote_asset_reserve)
-            print('new price:', calculate_mark_price(market))
-            print('post fpeg:', market.amm.base_asset_reserve, market.amm.quote_asset_reserve)
+            market.amm.total_fee_minus_distributions -= int(freepeg_cost*1e6)
+            # print('new price:', calculate_mark_price(market))
+            # print('post fpeg:', market.amm.base_asset_reserve, market.amm.quote_asset_reserve)
         elif 'PrePeg' in market.amm.strategies:
-            new_peg = calculate_peg_multiplier(market.amm, oracle_price, now)
+            new_peg = calculate_peg_multiplier(market.amm, oracle_price, now, budget_cost=budget_cost)
             if new_peg != market.amm.peg_multiplier:
                 print('repegging', market.amm.peg_multiplier, '->', new_peg)
                 self.repeg(market, new_peg)        
