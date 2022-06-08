@@ -10,7 +10,7 @@ class Oracle:
 
     def __init__(self, path=None, prices=None, timestamps=None):
         if path is not None:
-            oracle_df = pd.read_csv(path, nrows=1000) #todo
+            oracle_df = pd.read_csv(path, nrows=300) #todo
             self.prices = oracle_df['price'].values
             self.timestamps = oracle_df['timestamp'].values
 

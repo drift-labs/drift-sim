@@ -134,7 +134,12 @@ class Noise(Agent):
         intensity = self.intensity  
         direction = 'long'
         trade_size = int(self.size * 1e6)
-        now = state_i.time                                                             
+        now = state_i.time   
+
+        x = 5
+        every_x_minutes = 60 * x
+        if (now % every_x_minutes) < every_x_minutes - 1:
+            return NullEvent(timestamp=now)                                                          
 
         event = OpenPositionEvent(self.user_index, direction, trade_size, now, market_index)
         return event
@@ -153,10 +158,15 @@ class ArbFunding(Agent):
         user_index = self.user_index
         intensity = self.intensity
 
-        now = state_i.time                                                             
+        now = state_i.time   
+
+
         market = state_i.markets[market_index]
         oracle: Oracle = market.amm.oracle
         oracle_price = oracle.get_price(now)
+
+        if market.amm.funding_period - (now % 3600) > 100:
+            return NullEvent(timestamp=now)
 
         bid, ask = calculate_bid_ask_price(market, oracle_price)
 
@@ -164,10 +174,12 @@ class ArbFunding(Agent):
         funding_dollar /= 24
         if funding_dollar > 0:
             slippage = funding_dollar/(oracle_price-bid)
-            target = bid-max(0, slippage)
+            target = bid*(1-.0001)
         else:
             slippage = funding_dollar/(ask-oracle_price)
-            target = ask+max(0, slippage)
+            target = ask*1.0001
+
+        # target = 
 
 
         unit = AssetType.QUOTE
@@ -180,7 +192,7 @@ class ArbFunding(Agent):
                 oracle_price=oracle_price
             )
         
-        trade_size = int(abs(trade_size)) # whole numbers only 
+        trade_size = min(10*1e6, int(abs(trade_size))) # whole numbers only 
         if trade_size:
             print('NOW: ', now)
         quote_asset_reserve = (
