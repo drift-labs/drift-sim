@@ -464,6 +464,7 @@ class ClearingHouse:
 
         market = self.markets[market_index]
         oracle_price = market.amm.oracle.get_price(now)
+        mark_price_before = calculate_mark_price(market)
 
         budget_cost = max(0, (market.amm.total_fee_minus_distributions/1e6)/2)
         # print('BUDGET_COST', budget_cost)
@@ -489,7 +490,8 @@ class ClearingHouse:
                 print('repegging', market.amm.peg_multiplier, '->', new_peg)
                 self.repeg(market, new_peg)        
         
-        mark_price_before = calculate_mark_price(market)
+        mark_price_before_2 = calculate_mark_price(market)
+        update_mark_price_std(market.amm, self.time, abs(mark_price_before-mark_price_before_2))
 
         user: User = self.users[user_index]
         market_position: MarketPosition = user.positions[market_index]
@@ -539,7 +541,6 @@ class ClearingHouse:
         self.update_funding_rate(market_index)
 
         price_change = mark_price_before - mark_price_after
-        update_mark_price_std(market.amm, self.time, price_change)
         
         return self 
     

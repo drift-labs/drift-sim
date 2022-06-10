@@ -54,6 +54,7 @@ class AMM:
     last_oracle_price_twap: int = 0
     last_oracle_price_twap_ts: int = 0
 
+    last_mark_price: int = 0
     last_mark_price_twap: int = 0
     last_bid_price_twap: int = 0
     last_ask_price_twap: int = 0
@@ -117,7 +118,8 @@ class AMM:
         
         self.cumulative_funding_rate_long = 0 
         self.cumulative_funding_rate_short = 0 
-        self.last_funding_rate_ts = now 
+        self.last_funding_rate_ts = now
+        self.mark_std = 0
 
 @dataclass
 class Market: 

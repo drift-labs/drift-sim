@@ -39,7 +39,7 @@ def update_mark_price_std(
 
     since_last = now - amm.last_mark_price_twap_ts
     last_mark_price_std = amm.mark_std
-    new_mark_price_std = calculate_rolling_average(last_mark_price_std, abs(price_change), since_last, ONE_MIN)
+    new_mark_price_std = calculate_rolling_average(last_mark_price_std, abs(price_change), since_last, ONE_MIN*60)
     amm.mark_std = new_mark_price_std
 
 def update_intensity(
@@ -65,6 +65,7 @@ def update_intensity(
     since_last, 
     ONE_MIN
     )
+
     amm.last_buy_intensity = new_buy_intensity
     amm.last_sell_intensity = new_sell_intensity
 
