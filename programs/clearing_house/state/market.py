@@ -39,6 +39,13 @@ class AMM:
     sqrt_k: float = 0 
     peg_multiplier: int = 0 
     
+    # liquidity providing 
+    total_lp_tokens: int = 0  
+    total_lp_value: int = 0
+     
+    lp_tokens: int = 0
+    cumulative_lp_funding: int = 0 
+    
     # funding rates 
     last_funding_rate: int = 0
     last_funding_rate_ts: int = 0
@@ -85,7 +92,6 @@ class AMM:
 
     def __post_init__(self):
         # self.peg_multiplier = PEG_PRECISION 
-        
         now = 0
         
         oracle_price = self.oracle.get_price(now)
@@ -101,12 +107,17 @@ class AMM:
             self.peg_multiplier
         )
 
-        if self.base_asset_reserve!=self.quote_asset_reserve:
+        if self.base_asset_reserve != self.quote_asset_reserve:
             self.sqrt_k = int((
                 self.base_asset_reserve/1e13 * self.quote_asset_reserve/1e13
             ) ** .5) * 1e13
         else:
             self.sqrt_k = self.base_asset_reserve
+            
+        # 1 token per sqrt k 
+        self.lp_tokens = self.quote_asset_reserve
+        self.total_lp_tokens = self.quote_asset_reserve
+        self.total_lp_value = self.quote_asset_reserve
         
         self.bid_price_before = calculate_bid_price_amm(self, oracle_price) #* MARK_PRICE_PRECISION
         self.ask_price_before = calculate_ask_price_amm(self, oracle_price) #* MARK_PRICE_PRECISION
