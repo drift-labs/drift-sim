@@ -34,6 +34,7 @@ from dataclasses import dataclass, field
 from programs.clearing_house.math.pnl import *
 from programs.clearing_house.math.amm import *
 from programs.clearing_house.state import *
+from programs.clearing_house.state.user import User, MarketPosition, LPPosition
 
 MARGIN_PRECISION = 10_000 # expo = -4
 
@@ -57,12 +58,111 @@ class ClearingHouse:
         # initialize user if not already 
         if user_index not in self.users: 
             market_positions = [MarketPosition() for _ in range(len(self.markets))]
-            self.users[user_index] = User(0, market_positions)
+            lp_positions = [LPPosition() for _ in range(len(self.markets))]
+            self.users[user_index] = User(
+                collateral=0, 
+                positions=market_positions, 
+                lp_positions=lp_positions
+            )
 
         user = self.users[user_index]
         user.collateral += collateral_amount
         user.cumulative_deposits += collateral_amount
         
+        return self 
+    
+    def add_liquidity(
+        self, 
+        market_index: int, 
+        user_index: int, 
+        quote_amount: int, 
+    ):
+        assert quote_amount > 0 
+        
+        user: User = self.users[user_index]
+        
+        market: Market = self.markets[market_index]
+        assert market.amm.lp_tokens > 0, "No liquidity to add"
+        assert user.positions[market_index].base_asset_amount == 0, "Close position before lping"
+        assert user.collateral >= quote_amount, "Not enough collateral to add liquidity"
+        
+        # compute lp token amount for a given quote amount
+        # amm: lptokens = 100, total_lp_value = 100 
+        # user: deposits 50 value => 50 * [100 / 100] = 50 lp tokens 
+        user_lp_token_amount = int(
+            quote_amount * 
+            market.amm.total_lp_tokens / 
+            market.amm.total_lp_value
+        )
+        assert user_lp_token_amount <= market.amm.lp_tokens, "trying to add too much liquidity"
+        
+        # lock collateral 
+        user.locked_collateral += quote_amount
+        
+        # record other metrics
+        user_lp_position: LPPosition = LPPosition(
+            market_index=market_index,
+            lp_tokens=user_lp_token_amount,
+            last_cumulative_lp_funding=market.amm.cumulative_lp_funding,
+            last_net_position=market.amm.net_base_asset_amount, 
+            last_fee_amount=market.amm.total_fee, # TODO: figure out the earmark shtuff
+        )
+        user.lp_positions[market_index] = user_lp_position
+        
+        # transfer position from amm => user 
+        market.amm.lp_tokens -= user_lp_token_amount
+        
+        return self 
+        
+    def burn(
+        self, 
+        market_index: int, 
+        user_index: int, 
+        lp_token_amount: int, 
+    ):
+        user: User = self.users[user_index]
+        market: Market = self.markets[market_index]
+        lp_position: LPPosition = user.lp_positions[market_index]
+        
+        # unlock their total collateral 
+        user.locked_collateral = 0 
+        
+        # give them portion of fees since deposit 
+        total_lp_tokens = market.amm.total_lp_tokens
+        change_in_fees = market.amm.total_fee - lp_position.last_fee_amount
+        fee_amount = change_in_fees * lp_token_amount / total_lp_tokens  
+        user.collateral += fee_amount
+        market.amm.total_fee -= fee_amount
+        
+        # give them portion of funding since deposit
+        # change_in_funding = market.amm.cumulative_lp_funding - lp_position.
+        
+        # give them the amm position  
+        amm_net_position_change = (
+            lp_position.last_net_position - 
+            market.amm.net_base_asset_amount
+        )
+        
+        if amm_net_position_change != 0: 
+            base_position_amount = (
+                amm_net_position_change
+                * lp_token_amount 
+                / total_lp_tokens
+            )
+            last_funding_rate = {
+                True: market.amm.cumulative_funding_rate_long, 
+                False: market.amm.cumulative_funding_rate_short, 
+            }[base_position_amount > 0]
+                
+            new_position = MarketPosition(
+                market_index=market_index,
+                base_asset_amount=base_position_amount, 
+                quote_asset_amount=0, # TODO - would this be the amount the user deposited? 
+                last_cumulative_funding_rate=last_funding_rate,
+                last_funding_rate_ts=self.time,
+            )
+            user.positions[market_index] = new_position
+            
         return self 
         
     def change_time(self, time_delta):
@@ -107,7 +207,7 @@ class ClearingHouse:
             clamped_price_spread = np.clip(price_spread, -max_price_spread, max_price_spread)
                     
             adjustment = 24 ## 24 slots of funding period time till full payback -- hardcode for now
-            funding_rate = clamped_price_spread * FUNDING_PRECISION / adjustment
+            funding_rate = int(clamped_price_spread * FUNDING_PRECISION / adjustment)
 
             # TODO: cap funding rate if it's too high against the clearing house            
             # # market base asset amount * funding rate 
@@ -125,7 +225,25 @@ class ClearingHouse:
             
             market.amm.last_funding_rate = funding_rate
             market.amm.last_funding_rate_ts = now     
-
+            
+            # TODO: double check compute lp funding 
+            market_net_pos = -market.amm.net_base_asset_amount
+            
+            # TODO: should these be different? 
+            market_funding_rate = 0 
+            if market_net_pos > 0: 
+                market_funding_rate = funding_rate
+            if market_net_pos < 0: 
+                market_funding_rate = funding_rate
+            
+            market_funding_payment = (
+                market_funding_rate 
+                * market_net_pos
+                / MARK_PRICE_PRECISION 
+                / FUNDING_PRECISION
+            )
+            market.amm.cumulative_lp_funding += market_funding_payment
+            
         return self
         
     def settle_funding_rates(
@@ -430,6 +548,12 @@ class ClearingHouse:
         user: User = self.users[user_index]
         market_position: MarketPosition = user.positions[market_index]
         
+        assert user.lp_positions[market_index].lp_tokens == 0, 'Cannot lp and close position'
+        
+        # do nothing 
+        if market_position.base_asset_amount == 0:
+            return self 
+        
         quote_amount, quote_asset_amount_surplus = self.close(
             market, 
             user, 
@@ -460,11 +584,14 @@ class ClearingHouse:
             return self 
         self_copy = copy.deepcopy(self) # incase of reverts 
         now = self.time
-
-
+        
+        user: User = self.users[user_index]
+        market_position: MarketPosition = user.positions[market_index]
         market = self.markets[market_index]
         oracle_price = market.amm.oracle.get_price(now)
-
+                
+        assert user.lp_positions[market_index].lp_tokens == 0, 'Cannot lp and open position'
+                
         budget_cost = max(0, (market.amm.total_fee_minus_distributions/1e6)/2)
         # print('BUDGET_COST', budget_cost)
 
@@ -490,10 +617,7 @@ class ClearingHouse:
                 self.repeg(market, new_peg)        
         
         mark_price_before = calculate_mark_price(market)
-
-        user: User = self.users[user_index]
-        market_position: MarketPosition = user.positions[market_index]
-                        
+        
         # settle funding rates
         self.settle_funding_rates(user_index)
 

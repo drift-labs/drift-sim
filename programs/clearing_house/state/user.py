@@ -34,16 +34,28 @@ from programs.clearing_house.state import *
 
 @dataclass
 class MarketPosition: 
+    market_index: int = 0
     base_asset_amount: int = 0
     quote_asset_amount: int = 0
     last_cumulative_funding_rate: int = 0
     last_funding_rate_ts: int = 0
+    
+@dataclass
+class LPPosition: 
     market_index: int = 0
+    lp_tokens: int = 0
+    last_cumulative_lp_funding: int = 0
+    last_net_position: int = 0
+    last_fee_amount: int = 0
     
 @dataclass
 class User:
     collateral: int
+    locked_collateral: int = 0
+    
     positions: list[MarketPosition] = field(default_factory=list)
+    lp_positions: list[LPPosition] = field(default_factory=list)
+    
     total_fee_paid: int = 0 
     total_fee_rebate: int = 0
     open_orders: int = 0 
@@ -78,6 +90,17 @@ class User:
                 total_pnl += position_pnl
                 
                 add_prefix(position_data, name)        
+                data = data | position_data
+        
+        for lp_position in self.lp_positions:
+            if lp_position.lp_tokens != 0: 
+                name = f"m{lp_position.market_index}"
+                position_data = copy.deepcopy(lp_position.__dict__)
+                position_data.pop("market_index")
+                
+                # TODO: serialize more data -- basically do what the liquidator would do 
+                
+                add_prefix(position_data, name)
                 data = data | position_data
         
         data["total_collateral"] = data["collateral"] + total_pnl
