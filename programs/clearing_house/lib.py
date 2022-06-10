@@ -114,7 +114,7 @@ class ClearingHouse:
         
         return self 
         
-    def burn(
+    def remove_liquidity(
         self, 
         market_index: int, 
         user_index: int, 
@@ -135,7 +135,10 @@ class ClearingHouse:
         market.amm.total_fee -= fee_amount
         
         # give them portion of funding since deposit
-        # change_in_funding = market.amm.cumulative_lp_funding - lp_position.
+        change_in_funding = market.amm.cumulative_lp_funding - lp_position.last_cumulative_lp_funding
+        funding_payment = change_in_funding * lp_token_amount / total_lp_tokens  
+        funding_payment_collateral = funding_payment / AMM_TO_QUOTE_PRECISION_RATIO
+        user.collateral += funding_payment_collateral
         
         # give them the amm position  
         amm_net_position_change = (
@@ -157,7 +160,7 @@ class ClearingHouse:
             new_position = MarketPosition(
                 market_index=market_index,
                 base_asset_amount=base_position_amount, 
-                quote_asset_amount=0, # TODO - would this be the amount the user deposited? 
+                quote_asset_amount=0, 
                 last_cumulative_funding_rate=last_funding_rate,
                 last_funding_rate_ts=self.time,
             )
@@ -202,13 +205,13 @@ class ClearingHouse:
             oracle_twap = update_oracle_twap(market.amm, now)
             
             price_spread = mark_twap - oracle_twap
-            
+                        
             max_price_spread = oracle_twap / 33 # 3% of oracle price
             clamped_price_spread = np.clip(price_spread, -max_price_spread, max_price_spread)
                     
             adjustment = 24 ## 24 slots of funding period time till full payback -- hardcode for now
             funding_rate = int(clamped_price_spread * FUNDING_PRECISION / adjustment)
-
+            
             # TODO: cap funding rate if it's too high against the clearing house            
             # # market base asset amount * funding rate 
             # net_market_position_funding_payment = (
@@ -220,26 +223,24 @@ class ClearingHouse:
             # # market always pays opposite of the users 
             # uncapped_funding_pnl = -net_market_position_funding_payment
             
+            # mark > oracle - want shorts to get paid 
+            # mark - oracle > 0  => funding_rate > 0 
+            # cummulative funding goes up 
+            # +ve base asset position * (+ve) = profit for longs 
             market.amm.cumulative_funding_rate_long += funding_rate
             market.amm.cumulative_funding_rate_short += funding_rate
-            
+                        
             market.amm.last_funding_rate = funding_rate
             market.amm.last_funding_rate_ts = now     
             
             # TODO: double check compute lp funding 
-            market_net_pos = -market.amm.net_base_asset_amount
-            
-            # TODO: should these be different? 
-            market_funding_rate = 0 
-            if market_net_pos > 0: 
-                market_funding_rate = funding_rate
-            if market_net_pos < 0: 
-                market_funding_rate = funding_rate
+            market_net_pos = -market.amm.net_base_asset_amount 
+            market_funding_rate = funding_rate
             
             market_funding_payment = (
                 market_funding_rate 
                 * market_net_pos
-                / MARK_PRICE_PRECISION 
+                / MARK_PRICE_PRECISION
                 / FUNDING_PRECISION
             )
             market.amm.cumulative_lp_funding += market_funding_payment
@@ -267,14 +268,14 @@ class ClearingHouse:
             
             if position.last_cumulative_funding_rate != amm_cumulative_funding_rate:
                 funding_delta = amm_cumulative_funding_rate - position.last_cumulative_funding_rate
-
+                
                 funding_payment = (
                     funding_delta 
                     * position.base_asset_amount
                     / MARK_PRICE_PRECISION 
                     / FUNDING_PRECISION
                 )
-  
+                  
                 # long @ f0 funding rate 
                 # mark < oracle => funding_payment = mark - oracle < 0 => cum_funding decreases 
                 # amm_cum < f0 [bc of decrease]
@@ -567,7 +568,7 @@ class ClearingHouse:
         market.total_mm_fees += quote_asset_amount_surplus
 
         #todo: match rust impl
-        total_fee = exchange_fee + quote_asset_amount_surplus        
+        total_fee = exchange_fee + quote_asset_amount_surplus
         market.amm.total_fee += total_fee
         market.amm.total_fee_minus_distributions += total_fee
 
