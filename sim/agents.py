@@ -5,7 +5,7 @@ from driftpy.math.trade import calculate_trade_slippage, calculate_target_price_
 from driftpy.math.positions import calculate_base_asset_value, calculate_position_pnl
 from driftpy.types import PositionDirection, AssetType, MarketPosition
 from driftpy.math.market import calculate_mark_price, calculate_bid_ask_price
-from driftpy.constants.numeric_constants import AMM_TIMES_PEG_TO_QUOTE_PRECISION_RATIO, MARK_PRICE_PRECISION, PEG_PRECISION
+from driftpy.constants.numeric_constants import AMM_TIMES_PEG_TO_QUOTE_PRECISION_RATIO, MARK_PRICE_PRECISION, PEG_PRECISION, QUOTE_PRECISION
 
 from solana.publickey import PublicKey
 import copy
@@ -44,13 +44,38 @@ def default_user_deposit(
     )
     return event
 
+class LP(Agent):
+    def __init__(
+        self, 
+        lp_start_time: int = 0, 
+        lp_duration: int = -1, 
+        lp_amount: int = 100 * QUOTE_PRECISION, 
+        user_index: int = 0,
+        market_index: int = 0,
+    ) -> None:
+        self.lp_start_time = lp_start_time
+        self.lp_duration = lp_duration
+        self.lp_amount = lp_amount
+        
+        self.user_index = user_index
+        self.market_index = market_index 
+    
+    def run(self, state_i: ClearingHouse) -> Event:
+        pass 
+
 class Arb(Agent):
     ''' arbitrage a single market to oracle'''
-    def __init__(self, intensity: float, market_index: int, user_index: int, lookahead:int = 0):
+    def __init__(
+        self, 
+        intensity: float, 
+        market_index: int, 
+        user_index: int, 
+        lookahead:int = 0
+    ):
         # assert(intensity > 0 and intensity <= 1)
         self.user_index = user_index
-        self.intensity = intensity
         self.market_index = market_index
+        self.intensity = intensity
         self.lookahead = lookahead # default to looking at oracle at 0
         
     def setup(self, state_i: ClearingHouse) -> Event: 
@@ -88,7 +113,6 @@ class Arb(Agent):
         else:
             target_mark = cur_mark
         
-
         unit = AssetType.QUOTE
 
         direction, trade_size, entry_price, target_price = \
