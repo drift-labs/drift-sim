@@ -138,7 +138,8 @@ class TestLP(unittest.TestCase):
         
         # should have made money from fees 
         self.assertGreater(user.collateral, prev_collateral)         
-            
+        self.assertEqual(user.lp_positions[0].lp_tokens, 0)
+
 class TestTWAPs(unittest.TestCase):
     
     def setUp(self):
