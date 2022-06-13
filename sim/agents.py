@@ -15,7 +15,8 @@ import numpy as np
 
 from programs.clearing_house.state import Oracle, User
 from programs.clearing_house.lib import ClearingHouse
-from sim.events import OpenPositionEvent, NullEvent
+from sim.events import *
+from programs.clearing_house.state import User, LPPosition
 
 ''' Agents ABC '''
 
@@ -34,19 +35,46 @@ class LP(Agent):
         self, 
         lp_start_time: int = 0, 
         lp_duration: int = -1, 
-        lp_amount: int = 100 * QUOTE_PRECISION, 
+        deposit_amount: int = 100 * QUOTE_PRECISION, 
         user_index: int = 0,
         market_index: int = 0,
     ) -> None:
         self.lp_start_time = lp_start_time
+        # -1 means perma lp 
         self.lp_duration = lp_duration
-        self.lp_amount = lp_amount
+        self.deposit_amount = deposit_amount
         
         self.user_index = user_index
         self.market_index = market_index 
+        
+        self.has_deposited = False 
+        self.deposit_start = None
     
     def run(self, state_i: ClearingHouse) -> Event:
-        pass 
+        now = state_i.time
+        
+        if not self.has_deposited: 
+            self.deposit_start = now
+            self.has_deposited = True 
+            return addLiquidityEvent(
+                timestamp=now, 
+                market_index=self.market_index, 
+                user_index=self.user_index, 
+                quote_amount=self.deposit_amount
+            )
+
+        if self.lp_duration > 0 and now - self.deposit_start == self.lp_duration:
+            user: User = state_i.users[self.user_index]
+            lp_position: LPPosition = user.lp_positions[self.market_index]
+            return removeLiquidityEvent(
+                now, 
+                self.market_index, 
+                self.user_index, 
+                lp_position.lp_tokens # full burn 
+            )
+        
+        return NullEvent(now)
+        
 
 class Arb(Agent):
     ''' arbitrage a single market to oracle'''
@@ -131,7 +159,7 @@ class Arb(Agent):
         if trade_size == 0:
             event = NullEvent(timestamp=now)
         else: 
-            event = OpenPositionEvent(self.user_index, direction, int(trade_size), now, market_index)
+            event = OpenPositionEvent(now, self.user_index, direction, int(trade_size), market_index)
             print(direction, trade_size/1e6, 'LUNA-PERP @', entry_price, '(',target_price/1e10,')')
 
 
@@ -161,7 +189,7 @@ class Noise(Agent):
         if (now % every_x_minutes) < every_x_minutes - 1:
             return NullEvent(timestamp=now)                                                          
 
-        event = OpenPositionEvent(self.user_index, direction, trade_size, now, market_index)
+        event = OpenPositionEvent(now, self.user_index, direction, trade_size, market_index)
         return event
 
 class ArbFunding(Agent):
@@ -180,7 +208,6 @@ class ArbFunding(Agent):
 
         now = state_i.time   
 
-
         market = state_i.markets[market_index]
         oracle: Oracle = market.amm.oracle
         oracle_price = oracle.get_price(now)
@@ -198,9 +225,6 @@ class ArbFunding(Agent):
         else:
             slippage = funding_dollar/(ask-oracle_price)
             target = ask*1.0001
-
-        # target = 
-
 
         unit = AssetType.QUOTE
         direction, trade_size, entry_price, target_price = \
@@ -241,7 +265,7 @@ class ArbFunding(Agent):
         if trade_size == 0:
             event = NullEvent(timestamp=now)
         else: 
-            event = OpenPositionEvent(self.user_index, direction, int(trade_size), now, market_index)
+            event = OpenPositionEvent(now, self.user_index, direction, int(trade_size), market_index)
             print(direction, trade_size/1e6, 'LUNA-PERP @', entry_price, '(',target_price/1e10,')')
 
 

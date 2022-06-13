@@ -21,10 +21,13 @@ import numpy as np
 import pandas as pd
 from dataclasses import dataclass, field
 
-
 from programs.clearing_house.state import Oracle, User
 from programs.clearing_house.lib import ClearingHouse
+
+@dataclass
 class Event:     
+    timestamp: int 
+    
     def serialize_parameters(self):
         return json.loads(json.dumps(
                 self, 
@@ -64,7 +67,6 @@ class Event:
     
 @dataclass
 class NullEvent(Event):     
-    timestamp: int 
     _event_name: str = "null"
     
     def run(self, clearing_house: ClearingHouse) -> ClearingHouse:
@@ -74,7 +76,6 @@ class NullEvent(Event):
 class DepositCollateralEvent(Event): 
     user_index: int 
     deposit_amount: int
-    timestamp: int
     
     _event_name: str = "deposit_collateral"
     
@@ -85,12 +86,46 @@ class DepositCollateralEvent(Event):
         )    
         return clearing_house
     
+@dataclass 
+class addLiquidityEvent(Event):
+    market_index: int = 0 
+    user_index: int = 0 
+    quote_amount: int = 0 
+
+    _event_name: str = "add_liquidity"
+
+    def run(self, clearing_house: ClearingHouse) -> ClearingHouse:
+        clearing_house = clearing_house.add_liquidity(
+            self.market_index,
+            self.user_index,
+            self.quote_amount
+        )
+        return clearing_house
+
+
+@dataclass
+class removeLiquidityEvent(Event):
+    market_index: int = 0 
+    user_index: int = 0 
+    lp_token_amount: int = 0 
+
+    _event_name: str = "remove_liquidity"
+    
+    def run(self, clearing_house: ClearingHouse) -> ClearingHouse:
+        clearing_house = clearing_house.remove_liquidity(
+            self.market_index, 
+            self.user_index, 
+            self.lp_token_amount
+        )
+        
+        return clearing_house
+    
+    
 @dataclass
 class OpenPositionEvent(Event): 
     user_index: int 
     direction: str 
     quote_amount: int 
-    timestamp: int 
     market_index: int
     
     _event_name: str = "open_position"
@@ -101,12 +136,12 @@ class OpenPositionEvent(Event):
             "short": PositionDirection.SHORT,
         }[self.direction]
         
-        clearing_house_tp1 = clearing_house.open_position(
+        clearing_house = clearing_house.open_position(
             direction, 
             self.user_index, 
             self.quote_amount, 
             self.market_index
         )
         
-        return clearing_house_tp1
+        return clearing_house
                 

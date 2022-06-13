@@ -166,6 +166,9 @@ class ClearingHouse:
             )
             user.positions[market_index] = new_position
             
+        # burn lp tokens
+        lp_position.lp_tokens -= lp_token_amount
+
         return self 
         
     def change_time(self, time_delta):
