@@ -176,7 +176,6 @@ class DriftSim:
             self.agents = agents
         else:
             self.agents = agents
-
         
         if ch_name is None:
             if clearing_house.name=='':
@@ -221,13 +220,9 @@ class DriftSim:
         simulation_results['clearing_houses'].append(copy.deepcopy(clearing_house))
         clearing_house.change_time(+1)
 
-        # initialize agent users 
-        for i,agent in enumerate(self.agents):        
-            event_i = DepositCollateralEvent(
-                user_index=i, 
-                deposit_amount=10_000_000 * QUOTE_PRECISION, # $10M
-                timestamp=clearing_house.time, 
-            )
+        # setup agents
+        for agent in self.agents:        
+            event_i = agent.setup(clearing_house)
             clearing_house = event_i.run(clearing_house)
             
             simulation_results['events'].append(event_i)

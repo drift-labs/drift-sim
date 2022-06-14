@@ -15,19 +15,34 @@ import numpy as np
 
 from programs.clearing_house.state import Oracle, User
 from programs.clearing_house.lib import ClearingHouse
-from sim.events import OpenPositionEvent, NullEvent
+from sim.events import *
 
 ''' Agents ABC '''
 
 class Agent:
-    def init(self):
+    def __init__(self):
         ''' define params of agent '''
         pass
 
     def run(self, state_i: ClearingHouse) -> Event:
         ''' returns an event '''
         pass
-
+    
+    def setup(self, state_i: ClearingHouse) -> Event: 
+        ''' called once at the start of the simulation '''
+        pass
+    
+def default_user_deposit(
+    user_index: int, 
+    clearing_house: ClearingHouse,
+    deposit_amount:int = 10_000_000,
+) -> Event:
+    event = DepositCollateralEvent(
+        user_index=user_index, 
+        deposit_amount=deposit_amount * QUOTE_PRECISION, # $10M
+        timestamp=clearing_house.time, 
+    )
+    return event
 
 class Arb(Agent):
     ''' arbitrage a single market to oracle'''
@@ -37,6 +52,10 @@ class Arb(Agent):
         self.intensity = intensity
         self.market_index = market_index
         self.lookahead = lookahead # default to looking at oracle at 0
+        
+    def setup(self, state_i: ClearingHouse) -> Event: 
+        event = default_user_deposit(self.user_index, state_i)
+        return event
         
     def run(self, state_i: ClearingHouse) -> Event:
         market_index = self.market_index
@@ -52,7 +71,6 @@ class Arb(Agent):
         target_mark = oracle.get_price(now + self.lookahead)
         target_mark = (target_mark - cur_mark) * intensity + cur_mark # only arb 1% of gap?
         # print(now, market.amm.peg_multiplier, calculate_mark_price_amm(market.amm), cur_mark, target_mark)
-
 
         # print(cur_mark, target_mark)
 
@@ -127,6 +145,10 @@ class Noise(Agent):
         self.market_index = market_index
         self.lookahead = lookahead # default to looking at oracle at 0 
         self.size = size
+        
+    def setup(self, state_i: ClearingHouse) -> Event: 
+        event = default_user_deposit(self.user_index, state_i)
+        return event
 
     def run(self, state_i: ClearingHouse) -> Event:
         market_index = self.market_index
@@ -153,13 +175,16 @@ class ArbFunding(Agent):
         self.market_index = market_index
         self.lookahead = lookahead # default to looking at oracle at 0
         
+    def setup(self, state_i: ClearingHouse) -> Event: 
+        event = default_user_deposit(self.user_index, state_i)
+        return event
+        
     def run(self, state_i: ClearingHouse) -> Event:
         market_index = self.market_index
         user_index = self.user_index
         intensity = self.intensity
 
         now = state_i.time   
-
 
         market = state_i.markets[market_index]
         oracle: Oracle = market.amm.oracle
@@ -178,9 +203,6 @@ class ArbFunding(Agent):
         else:
             slippage = funding_dollar/(ask-oracle_price)
             target = ask*1.0001
-
-        # target = 
-
 
         unit = AssetType.QUOTE
         direction, trade_size, entry_price, target_price = \
