@@ -110,7 +110,7 @@ class ClearingHouse:
             lp_tokens=user_lp_token_amount,
             last_cumulative_lp_funding=market.amm.cumulative_lp_funding,
             last_net_position=market.amm.net_base_asset_amount, 
-            last_fee_amount=market.amm.total_fee, # TODO: figure out the earmark shtuff
+            last_total_fee_minus_distributions=market.amm.total_fee_minus_distributions, # TODO: figure out the earmark shtuff
             last_quote_asset_reserve_amount=market.amm.quote_asset_reserve,
         )
         user.lp_positions[market_index] = user_lp_position
@@ -119,7 +119,6 @@ class ClearingHouse:
         market.amm.lp_tokens -= user_lp_token_amount
         
         return self 
-    
     
     def settle_lp(
         self, 
@@ -150,10 +149,10 @@ class ClearingHouse:
         total_lp_tokens = market.amm.total_lp_tokens
 
         # give them portion of fees since deposit 
-        change_in_fees = market.amm.total_fee - lp_position.last_fee_amount
+        change_in_fees = market.amm.total_fee_minus_distributions - lp_position.last_total_fee_minus_distributions
         fee_amount = change_in_fees * lp_token_amount / total_lp_tokens  
         user.collateral += fee_amount
-        market.amm.total_fee -= fee_amount
+        market.amm.total_fee_minus_distributions -= fee_amount
         
         # give them portion of funding since deposit
         change_in_funding = (
@@ -208,7 +207,7 @@ class ClearingHouse:
             user.positions[market_index] = new_position
         
         # update the lp position 
-        lp_position.last_fee_amount = market.amm.total_fee  
+        lp_position.last_total_fee_minus_distributions = market.amm.total_fee_minus_distributions  
         lp_position.last_cumulative_lp_funding = market.amm.cumulative_lp_funding 
         lp_position.last_net_position = market.amm.net_base_asset_amount 
         lp_position.last_quote_asset_reserve_amount = market.amm.quote_asset_reserve 
