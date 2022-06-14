@@ -91,6 +91,52 @@ class LP(Agent):
         return NullEvent(now)
         
 
+class LP(Agent):
+    def __init__(
+        self, 
+        lp_start_time: int = 0, 
+        lp_duration: int = -1, 
+        deposit_amount: int = 100 * QUOTE_PRECISION, 
+        user_index: int = 0,
+        market_index: int = 0,
+    ) -> None:
+        self.lp_start_time = lp_start_time
+        # -1 means perma lp 
+        self.lp_duration = lp_duration
+        self.deposit_amount = deposit_amount
+        
+        self.user_index = user_index
+        self.market_index = market_index 
+        
+        self.has_deposited = False 
+        self.deposit_start = None
+    
+    def run(self, state_i: ClearingHouse) -> Event:
+        now = state_i.time
+        
+        if (now == self.lp_start_time) or (now > self.lp_start_time and not self.has_deposited): 
+            self.deposit_start = now
+            self.has_deposited = True 
+            return addLiquidityEvent(
+                timestamp=now, 
+                market_index=self.market_index, 
+                user_index=self.user_index, 
+                quote_amount=self.deposit_amount
+            )
+
+        if self.lp_duration > 0 and now - self.deposit_start == self.lp_duration:
+            user: User = state_i.users[self.user_index]
+            lp_position: LPPosition = user.lp_positions[self.market_index]
+            return removeLiquidityEvent(
+                now, 
+                self.market_index, 
+                self.user_index, 
+                lp_position.lp_tokens # full burn 
+            )
+        
+        return NullEvent(now)
+        
+
 class Arb(Agent):
     ''' arbitrage a single market to oracle'''
     def __init__(
