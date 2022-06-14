@@ -156,9 +156,12 @@ class ClearingHouse:
         market.amm.total_fee -= fee_amount
         
         # give them portion of funding since deposit
-        change_in_funding = market.amm.cumulative_lp_funding - lp_position.last_cumulative_lp_funding
+        change_in_funding = (
+            market.amm.cumulative_lp_funding 
+            - lp_position.last_cumulative_lp_funding  
+        ) / AMM_TO_QUOTE_PRECISION_RATIO # in quote 
         funding_payment = change_in_funding * lp_token_amount / total_lp_tokens  
-        funding_payment_collateral = funding_payment / AMM_TO_QUOTE_PRECISION_RATIO
+        funding_payment_collateral = funding_payment 
         user.collateral += funding_payment_collateral
         
         # give them the amm position  
@@ -276,8 +279,8 @@ class ClearingHouse:
                     next_update_wait = next_update_wait - funding_period
         
         if time_since_last_update >= next_update_wait:
-            mark_twap = update_mark_twap(market.amm, now)
-            oracle_twap = update_oracle_twap(market.amm, now)
+            mark_twap = update_mark_twap(market.amm, now) # not MARK_PRICE
+            oracle_twap = update_oracle_twap(market.amm, now) # not MARK_PRICE
             
             price_spread = mark_twap - oracle_twap
                         
@@ -287,35 +290,20 @@ class ClearingHouse:
             adjustment = 24 ## 24 slots of funding period time till full payback -- hardcode for now
             funding_rate = int(clamped_price_spread * FUNDING_PRECISION / adjustment)
             
-            # TODO: cap funding rate if it's too high against the clearing house            
-            # # market base asset amount * funding rate 
-            # net_market_position_funding_payment = (
-            #     market.net_base_asset_amount * funding_rate 
-            #     / MARK_PRICE_PRECISION 
-            #     / FUNDING_PRECISION
-            #     / AMM_TO_QUOTE_PRECISION_RATIO
-            # )
-            # # market always pays opposite of the users 
-            # uncapped_funding_pnl = -net_market_position_funding_payment
-            
-            # mark > oracle - want shorts to get paid 
-            # mark - oracle > 0  => funding_rate > 0 
-            # cummulative funding goes up 
-            # +ve base asset position * (+ve) = profit for longs 
             market.amm.cumulative_funding_rate_long += funding_rate
             market.amm.cumulative_funding_rate_short += funding_rate
                         
             market.amm.last_funding_rate = funding_rate
             market.amm.last_funding_rate_ts = now     
             
+            # track lp funding 
             # TODO: double check compute lp funding 
-            market_net_pos = -market.amm.net_base_asset_amount 
-            market_funding_rate = funding_rate
-            
+            market_net_position = -market.amm.net_base_asset_amount # AMM_RSERVE_PRE
+            market_funding_rate = funding_rate # FUNDING_PRECISION 
+        
             market_funding_payment = (
                 market_funding_rate 
-                * market_net_pos
-                / MARK_PRICE_PRECISION
+                * market_net_position 
                 / FUNDING_PRECISION
             )
             market.amm.cumulative_lp_funding += market_funding_payment
