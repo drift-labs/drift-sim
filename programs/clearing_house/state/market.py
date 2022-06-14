@@ -41,8 +41,6 @@ class AMM:
     
     # liquidity providing 
     total_lp_tokens: int = 0  
-    total_lp_value: int = 0
-     
     lp_tokens: int = 0
     cumulative_lp_funding: int = 0 
     
@@ -67,7 +65,7 @@ class AMM:
     last_mark_price_twap_ts: int = 0
 
     # market making
-    net_base_asset_amount: int = 0 #net user position
+    net_base_asset_amount: int = 0 # net user position
     base_spread: int = 0
     mark_std: int = 0
     buy_intensity: int = 0
