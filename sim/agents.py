@@ -68,7 +68,7 @@ class LP(Agent):
     def run(self, state_i: ClearingHouse) -> Event:
         now = state_i.time
         
-        if not self.has_deposited: 
+        if (now == self.lp_start_time) or (now > self.lp_start_time and not self.has_deposited): 
             self.deposit_start = now
             self.has_deposited = True 
             return addLiquidityEvent(
