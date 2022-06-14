@@ -47,6 +47,7 @@ class LPPosition:
     last_cumulative_lp_funding: int = 0
     last_net_position: int = 0
     last_fee_amount: int = 0
+    last_quote_asset_reserve_amount: int = 0
     
 @dataclass
 class User:

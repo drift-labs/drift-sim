@@ -87,13 +87,15 @@ class ClearingHouse:
         assert user.collateral >= quote_amount, "Not enough collateral to add liquidity"
         
         # compute lp token amount for a given quote amount
-        # amm: lptokens = 100, total_lp_value = 100 
-        # user: deposits 50 value => 50 * [100 / 100] = 50 lp tokens 
+        # deposit / 2 / peg 
         user_lp_token_amount = int(
-            quote_amount * 
-            market.amm.total_lp_tokens / 
-            market.amm.total_lp_value
+            quote_amount 
+            / 2 
+            / (market.amm.peg_multiplier / PEG_PRECISION)
+            * AMM_TO_QUOTE_PRECISION_RATIO
         )
+        # print('lp tokens', user_lp_token_amount, 'total tokens', market.amm.lp_tokens, 'ratio', user_lp_token_amount / market.amm.lp_tokens)
+        
         assert user_lp_token_amount <= market.amm.lp_tokens, "trying to add too much liquidity"
         
         # lock collateral 
@@ -106,6 +108,7 @@ class ClearingHouse:
             last_cumulative_lp_funding=market.amm.cumulative_lp_funding,
             last_net_position=market.amm.net_base_asset_amount, 
             last_fee_amount=market.amm.total_fee, # TODO: figure out the earmark shtuff
+            last_quote_asset_reserve_amount=market.amm.quote_asset_reserve,
         )
         user.lp_positions[market_index] = user_lp_position
         
@@ -126,9 +129,9 @@ class ClearingHouse:
         
         # unlock their total collateral 
         user.locked_collateral = 0 
-        
-        # give them portion of fees since deposit 
         total_lp_tokens = market.amm.total_lp_tokens
+                
+        # give them portion of fees since deposit 
         change_in_fees = market.amm.total_fee - lp_position.last_fee_amount
         fee_amount = change_in_fees * lp_token_amount / total_lp_tokens  
         user.collateral += fee_amount
@@ -152,22 +155,39 @@ class ClearingHouse:
                 * lp_token_amount 
                 / total_lp_tokens
             )
+
+            amm_quote_position_change = (
+                lp_position.last_quote_asset_reserve_amount - 
+                market.amm.quote_asset_reserve
+            ) / AMM_TO_QUOTE_PRECISION_RATIO
+
+            quote_position_amount = int(
+                amm_quote_position_change
+                * lp_token_amount
+                / total_lp_tokens
+            )
+
             last_funding_rate = {
                 True: market.amm.cumulative_funding_rate_long, 
                 False: market.amm.cumulative_funding_rate_short, 
             }[base_position_amount > 0]
-                
+
+            market.amm.base_asset_reserve -= base_position_amount
+            market.amm.quote_asset_reserve += quote_position_amount * AMM_TO_QUOTE_PRECISION_RATIO
+            market.amm.net_base_asset_amount += base_position_amount
+
             new_position = MarketPosition(
                 market_index=market_index,
                 base_asset_amount=base_position_amount, 
-                quote_asset_amount=0, 
+                quote_asset_amount=abs(quote_position_amount), 
                 last_cumulative_funding_rate=last_funding_rate,
                 last_funding_rate_ts=self.time,
             )
             user.positions[market_index] = new_position
             
-        # burn lp tokens
+        # burn lp tokens to the AMM
         lp_position.lp_tokens -= lp_token_amount
+        market.amm.lp_tokens += lp_token_amount
 
         return self 
         
