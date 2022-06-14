@@ -24,9 +24,9 @@ import pandas as pd
 import unittest
 
 #%%
-def default_set_up(self, n_users=1):
+def default_set_up(self, n_users=1, default_collateral=1000):
     length = 10 
-    self.default_collateral = 1_000 * QUOTE_PRECISION    
+    self.default_collateral = default_collateral * QUOTE_PRECISION    
     self.funding_period = 60 # every 60 ts 
     
     self.prices = [.5] * length # .5$ oracle 
@@ -54,10 +54,11 @@ def default_set_up(self, n_users=1):
             )        
         )
 
+#%%
 class TestLP(unittest.TestCase):
     
     def setUp(self):
-        default_set_up(self, n_users=2) 
+        default_set_up(self, n_users=2, default_collateral=10_000_000) 
         
     def test_deposit_remove_liquidity(self):
         ch = self.clearing_house 
@@ -139,6 +140,64 @@ class TestLP(unittest.TestCase):
         # should have made money from fees 
         self.assertGreater(user.collateral, prev_collateral)         
         self.assertEqual(user.lp_positions[0].lp_tokens, 0)
+        
+    def test_full_lp(self):
+        ch = self.clearing_house
+        market = ch.markets[0]
+        lp = ch.users[0]
+        user = ch.users[1]
+ 
+        peg = market.amm.peg_multiplier / PEG_PRECISION
+        sqrt_k = market.amm.sqrt_k / 1e13
+        full_amm_position_quote = sqrt_k * peg * 2 * 1e6
+        
+        ch = ch.add_liquidity(
+            0, 0, full_amm_position_quote
+        )
+        
+        # user takes all of amm's tokens
+        self.assertEqual(ch.markets[0].amm.lp_tokens, 0)
+        
+        # new user goes long 
+        ch = ch.open_position(
+            PositionDirection.LONG, 
+            1, 
+            10_000 * QUOTE_PRECISION, 
+            0
+        )
+        
+        # removes lp 
+        ch = ch.remove_liquidity(
+            0, 0, lp.lp_positions[0].lp_tokens
+        )
+        
+        user_position = user.positions[0]
+        lp_position = lp.positions[0]
+        
+        self.assertEqual(
+            lp_position.quote_asset_amount,
+            user_position.quote_asset_amount
+        )
+        self.assertEqual(
+            lp_position.base_asset_amount,
+            -user_position.base_asset_amount
+        )
+        
+        # close LP
+        ch = ch.close_position(0, 0)
+        # close user
+        ch = ch.close_position(1, 0)
+                
+        # market is now balanced
+        self.assertEqual(
+            market.amm.net_base_asset_amount,
+            0
+        )
+        self.assertEqual(
+            market.amm.base_asset_reserve,
+            market.amm.quote_asset_reserve,
+        )
+        
 
 class TestTWAPs(unittest.TestCase):
     

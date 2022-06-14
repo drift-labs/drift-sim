@@ -106,21 +106,25 @@ class AMM:
             self.quote_asset_reserve, 
             self.peg_multiplier
         )
-
+        
         if self.base_asset_reserve != self.quote_asset_reserve:
             self.sqrt_k = int((
                 self.base_asset_reserve/1e13 * self.quote_asset_reserve/1e13
             ) ** .5) * 1e13
         else:
             self.sqrt_k = self.base_asset_reserve
-            
-        # 1 token per sqrt k 
-        self.lp_tokens = self.quote_asset_reserve
-        self.total_lp_tokens = self.quote_asset_reserve
-        self.total_lp_value = self.quote_asset_reserve
         
-        self.bid_price_before = calculate_bid_price_amm(self, oracle_price) #* MARK_PRICE_PRECISION
-        self.ask_price_before = calculate_ask_price_amm(self, oracle_price) #* MARK_PRICE_PRECISION
+        self.total_lp_tokens = self.sqrt_k
+        self.lp_tokens = self.total_lp_tokens # amm gets it all at start 
+        
+        # # TODO 1 token per sqrt k 
+        # reserves_in_quote = self.quote_asset_reserve / 1e13 * QUOTE_PRECISION
+        # self.lp_tokens = reserves_in_quote
+        # self.total_lp_tokens = reserves_in_quote
+        # self.total_lp_value = reserves_in_quote
+        
+        self.bid_price_before = calculate_bid_price_amm(self, oracle_price)
+        self.ask_price_before = calculate_ask_price_amm(self, oracle_price)
         self.last_ask_price_twap = mark_price
         self.last_bid_price_twap = mark_price
         self.last_mark_price_twap = mark_price
