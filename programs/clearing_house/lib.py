@@ -71,6 +71,9 @@ class ClearingHouse:
         
         return self 
     
+    
+    ## adds quote amount to take on the AMM's position (virtually) and have 
+    ## a proportion of the future fees earned -- tracked by a lp_token
     def add_liquidity(
         self, 
         market_index: int, 
@@ -116,21 +119,36 @@ class ClearingHouse:
         market.amm.lp_tokens -= user_lp_token_amount
         
         return self 
-        
-    def remove_liquidity(
+    
+    
+    def settle_lp(
         self, 
         market_index: int, 
         user_index: int, 
-        lp_token_amount: int, 
     ):
         user: User = self.users[user_index]
         market: Market = self.markets[market_index]
         lp_position: LPPosition = user.lp_positions[market_index]
         
-        # unlock their total collateral 
-        user.locked_collateral = 0 
+        self.settle_lp_tokens(
+            market, 
+            user, 
+            lp_position.lp_tokens # settle the full amount 
+        )
+    
+    ## controller function 
+    ## converts the current virtual lp position into a real position 
+    ## without burning lp tokens 
+    def settle_lp_tokens(
+        self, 
+        market: Market, 
+        user: User, 
+        lp_token_amount: int, 
+    ):
+        market_index = market.market_index
+        lp_position: LPPosition = user.lp_positions[market_index]
         total_lp_tokens = market.amm.total_lp_tokens
-                
+
         # give them portion of fees since deposit 
         change_in_fees = market.amm.total_fee - lp_position.last_fee_amount
         fee_amount = change_in_fees * lp_token_amount / total_lp_tokens  
@@ -172,6 +190,7 @@ class ClearingHouse:
                 False: market.amm.cumulative_funding_rate_short, 
             }[base_position_amount > 0]
 
+            # TODO maybe dont do this unless burning?
             market.amm.base_asset_reserve -= base_position_amount
             market.amm.quote_asset_reserve += quote_position_amount * AMM_TO_QUOTE_PRECISION_RATIO
             market.amm.net_base_asset_amount += base_position_amount
@@ -184,7 +203,40 @@ class ClearingHouse:
                 last_funding_rate_ts=self.time,
             )
             user.positions[market_index] = new_position
-            
+        
+        # update the lp position 
+        lp_position.last_fee_amount = market.amm.total_fee  
+        lp_position.last_cumulative_lp_funding = market.amm.cumulative_lp_funding 
+        lp_position.last_net_position = market.amm.net_base_asset_amount 
+        lp_position.last_quote_asset_reserve_amount = market.amm.quote_asset_reserve 
+    
+    
+    ## burns the lp tokens, earns fees+funding, 
+    ## and takes on the AMM's position (for realz)
+    def remove_liquidity(
+        self, 
+        market_index: int, 
+        user_index: int, 
+        lp_token_amount: int, 
+    ):
+        user: User = self.users[user_index]
+        market: Market = self.markets[market_index]
+        lp_position: LPPosition = user.lp_positions[market_index]
+        
+        assert lp_token_amount <= lp_position.lp_tokens, "trying to remove too much liquidity"
+        
+        # settle them 
+        self.settle_lp_tokens(
+            market, 
+            user, 
+            lp_token_amount
+        )
+        
+        # unlock a portion of their collateral  
+        total_lp_tokens = market.amm.total_lp_tokens
+        unlock_amount = user.locked_collateral * lp_token_amount / total_lp_tokens
+        user.locked_collateral -= unlock_amount 
+
         # burn lp tokens to the AMM
         lp_position.lp_tokens -= lp_token_amount
         market.amm.lp_tokens += lp_token_amount
