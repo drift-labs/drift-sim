@@ -76,13 +76,15 @@ class NullEvent(Event):
 class DepositCollateralEvent(Event): 
     user_index: int 
     deposit_amount: int
+    username: str = "u"
     
     _event_name: str = "deposit_collateral"
     
     def run(self, clearing_house: ClearingHouse) -> ClearingHouse:
         clearing_house = clearing_house.deposit_user_collateral(
             self.user_index, 
-            self.deposit_amount
+            self.deposit_amount, 
+            name=self.username
         )    
         return clearing_house
     

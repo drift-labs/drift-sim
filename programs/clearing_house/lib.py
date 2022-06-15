@@ -43,6 +43,7 @@ class ClearingHouse:
     markets: list[Market]
     fee_structure: FeeStructure
     users: dict = field(default_factory=dict)
+    usernames: dict = field(default_factory=dict)
     time: int = 0 
     name: str = ''
     
@@ -53,7 +54,8 @@ class ClearingHouse:
     def deposit_user_collateral(
         self,
         user_index, 
-        collateral_amount
+        collateral_amount, 
+        name='u'
     ):
         # initialize user if not already 
         if user_index not in self.users: 
@@ -62,8 +64,9 @@ class ClearingHouse:
             self.users[user_index] = User(
                 collateral=0, 
                 positions=market_positions, 
-                lp_positions=lp_positions
+                lp_positions=lp_positions, 
             )
+            self.usernames[user_index] = f"{name}{user_index}"
 
         user = self.users[user_index]
         user.collateral += collateral_amount
@@ -703,6 +706,7 @@ class ClearingHouse:
         # check if meets margin requirements -- if not revert 
         fails_margin_requirement = self.check_fails_margin_requirements(user)
         if fails_margin_requirement: 
+            print(f'WARNING: u{user_index} margin requirement not met, reverting...')
             return self_copy
             
         # apply user fee
@@ -749,7 +753,7 @@ class ClearingHouse:
             
         # serialize users 
         for user_index in self.users.keys():
-            prefix = f"u{user_index}" # u0 = 0th user
+            prefix = self.usernames[user_index]
             user = self.users[user_index]
             user_data = user.to_json(self)
             add_prefix(user_data, prefix)
