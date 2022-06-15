@@ -109,9 +109,9 @@ class ClearingHouse:
             market_index=market_index,
             lp_tokens=user_lp_token_amount,
             last_cumulative_lp_funding=market.amm.cumulative_lp_funding,
-            last_net_position=market.amm.net_base_asset_amount, 
+            last_net_base_asset_amount=market.amm.net_base_asset_amount, 
             last_total_fee_minus_distributions=market.amm.total_fee_minus_distributions, # TODO: figure out the earmark shtuff
-            last_quote_asset_reserve_amount=market.amm.quote_asset_reserve,
+            last_quote_asset_reserve=market.amm.quote_asset_reserve,
         )
         user.lp_positions[market_index] = user_lp_position
         
@@ -165,7 +165,7 @@ class ClearingHouse:
         
         # give them the amm position  
         amm_net_position_change = (
-            lp_position.last_net_position - 
+            lp_position.last_net_base_asset_amount - 
             market.amm.net_base_asset_amount
         )
         
@@ -177,7 +177,7 @@ class ClearingHouse:
             )
 
             amm_quote_position_change = (
-                lp_position.last_quote_asset_reserve_amount - 
+                lp_position.last_quote_asset_reserve - 
                 market.amm.quote_asset_reserve
             ) / AMM_TO_QUOTE_PRECISION_RATIO
 
@@ -209,9 +209,8 @@ class ClearingHouse:
         # update the lp position 
         lp_position.last_total_fee_minus_distributions = market.amm.total_fee_minus_distributions  
         lp_position.last_cumulative_lp_funding = market.amm.cumulative_lp_funding 
-        lp_position.last_net_position = market.amm.net_base_asset_amount 
-        lp_position.last_quote_asset_reserve_amount = market.amm.quote_asset_reserve 
-    
+        lp_position.last_net_base_asset_amount = market.amm.net_base_asset_amount 
+        lp_position.last_quote_asset_reserve = market.amm.quote_asset_reserve 
     
     ## burns the lp tokens, earns fees+funding, 
     ## and takes on the AMM's position (for realz)

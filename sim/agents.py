@@ -36,11 +36,11 @@ class Agent:
 def default_user_deposit(
     user_index: int, 
     clearing_house: ClearingHouse,
-    deposit_amount:int = 10_000_000,
+    deposit_amount:int = 10_000_000 * QUOTE_PRECISION,
 ) -> Event:
     event = DepositCollateralEvent(
         user_index=user_index, 
-        deposit_amount=deposit_amount * QUOTE_PRECISION, # $10M
+        deposit_amount=deposit_amount, # $10M
         timestamp=clearing_house.time, 
     )
     return event
@@ -110,6 +110,15 @@ class LP(Agent):
         
         self.has_deposited = False 
         self.deposit_start = None
+        
+    def setup(self, state_i: ClearingHouse) -> Event: 
+        # deposit amount which will be used as LP 
+        event = default_user_deposit(
+            self.user_index, 
+            state_i,
+            deposit_amount=self.deposit_amount
+        )
+        return event
     
     def run(self, state_i: ClearingHouse) -> Event:
         now = state_i.time
