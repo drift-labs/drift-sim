@@ -79,6 +79,11 @@ class AMM:
     
     minimum_quote_asset_trade_size: int = 10_000_000
 
+    quote_asset_amount_long: int = 0
+    quote_asset_amount_short: int = 0
+    terminal_quote_asset_reserve: int = 0
+
+
     # order filling
 
     # last_taker_mark_price_before: int = 0
@@ -120,6 +125,7 @@ class AMM:
         self.cumulative_funding_rate_short = 0 
         self.last_funding_rate_ts = now
         self.mark_std = 0
+        self.terminal_quote_asset_reserve = self.quote_asset_reserve
 
 @dataclass
 class Market: 
