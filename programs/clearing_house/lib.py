@@ -211,8 +211,10 @@ class ClearingHouse:
         
         if base_amount_acquired > 0:
             market.base_asset_amount_long += base_amount_acquired
+            market.amm.quote_asset_amount_long += quote_amount
         else:
             market.base_asset_amount_short += base_amount_acquired 
+            market.amm.quote_asset_amount_short += quote_amount
 
         market.base_asset_amount += base_amount_acquired
         market.amm.net_base_asset_amount += base_amount_acquired
@@ -266,10 +268,12 @@ class ClearingHouse:
         if market_position.base_asset_amount > 0:
             assert(base_amount_acquired<=0)
             market.base_asset_amount_long += base_amount_acquired
+            market.amm.quote_asset_amount_long -= quote_amount
         else:
             assert(base_amount_acquired>=0)
             market.base_asset_amount_short += base_amount_acquired 
-        
+            market.amm.quote_asset_amount_short -= quote_amount
+
         market.base_asset_amount += base_amount_acquired
         market.amm.net_base_asset_amount += base_amount_acquired
         
@@ -378,8 +382,11 @@ class ClearingHouse:
 
         if market_position.base_asset_amount > 0:
             market.base_asset_amount_long -= market_position.base_asset_amount
+            market.amm.quote_asset_amount_long -= quote_amount_acquired
         else:
             market.base_asset_amount_short -= market_position.base_asset_amount 
+            market.amm.quote_asset_amount_short -= quote_amount_acquired
+
 
         market.base_asset_amount -= market_position.base_asset_amount
         market.amm.net_base_asset_amount -= market_position.base_asset_amount
@@ -464,8 +471,10 @@ class ClearingHouse:
 
         market = self.markets[market_index]
         oracle_price = market.amm.oracle.get_price(now)
+        mark_price_before = calculate_mark_price(market)
 
-        budget_cost = max(0, (market.amm.total_fee_minus_distributions/1e6)/2)
+        fee_pool = (market.amm.total_fee_minus_distributions/1e6) - (market.amm.total_fee/1e6)/2
+        budget_cost = max(0, fee_pool)
         # print('BUDGET_COST', budget_cost)
 
         if 'PreFreePeg' in market.amm.strategies:
@@ -480,6 +489,7 @@ class ClearingHouse:
             market.amm.quote_asset_reserve *= quote_scale
             market.amm.peg_multiplier = new_peg  
             market.amm.sqrt_k = np.sqrt(market.amm.base_asset_reserve * market.amm.quote_asset_reserve)
+            market.amm.terminal_quote_asset_reserve = market.amm.sqrt_k**2 / (market.amm.base_asset_reserve+market.amm.net_base_asset_amount)
             market.amm.total_fee_minus_distributions -= int(freepeg_cost*1e6)
             # print('new price:', calculate_mark_price(market))
             # print('post fpeg:', market.amm.base_asset_reserve, market.amm.quote_asset_reserve)
@@ -489,7 +499,8 @@ class ClearingHouse:
                 print('repegging', market.amm.peg_multiplier, '->', new_peg)
                 self.repeg(market, new_peg)        
         
-        mark_price_before = calculate_mark_price(market)
+        mark_price_before_2 = calculate_mark_price(market)
+        update_mark_price_std(market.amm, self.time, abs(mark_price_before-mark_price_before_2))
 
         user: User = self.users[user_index]
         market_position: MarketPosition = user.positions[market_index]
@@ -539,7 +550,6 @@ class ClearingHouse:
         self.update_funding_rate(market_index)
 
         price_change = mark_price_before - mark_price_after
-        update_mark_price_std(market.amm, self.time, price_change)
         
         return self 
     
