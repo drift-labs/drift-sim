@@ -156,10 +156,10 @@ class TestLP(unittest.TestCase):
             market.amm.net_base_asset_amount,
             0
         )
-        self.assertEqual(
-            market.amm.base_asset_reserve,
-            market.amm.quote_asset_reserve,
-        )
+        # self.assertEqual(
+        #     market.amm.base_asset_reserve,
+        #     market.amm.quote_asset_reserve,
+        # )
     
     def test_half_lp(self):
         self._test_n_percent_lp(0.5)
