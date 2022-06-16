@@ -142,46 +142,9 @@ class TestLP(unittest.TestCase):
         self.assertEqual(user.lp_positions[0].lp_tokens, 0)
         
     def test_full_lp(self):
-        ch = self.clearing_house
-        market = ch.markets[0]
-        lp = ch.users[0]
-        user = ch.users[1]
- 
-        peg = market.amm.peg_multiplier / PEG_PRECISION
-        sqrt_k = market.amm.sqrt_k / 1e13
-        full_amm_position_quote = sqrt_k * peg * 2 * 1e6
-        
-        ch = ch.add_liquidity(
-            0, 0, full_amm_position_quote
-        )
-        
-        # user takes all of amm's tokens
-        self.assertEqual(ch.markets[0].amm.lp_tokens, 0)
-        
-        # new user goes long 
-        ch = ch.open_position(
-            PositionDirection.LONG, 
-            1, 
-            10_000 * QUOTE_PRECISION, 
-            0
-        )
-        
-        # removes lp 
-        ch = ch.remove_liquidity(
-            0, 0, lp.lp_positions[0].lp_tokens
-        )
-        
-        user_position = user.positions[0]
-        lp_position = lp.positions[0]
-        
-        self.assertEqual(
-            lp_position.quote_asset_amount,
-            user_position.quote_asset_amount
-        )
-        self.assertEqual(
-            lp_position.base_asset_amount,
-            -user_position.base_asset_amount
-        )
+        ch = self.clearing_house 
+        market: Market = self.clearing_house.markets[0]
+        self._test_n_percent_lp(1.0)
         
         # close LP
         ch = ch.close_position(0, 0)
@@ -196,6 +159,88 @@ class TestLP(unittest.TestCase):
         self.assertEqual(
             market.amm.base_asset_reserve,
             market.amm.quote_asset_reserve,
+        )
+    
+    def test_half_lp(self):
+        self._test_n_percent_lp(0.5)
+    
+    def test_twenty_lp(self):
+        self._test_n_percent_lp(0.2)
+    
+    def test_twenty_five_lp(self):
+        self._test_n_percent_lp(0.25)
+        
+    def test_twenty_five_lp(self):
+        self._test_n_percent_lp(0.19)
+        
+    def test_a_lot_lp(self):
+        for p in [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]:
+            self._test_n_percent_lp(p)
+            self.setUp()
+    
+    def _test_n_percent_lp(self, percent):
+        ch = self.clearing_house
+        market: Market = ch.markets[0]
+        lp: LPPosition = ch.users[0]
+        user: User = ch.users[1]
+
+        peg = market.amm.peg_multiplier / PEG_PRECISION
+        sqrt_k = market.amm.sqrt_k / 1e13
+        full_amm_position_quote = sqrt_k * peg * 2 * 1e6
+        percent_amm_position_quote = full_amm_position_quote * percent
+        
+        ch = ch.add_liquidity(
+            0, 0, percent_amm_position_quote
+        )
+        
+        # user has percent of amm's tokens
+        self.assertAlmostEqual(
+            ch.markets[0].amm.lp_tokens / 1e6, 
+            ch.markets[0].amm.total_lp_tokens * (1 - percent) / 1e6, 
+            places=2
+        )
+        self.assertAlmostEqual(
+            lp.lp_positions[0].lp_tokens,
+            ch.markets[0].amm.total_lp_tokens * percent
+        )
+        self.assertAlmostEqual(
+            lp.lp_positions[0].lp_tokens + ch.markets[0].amm.lp_tokens,
+            ch.markets[0].amm.total_lp_tokens
+        )
+        
+        # new user goes long 
+        ch = ch.open_position(
+            PositionDirection.LONG, 
+            1, 
+            10_000 * QUOTE_PRECISION, 
+            0
+        )
+        
+        # removes lp 
+        prev_market_baa = ch.markets[0].amm.net_base_asset_amount
+        amount_should_take = prev_market_baa * percent
+        ch = ch.remove_liquidity(
+            0, 0, lp.lp_positions[0].lp_tokens
+        )
+        
+        user_position = user.positions[0]
+        lp_position = lp.positions[0]
+        
+        self.assertEqual(
+            lp_position.quote_asset_amount / percent,
+            user_position.quote_asset_amount
+        )
+        self.assertAlmostEqual(
+            -lp_position.base_asset_amount / percent / 1e13,
+            user_position.base_asset_amount / 1e13
+        )
+        self.assertAlmostEqual(
+            lp_position.base_asset_amount / 1e13,
+            -amount_should_take / 1e13,
+        )
+        self.assertAlmostEqual(
+            (prev_market_baa - amount_should_take) / 1e13, 
+            ch.markets[0].amm.net_base_asset_amount / 1e13
         )
         
 
