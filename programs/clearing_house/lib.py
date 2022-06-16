@@ -461,12 +461,16 @@ class ClearingHouse:
         self_copy = copy.deepcopy(self) # incase of reverts 
         now = self.time
 
-
         market = self.markets[market_index]
         oracle_price = market.amm.oracle.get_price(now)
 
         budget_cost = max(0, (market.amm.total_fee_minus_distributions/1e6)/2)
         # print('BUDGET_COST', budget_cost)
+        
+        if 'longOnly' in market.amm.strategies:
+            # dont allow user to go short 
+            if direction != PositionDirection.LONG:
+                return self
 
         if 'PreFreePeg' in market.amm.strategies:
             freepeg_cost, base_scale, quote_scale, new_peg = calculate_freepeg_cost(market, oracle_price, budget_cost)
@@ -488,6 +492,8 @@ class ClearingHouse:
             if new_peg != market.amm.peg_multiplier:
                 print('repegging', market.amm.peg_multiplier, '->', new_peg)
                 self.repeg(market, new_peg)        
+        
+        
         
         mark_price_before = calculate_mark_price(market)
 
