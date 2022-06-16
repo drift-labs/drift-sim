@@ -86,6 +86,7 @@ def clearing_house_to_df(x: ClearingHouse):
         user_df['collateral'] = user0.collateral
         user_df['m0_upnl'] = calculate_position_pnl(market, user0.positions[0])
         user_df['total_collateral'] = user_df['collateral'] +  user_df['m0_upnl'] #todo
+        user_df['m0_upnl_noslip'] = (mark_price*user0.positions[0].base_asset_amount/1e13)
         user_df['m0_ufunding'] = calculate_position_funding_pnl(market, user0.positions[0])
         user_df['free_collateral'] = get_free_collateral(user0, x.markets)
         user_df['margin_ratio'] = get_margin_ratio(user0, x.markets)

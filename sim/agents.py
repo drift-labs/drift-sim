@@ -165,9 +165,9 @@ class Arb(Agent):
             )
         
         trade_size = int(abs(trade_size)) # whole numbers only 
-        if trade_size:
-            print('NOW: ', now)
-            print("direction, trade_size, entry_price, target_price:", direction, trade_size, entry_price, target_price)
+        # if trade_size:
+        #     print('NOW: ', now)
+        #     print("direction, trade_size, entry_price, target_price:", direction, trade_size, entry_price, target_price)
         quote_asset_reserve = (
             trade_size 
             * AMM_TIMES_PEG_TO_QUOTE_PRECISION_RATIO 

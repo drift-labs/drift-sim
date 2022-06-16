@@ -173,6 +173,19 @@ class ClearingHouse:
         )
         
         if amm_net_position_change != 0: 
+
+            direction_to_close = {
+                True: SwapDirection.REMOVE,
+                False: SwapDirection.ADD,
+            }[amm_net_position_change > 0]
+            
+            new_quote_asset_reserve, new_base_asset_reserve = calculate_swap_output(
+                abs(amm_net_position_change), 
+                market.amm.base_asset_reserve,
+                direction_to_close,
+                market.amm.sqrt_k
+                )
+
             base_position_amount = (
                 amm_net_position_change
                 * lp_token_amount 
@@ -180,9 +193,9 @@ class ClearingHouse:
             )
 
             amm_quote_position_change = (
-                lp_position.last_quote_asset_reserve - 
+                new_quote_asset_reserve - 
                 market.amm.quote_asset_reserve
-            ) / AMM_TO_QUOTE_PRECISION_RATIO
+            ) * market.amm.peg_multiplier / AMM_TIMES_PEG_TO_QUOTE_PRECISION_RATIO
 
             quote_position_amount = int(
                 amm_quote_position_change
@@ -190,15 +203,16 @@ class ClearingHouse:
                 / total_lp_tokens
             )
 
+            print(amm_quote_position_change, new_quote_asset_reserve/1e13, market.amm.quote_asset_reserve/1e13, market.amm.peg_multiplier/1e3)
+
             last_funding_rate = {
                 True: market.amm.cumulative_funding_rate_long, 
                 False: market.amm.cumulative_funding_rate_short, 
             }[base_position_amount > 0]
 
             # TODO maybe dont do this unless burning?
-            market.amm.base_asset_reserve -= base_position_amount
-            market.amm.quote_asset_reserve += quote_position_amount * AMM_TO_QUOTE_PRECISION_RATIO
-            market.amm.net_base_asset_amount += base_position_amount
+            # market.amm.base_asset_reserve -= base_position_amount
+            # market.amm.quote_asset_reserve += quote_position_amount * AMM_TO_QUOTE_PRECISION_RATIO
 
             new_position = MarketPosition(
                 market_index=market_index,
@@ -207,6 +221,7 @@ class ClearingHouse:
                 last_cumulative_funding_rate=last_funding_rate,
                 last_funding_rate_ts=self.time,
             )
+            print(new_position)
             user.positions[market_index] = new_position
         
         # update the lp position 
@@ -235,7 +250,10 @@ class ClearingHouse:
             user, 
             lp_token_amount
         )
-        
+
+        market_position: MarketPosition = user.positions[market_index]
+        market.amm.net_base_asset_amount += market_position.base_asset_amount
+
         # unlock a portion of their collateral  
         total_lp_tokens = market.amm.total_lp_tokens
         unlock_amount = user.locked_collateral * lp_token_amount / total_lp_tokens

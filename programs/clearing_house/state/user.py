@@ -83,9 +83,16 @@ class User:
                 position_data.pop("market_index")
                 
                 market = clearing_house.markets[position.market_index]
-                
+                mark = calculate_mark_price(market)
                 position_pnl = calculate_position_pnl(market, position)
                 position_data['upnl'] = position_pnl
+                
+                if position.base_asset_amount > 0:
+                    upnl_noslip = mark*position.base_asset_amount/1e13 - position.quote_asset_amount
+                else:
+                    upnl_noslip = position.quote_asset_amount - mark*position.base_asset_amount/1e13
+
+                position_data['upnl_noslip'] = upnl_noslip
                 position_data['ufunding'] = calculate_position_funding_pnl(market, position)
                 
                 total_pnl += position_pnl
