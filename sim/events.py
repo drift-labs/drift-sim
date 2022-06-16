@@ -110,3 +110,19 @@ class OpenPositionEvent(Event):
         
         return clearing_house_tp1
                 
+@dataclass
+class ClosePositionEvent(Event): 
+    user_index: int 
+    timestamp: int 
+    market_index: int
+    
+    _event_name: str = "close_position"
+    
+    def run(self, clearing_house: ClearingHouse) -> ClearingHouse:        
+        clearing_house = clearing_house.close_position(
+            self.user_index, 
+            self.market_index
+        )
+        
+        return clearing_house
+         
