@@ -39,6 +39,11 @@ class AMM:
     sqrt_k: float = 0 
     peg_multiplier: int = 0 
     
+    # liquidity providing 
+    total_lp_tokens: int = 0  
+    lp_tokens: int = 0
+    cumulative_lp_funding: int = 0 
+    
     # funding rates 
     last_funding_rate: int = 0
     last_funding_rate_ts: int = 0
@@ -61,7 +66,7 @@ class AMM:
     last_mark_price_twap_ts: int = 0
 
     # market making
-    net_base_asset_amount: int = 0 #net user position
+    net_base_asset_amount: int = 0 # net user position
     base_spread: int = 0
     mark_std: int = 0
     buy_intensity: int = 0
@@ -91,7 +96,6 @@ class AMM:
 
     def __post_init__(self):
         # self.peg_multiplier = PEG_PRECISION 
-        
         now = 0
         
         oracle_price = self.oracle.get_price(now)
@@ -106,16 +110,25 @@ class AMM:
             self.quote_asset_reserve, 
             self.peg_multiplier
         )
-
-        if self.base_asset_reserve!=self.quote_asset_reserve:
+        
+        if self.base_asset_reserve != self.quote_asset_reserve:
             self.sqrt_k = int((
                 self.base_asset_reserve/1e13 * self.quote_asset_reserve/1e13
             ) ** .5) * 1e13
         else:
             self.sqrt_k = self.base_asset_reserve
         
-        self.bid_price_before = calculate_bid_price_amm(self, oracle_price) #* MARK_PRICE_PRECISION
-        self.ask_price_before = calculate_ask_price_amm(self, oracle_price) #* MARK_PRICE_PRECISION
+        self.total_lp_tokens = self.sqrt_k
+        self.lp_tokens = self.total_lp_tokens # amm gets it all at start 
+        
+        # # TODO 1 token per sqrt k 
+        # reserves_in_quote = self.quote_asset_reserve / 1e13 * QUOTE_PRECISION
+        # self.lp_tokens = reserves_in_quote
+        # self.total_lp_tokens = reserves_in_quote
+        # self.total_lp_value = reserves_in_quote
+        
+        self.bid_price_before = calculate_bid_price_amm(self, oracle_price)
+        self.ask_price_before = calculate_ask_price_amm(self, oracle_price)
         self.last_ask_price_twap = mark_price
         self.last_bid_price_twap = mark_price
         self.last_mark_price_twap = mark_price

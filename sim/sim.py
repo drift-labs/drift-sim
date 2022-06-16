@@ -86,6 +86,7 @@ def clearing_house_to_df(x: ClearingHouse):
         user_df['collateral'] = user0.collateral
         user_df['m0_upnl'] = calculate_position_pnl(market, user0.positions[0])
         user_df['total_collateral'] = user_df['collateral'] +  user_df['m0_upnl'] #todo
+        user_df['m0_upnl_noslip'] = (mark_price*user0.positions[0].base_asset_amount/1e13)
         user_df['m0_ufunding'] = calculate_position_funding_pnl(market, user0.positions[0])
         user_df['free_collateral'] = get_free_collateral(user0, x.markets)
         user_df['margin_ratio'] = get_margin_ratio(user0, x.markets)
@@ -135,6 +136,20 @@ def load_hist_oracle(market, outfile):
     .apply(lambda x: x+1 if x==0 else x).fillna(0).cumsum()
     luna_oracle_df.to_csv(outfile, index=False)
     return luna_oracle_df
+
+def setup_run_info(sim_path, ch_name):
+    os.makedirs(sim_path, exist_ok=True)
+    maintenant = datetime.datetime.utcnow()
+    maintenant_str = maintenant.strftime("%Y/%m/%d %H:%M:%S UTC")
+    git_commit = get_git_revision_short_hash()
+    run_data = {
+        'run_time': maintenant_str, 
+        'git_commit': git_commit,
+        'path': sim_path,
+        'name': ch_name,
+    }
+    with open(os.path.join(sim_path, 'run_info.json'), 'w') as f:
+        json.dump(run_data, f)
 
 class DriftSim:
     def __init__(self, name, clearing_house=None, agents=None, ch_name=None):
@@ -192,18 +207,7 @@ class DriftSim:
         else:
             self.ch_name = name+'/ch'+str(ch_name)
 
-        os.makedirs(self.ch_name, exist_ok=True)
-        maintenant = datetime.datetime.utcnow()
-        maintenant_str = maintenant.strftime("%Y/%m/%d %H:%M:%S UTC")
-        git_commit = get_git_revision_short_hash()
-        run_data = {
-            'run_time': maintenant_str, 
-            'git_commit': git_commit,
-            'path': self.ch_name,
-            'name': ch_name,
-        }
-        with open(os.path.join(self.ch_name, 'run_info.json'), 'w') as f:
-            json.dump(run_data, f)
+        setup_run_info(self.ch_name, self.name)
 
     def run(self, debug=None):
         clearing_house, oracle, agents = self.clearing_house, self.oracle, self.agents
@@ -301,6 +305,18 @@ class DriftSim:
             oracle_df.to_csv(SIM_NAME+"/all_oracle_prices.csv", index=False)
 
         return result_df
+    
+class SimpleDriftSim(DriftSim):
+    def __init__(self, sim_path, clearing_house, agents):
+        self.sim_path = sim_path
+        self.name = sim_path
+        self.ch_name = f"{sim_path}"
+        os.makedirs(self.ch_name, exist_ok=True)
+        
+        self.clearing_house = clearing_house
+        self.agents = agents 
+        self.oracle = clearing_house.markets[0].amm.oracle
+        setup_run_info(sim_path, self.name)
     
 def chunker(seq, size):
     return (seq[pos:pos + size] for pos in range(0, len(seq), size))

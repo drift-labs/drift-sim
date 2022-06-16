@@ -34,16 +34,29 @@ from programs.clearing_house.state import *
 
 @dataclass
 class MarketPosition: 
+    market_index: int = 0
     base_asset_amount: int = 0
     quote_asset_amount: int = 0
     last_cumulative_funding_rate: int = 0
     last_funding_rate_ts: int = 0
+    
+@dataclass
+class LPPosition: 
     market_index: int = 0
+    lp_tokens: int = 0
+    last_total_fee_minus_distributions: int = 0
+    last_cumulative_lp_funding: int = 0
+    last_net_base_asset_amount: int = 0
+    last_quote_asset_reserve: int = 0
     
 @dataclass
 class User:
     collateral: int
+    locked_collateral: int = 0
+    
     positions: list[MarketPosition] = field(default_factory=list)
+    lp_positions: list[LPPosition] = field(default_factory=list)
+    
     total_fee_paid: int = 0 
     total_fee_rebate: int = 0
     open_orders: int = 0 
@@ -70,14 +83,32 @@ class User:
                 position_data.pop("market_index")
                 
                 market = clearing_house.markets[position.market_index]
-                
+                mark = calculate_mark_price(market)
                 position_pnl = calculate_position_pnl(market, position)
                 position_data['upnl'] = position_pnl
+                
+                if position.base_asset_amount > 0:
+                    upnl_noslip = mark*position.base_asset_amount/1e13 - position.quote_asset_amount
+                else:
+                    upnl_noslip = position.quote_asset_amount - mark*position.base_asset_amount/1e13
+
+                position_data['upnl_noslip'] = upnl_noslip
                 position_data['ufunding'] = calculate_position_funding_pnl(market, position)
                 
                 total_pnl += position_pnl
                 
                 add_prefix(position_data, name)        
+                data = data | position_data
+        
+        for lp_position in self.lp_positions:
+            if lp_position.lp_tokens != 0: 
+                name = f"m{lp_position.market_index}"
+                position_data = copy.deepcopy(lp_position.__dict__)
+                position_data.pop("market_index")
+                
+                # TODO: serialize more data -- basically do what the liquidator would do 
+                
+                add_prefix(position_data, name)
                 data = data | position_data
         
         data["total_collateral"] = data["collateral"] + total_pnl

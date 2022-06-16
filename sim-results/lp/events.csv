@@ -1,0 +1,1544 @@
+event_name,timestamp,parameters
+null,0,{}
+deposit_collateral,1,"{""deposit_amount"": 10000000000000, ""user_index"": 0, ""username"": ""arb""}"
+deposit_collateral,2,"{""deposit_amount"": 10000000000000, ""user_index"": 0, ""username"": ""noise""}"
+deposit_collateral,3,"{""deposit_amount"": 103219999999999.98, ""user_index"": 1, ""username"": ""LP""}"
+open_position,4,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 5200227563199, ""user_index"": 0}"
+null,4,{}
+add_liquidity,4,"{""market_index"": 0, ""quote_amount"": 103219999999999.98, ""user_index"": 1}"
+open_position,5,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 982948201527, ""user_index"": 0}"
+null,5,{}
+null,5,{}
+open_position,6,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 194395981133, ""user_index"": 0}"
+null,6,{}
+null,6,{}
+open_position,7,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 38762257736, ""user_index"": 0}"
+null,7,{}
+null,7,{}
+open_position,8,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 4176050393594, ""user_index"": 0}"
+null,8,{}
+null,8,{}
+open_position,9,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 875580913717, ""user_index"": 0}"
+null,9,{}
+null,9,{}
+open_position,10,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 177035748024, ""user_index"": 0}"
+null,10,{}
+null,10,{}
+open_position,11,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 35513921935, ""user_index"": 0}"
+null,11,{}
+null,11,{}
+open_position,12,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 7112759812, ""user_index"": 0}"
+null,12,{}
+null,12,{}
+open_position,13,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 1424089719, ""user_index"": 0}"
+null,13,{}
+null,13,{}
+open_position,14,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 285107152, ""user_index"": 0}"
+null,14,{}
+null,14,{}
+open_position,15,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 325435338005, ""user_index"": 0}"
+null,15,{}
+null,15,{}
+open_position,16,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 64783115759, ""user_index"": 0}"
+null,16,{}
+null,16,{}
+open_position,17,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 12934203332, ""user_index"": 0}"
+null,17,{}
+null,17,{}
+open_position,18,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 2583876457, ""user_index"": 0}"
+null,18,{}
+null,18,{}
+open_position,19,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 544704975799, ""user_index"": 0}"
+null,19,{}
+null,19,{}
+open_position,20,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 108171184742, ""user_index"": 0}"
+null,20,{}
+null,20,{}
+open_position,21,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 21586550589, ""user_index"": 0}"
+null,21,{}
+null,21,{}
+open_position,22,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 4311955498, ""user_index"": 0}"
+null,22,{}
+null,22,{}
+open_position,23,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 861487106, ""user_index"": 0}"
+null,23,{}
+null,23,{}
+open_position,24,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 172123794, ""user_index"": 0}"
+null,24,{}
+null,24,{}
+open_position,25,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 34389800, ""user_index"": 0}"
+null,25,{}
+null,25,{}
+open_position,26,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 14279562966312, ""user_index"": 0}"
+null,26,{}
+null,26,{}
+open_position,27,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 2507851344835, ""user_index"": 0}"
+null,27,{}
+null,27,{}
+open_position,28,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 490469490971, ""user_index"": 0}"
+null,28,{}
+null,28,{}
+open_position,29,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 4034845728247, ""user_index"": 0}"
+null,29,{}
+null,29,{}
+open_position,30,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 837294594196, ""user_index"": 0}"
+null,30,{}
+null,30,{}
+open_position,31,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 168901048311, ""user_index"": 0}"
+null,31,{}
+null,31,{}
+open_position,32,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 33865885868, ""user_index"": 0}"
+null,32,{}
+null,32,{}
+open_position,33,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 6782037094, ""user_index"": 0}"
+null,33,{}
+null,33,{}
+open_position,34,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 1357847577, ""user_index"": 0}"
+null,34,{}
+null,34,{}
+open_position,35,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 3908816145004, ""user_index"": 0}"
+null,35,{}
+null,35,{}
+open_position,36,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 755082624027, ""user_index"": 0}"
+null,36,{}
+null,36,{}
+open_position,37,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 149900934295, ""user_index"": 0}"
+null,37,{}
+null,37,{}
+open_position,38,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 92615785175, ""user_index"": 0}"
+null,38,{}
+null,38,{}
+open_position,39,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 18556248610, ""user_index"": 0}"
+null,39,{}
+null,39,{}
+open_position,40,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 3715545911, ""user_index"": 0}"
+null,40,{}
+null,40,{}
+open_position,41,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 743875758, ""user_index"": 0}"
+null,41,{}
+null,41,{}
+open_position,42,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 148924868, ""user_index"": 0}"
+null,42,{}
+null,42,{}
+null,43,{}
+null,43,{}
+null,43,{}
+open_position,44,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 501880234333, ""user_index"": 0}"
+null,44,{}
+null,44,{}
+open_position,45,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 99852437512, ""user_index"": 0}"
+null,45,{}
+null,45,{}
+open_position,46,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 19933768465, ""user_index"": 0}"
+null,46,{}
+null,46,{}
+open_position,47,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 3982099582, ""user_index"": 0}"
+null,47,{}
+null,47,{}
+open_position,48,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 795596949, ""user_index"": 0}"
+null,48,{}
+null,48,{}
+open_position,49,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 1733438024234, ""user_index"": 0}"
+null,49,{}
+null,49,{}
+open_position,50,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 341436530780, ""user_index"": 0}"
+null,50,{}
+null,50,{}
+open_position,51,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 68028911122, ""user_index"": 0}"
+null,51,{}
+null,51,{}
+open_position,52,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 13584630747, ""user_index"": 0}"
+null,52,{}
+null,52,{}
+open_position,53,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 2713908498, ""user_index"": 0}"
+null,53,{}
+null,53,{}
+open_position,54,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 542226746, ""user_index"": 0}"
+null,54,{}
+null,54,{}
+open_position,55,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 108336550, ""user_index"": 0}"
+null,55,{}
+null,55,{}
+open_position,56,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 21645599, ""user_index"": 0}"
+null,56,{}
+null,56,{}
+open_position,57,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 94488360946, ""user_index"": 0}"
+null,57,{}
+null,57,{}
+open_position,58,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 18931182369, ""user_index"": 0}"
+null,58,{}
+null,58,{}
+open_position,59,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 3790609000, ""user_index"": 0}"
+null,59,{}
+null,59,{}
+open_position,60,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 758903759, ""user_index"": 0}"
+null,60,{}
+null,60,{}
+open_position,61,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 151933360, ""user_index"": 0}"
+null,61,{}
+null,61,{}
+null,62,{}
+null,62,{}
+null,62,{}
+null,63,{}
+null,63,{}
+null,63,{}
+null,64,{}
+null,64,{}
+null,64,{}
+null,65,{}
+null,65,{}
+null,65,{}
+open_position,66,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 335550835240, ""user_index"": 0}"
+null,66,{}
+null,66,{}
+open_position,67,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 67362586983, ""user_index"": 0}"
+null,67,{}
+null,67,{}
+open_position,68,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 13493459714, ""user_index"": 0}"
+null,68,{}
+null,68,{}
+open_position,69,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 2701690171, ""user_index"": 0}"
+null,69,{}
+null,69,{}
+open_position,70,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 540890460, ""user_index"": 0}"
+null,70,{}
+null,70,{}
+open_position,71,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 108286913, ""user_index"": 0}"
+null,71,{}
+null,71,{}
+open_position,72,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 1794941901260, ""user_index"": 0}"
+null,72,{}
+null,72,{}
+open_position,73,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 364812656423, ""user_index"": 0}"
+null,73,{}
+null,73,{}
+open_position,74,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 73261498683, ""user_index"": 0}"
+null,74,{}
+null,74,{}
+open_position,75,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 14676068201, ""user_index"": 0}"
+null,75,{}
+null,75,{}
+open_position,76,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 1116830942027, ""user_index"": 0}"
+null,76,{}
+null,76,{}
+open_position,77,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 221068453711, ""user_index"": 0}"
+null,77,{}
+null,77,{}
+open_position,78,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 44088249040, ""user_index"": 0}"
+null,78,{}
+null,78,{}
+open_position,79,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 8805601997, ""user_index"": 0}"
+null,79,{}
+null,79,{}
+open_position,80,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 2760472456614, ""user_index"": 0}"
+null,80,{}
+null,80,{}
+open_position,81,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 565952471367, ""user_index"": 0}"
+null,81,{}
+null,81,{}
+open_position,82,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 113863953696, ""user_index"": 0}"
+null,82,{}
+null,82,{}
+open_position,83,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 22818249652, ""user_index"": 0}"
+null,83,{}
+null,83,{}
+open_position,84,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 1025855598701, ""user_index"": 0}"
+null,84,{}
+null,84,{}
+open_position,85,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 203161140832, ""user_index"": 0}"
+null,85,{}
+null,85,{}
+open_position,86,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 40520851131, ""user_index"": 0}"
+null,86,{}
+null,86,{}
+open_position,87,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 8093252149, ""user_index"": 0}"
+null,87,{}
+null,87,{}
+open_position,88,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 1616919483, ""user_index"": 0}"
+null,88,{}
+null,88,{}
+open_position,89,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 323056128, ""user_index"": 0}"
+null,89,{}
+null,89,{}
+open_position,90,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 64546257, ""user_index"": 0}"
+null,90,{}
+null,90,{}
+open_position,91,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 12896257, ""user_index"": 0}"
+null,91,{}
+null,91,{}
+open_position,92,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 2576816, ""user_index"": 0}"
+null,92,{}
+null,92,{}
+open_position,93,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 1569154744149, ""user_index"": 0}"
+null,93,{}
+null,93,{}
+open_position,94,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 318491514914, ""user_index"": 0}"
+null,94,{}
+null,94,{}
+open_position,95,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 63941246894, ""user_index"": 0}"
+null,95,{}
+null,95,{}
+open_position,96,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 12808263640, ""user_index"": 0}"
+null,96,{}
+null,96,{}
+open_position,97,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 6693286611794, ""user_index"": 0}"
+null,97,{}
+null,97,{}
+open_position,98,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 4116434302107, ""user_index"": 0}"
+null,98,{}
+null,98,{}
+open_position,99,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 860254466122, ""user_index"": 0}"
+null,99,{}
+null,99,{}
+open_position,100,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 173806842944, ""user_index"": 0}"
+null,100,{}
+null,100,{}
+open_position,101,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 34860827132, ""user_index"": 0}"
+null,101,{}
+null,101,{}
+open_position,102,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 6981740567, ""user_index"": 0}"
+null,102,{}
+null,102,{}
+open_position,103,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 1397848920, ""user_index"": 0}"
+null,103,{}
+null,103,{}
+open_position,104,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 279853600, ""user_index"": 0}"
+null,104,{}
+null,104,{}
+open_position,105,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 56026650, ""user_index"": 0}"
+null,105,{}
+null,105,{}
+null,106,{}
+null,106,{}
+null,106,{}
+open_position,107,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 126705113243, ""user_index"": 0}"
+null,107,{}
+null,107,{}
+open_position,108,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 25281466827, ""user_index"": 0}"
+null,108,{}
+null,108,{}
+open_position,109,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 5049874992, ""user_index"": 0}"
+null,109,{}
+null,109,{}
+open_position,110,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 1008910618, ""user_index"": 0}"
+null,110,{}
+null,110,{}
+open_position,111,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 201578270, ""user_index"": 0}"
+null,111,{}
+null,111,{}
+open_position,112,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 2310184324610, ""user_index"": 0}"
+null,112,{}
+null,112,{}
+open_position,113,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 474490850404, ""user_index"": 0}"
+null,113,{}
+null,113,{}
+open_position,114,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 95499913338, ""user_index"": 0}"
+null,114,{}
+null,114,{}
+open_position,115,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 19139621666, ""user_index"": 0}"
+null,115,{}
+null,115,{}
+open_position,116,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 3832577424, ""user_index"": 0}"
+null,116,{}
+null,116,{}
+open_position,117,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 767315290, ""user_index"": 0}"
+null,117,{}
+null,117,{}
+open_position,118,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 153617638, ""user_index"": 0}"
+null,118,{}
+null,118,{}
+open_position,119,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 30754252, ""user_index"": 0}"
+null,119,{}
+null,119,{}
+open_position,120,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 1783947223323, ""user_index"": 0}"
+null,120,{}
+null,120,{}
+open_position,121,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 349557092452, ""user_index"": 0}"
+null,121,{}
+null,121,{}
+open_position,122,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 69577836225, ""user_index"": 0}"
+null,122,{}
+null,122,{}
+open_position,123,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 13891207719, ""user_index"": 0}"
+null,123,{}
+null,123,{}
+open_position,124,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 2775047179, ""user_index"": 0}"
+null,124,{}
+null,124,{}
+open_position,125,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 554437436, ""user_index"": 0}"
+null,125,{}
+null,125,{}
+open_position,126,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 5263651980990, ""user_index"": 0}"
+null,126,{}
+null,126,{}
+open_position,127,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 1121422139269, ""user_index"": 0}"
+null,127,{}
+null,127,{}
+open_position,128,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 227595172369, ""user_index"": 0}"
+null,128,{}
+null,128,{}
+open_position,129,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 45691806131, ""user_index"": 0}"
+null,129,{}
+null,129,{}
+open_position,130,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 9152629483, ""user_index"": 0}"
+null,130,{}
+null,130,{}
+open_position,131,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 1832562271, ""user_index"": 0}"
+null,131,{}
+null,131,{}
+open_position,132,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 366887086, ""user_index"": 0}"
+null,132,{}
+null,132,{}
+open_position,133,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 4169172352926, ""user_index"": 0}"
+null,133,{}
+null,133,{}
+open_position,134,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 882274928833, ""user_index"": 0}"
+null,134,{}
+null,134,{}
+open_position,135,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 2798498448971, ""user_index"": 0}"
+null,135,{}
+null,135,{}
+open_position,136,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 539247782710, ""user_index"": 0}"
+null,136,{}
+null,136,{}
+open_position,137,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 107004628217, ""user_index"": 0}"
+null,137,{}
+null,137,{}
+open_position,138,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 21350514691, ""user_index"": 0}"
+null,138,{}
+null,138,{}
+open_position,139,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 4264677819, ""user_index"": 0}"
+null,139,{}
+null,139,{}
+open_position,140,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 852036841, ""user_index"": 0}"
+null,140,{}
+null,140,{}
+open_position,141,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 170235141, ""user_index"": 0}"
+null,141,{}
+null,141,{}
+open_position,142,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 34012484, ""user_index"": 0}"
+null,142,{}
+null,142,{}
+open_position,143,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 6994657087214, ""user_index"": 0}"
+null,143,{}
+null,143,{}
+open_position,144,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 1551657621277, ""user_index"": 0}"
+null,144,{}
+null,144,{}
+open_position,145,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 318164310120, ""user_index"": 0}"
+null,145,{}
+null,145,{}
+open_position,146,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 1091705218381, ""user_index"": 0}"
+null,146,{}
+null,146,{}
+open_position,147,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 214529526416, ""user_index"": 0}"
+null,147,{}
+null,147,{}
+open_position,148,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 42724389129, ""user_index"": 0}"
+null,148,{}
+null,148,{}
+open_position,149,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 8530836733, ""user_index"": 0}"
+null,149,{}
+null,149,{}
+open_position,150,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 3566445453671, ""user_index"": 0}"
+null,150,{}
+null,150,{}
+open_position,151,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 4696915982162, ""user_index"": 0}"
+null,151,{}
+null,151,{}
+open_position,152,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 884458510784, ""user_index"": 0}"
+null,152,{}
+null,152,{}
+open_position,153,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 174806329565, ""user_index"": 0}"
+null,153,{}
+null,153,{}
+open_position,154,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 34851806102, ""user_index"": 0}"
+null,154,{}
+null,154,{}
+open_position,155,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 6960429821, ""user_index"": 0}"
+null,155,{}
+null,155,{}
+open_position,156,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 2905738771410, ""user_index"": 0}"
+null,156,{}
+null,156,{}
+open_position,157,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 561343912887, ""user_index"": 0}"
+null,157,{}
+null,157,{}
+open_position,158,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 111440507076, ""user_index"": 0}"
+null,158,{}
+null,158,{}
+open_position,159,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 22237605822, ""user_index"": 0}"
+null,159,{}
+null,159,{}
+open_position,160,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 4441950655, ""user_index"": 0}"
+null,160,{}
+null,160,{}
+open_position,161,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 2793803929625, ""user_index"": 0}"
+null,161,{}
+null,161,{}
+open_position,162,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 578297075450, ""user_index"": 0}"
+null,162,{}
+null,162,{}
+open_position,163,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 116590258721, ""user_index"": 0}"
+null,163,{}
+null,163,{}
+open_position,164,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 23374519881, ""user_index"": 0}"
+null,164,{}
+null,164,{}
+open_position,165,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 4680911550, ""user_index"": 0}"
+null,165,{}
+null,165,{}
+open_position,166,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 937171857, ""user_index"": 0}"
+null,166,{}
+null,166,{}
+open_position,167,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 1630906195568, ""user_index"": 0}"
+null,167,{}
+null,167,{}
+open_position,168,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 319629684336, ""user_index"": 0}"
+null,168,{}
+null,168,{}
+open_position,169,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 63623181350, ""user_index"": 0}"
+null,169,{}
+null,169,{}
+open_position,170,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 12702450795, ""user_index"": 0}"
+null,170,{}
+null,170,{}
+open_position,171,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 2537573047, ""user_index"": 0}"
+null,171,{}
+null,171,{}
+open_position,172,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 506991772, ""user_index"": 0}"
+null,172,{}
+null,172,{}
+open_position,173,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 101296521, ""user_index"": 0}"
+null,173,{}
+null,173,{}
+open_position,174,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 1741078805306, ""user_index"": 0}"
+null,174,{}
+null,174,{}
+open_position,175,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 341060057093, ""user_index"": 0}"
+null,175,{}
+null,175,{}
+open_position,176,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 67882891711, ""user_index"": 0}"
+null,176,{}
+null,176,{}
+open_position,177,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 624197401572, ""user_index"": 0}"
+null,177,{}
+null,177,{}
+open_position,178,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 7513339667134, ""user_index"": 0}"
+null,178,{}
+null,178,{}
+open_position,179,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 1654983912265, ""user_index"": 0}"
+null,179,{}
+null,179,{}
+open_position,180,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 1106357384122, ""user_index"": 0}"
+null,180,{}
+null,180,{}
+open_position,181,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 217875963879, ""user_index"": 0}"
+null,181,{}
+null,181,{}
+open_position,182,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 43408626050, ""user_index"": 0}"
+null,182,{}
+null,182,{}
+open_position,183,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 8668162203, ""user_index"": 0}"
+null,183,{}
+null,183,{}
+open_position,184,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 1731704300, ""user_index"": 0}"
+null,184,{}
+null,184,{}
+open_position,185,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 345986987, ""user_index"": 0}"
+null,185,{}
+null,185,{}
+open_position,186,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 69127712, ""user_index"": 0}"
+null,186,{}
+null,186,{}
+open_position,187,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 13811476, ""user_index"": 0}"
+null,187,{}
+null,187,{}
+open_position,188,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 2759953, ""user_index"": 0}"
+null,188,{}
+null,188,{}
+open_position,189,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 2042421694635, ""user_index"": 0}"
+null,189,{}
+null,189,{}
+open_position,190,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 397812720370, ""user_index"": 0}"
+null,190,{}
+null,190,{}
+open_position,191,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 79094217752, ""user_index"": 0}"
+null,191,{}
+null,191,{}
+open_position,192,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 15787661621, ""user_index"": 0}"
+null,192,{}
+null,192,{}
+open_position,193,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 2663831664751, ""user_index"": 0}"
+null,193,{}
+null,193,{}
+open_position,194,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 551994245553, ""user_index"": 0}"
+null,194,{}
+null,194,{}
+open_position,195,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 111314128353, ""user_index"": 0}"
+null,195,{}
+null,195,{}
+open_position,196,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 22317836317, ""user_index"": 0}"
+null,196,{}
+null,196,{}
+open_position,197,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 4469347061, ""user_index"": 0}"
+null,197,{}
+null,197,{}
+open_position,198,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 894816106, ""user_index"": 0}"
+null,198,{}
+null,198,{}
+open_position,199,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 179144400, ""user_index"": 0}"
+null,199,{}
+null,199,{}
+open_position,200,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 1574870682516, ""user_index"": 0}"
+null,200,{}
+null,200,{}
+open_position,201,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 322129844060, ""user_index"": 0}"
+null,201,{}
+null,201,{}
+open_position,202,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 64777046032, ""user_index"": 0}"
+null,202,{}
+null,202,{}
+open_position,203,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 12979959660, ""user_index"": 0}"
+null,203,{}
+null,203,{}
+open_position,204,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 2599053442, ""user_index"": 0}"
+null,204,{}
+null,204,{}
+open_position,205,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 520349300, ""user_index"": 0}"
+null,205,{}
+null,205,{}
+open_position,206,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 104174838, ""user_index"": 0}"
+null,206,{}
+null,206,{}
+null,207,{}
+null,207,{}
+null,207,{}
+open_position,208,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 642503397342, ""user_index"": 0}"
+null,208,{}
+null,208,{}
+open_position,209,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 129790587437, ""user_index"": 0}"
+null,209,{}
+null,209,{}
+open_position,210,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 26031498738, ""user_index"": 0}"
+null,210,{}
+null,210,{}
+open_position,211,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 5213413745, ""user_index"": 0}"
+null,211,{}
+null,211,{}
+open_position,212,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 1043802159, ""user_index"": 0}"
+null,212,{}
+null,212,{}
+open_position,213,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 208972260, ""user_index"": 0}"
+null,213,{}
+null,213,{}
+open_position,214,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 41836425, ""user_index"": 0}"
+null,214,{}
+null,214,{}
+null,215,{}
+null,215,{}
+null,215,{}
+null,216,{}
+null,216,{}
+null,216,{}
+open_position,217,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 2205167019800, ""user_index"": 0}"
+null,217,{}
+null,217,{}
+open_position,218,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 427728403167, ""user_index"": 0}"
+null,218,{}
+null,218,{}
+open_position,219,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 84976994273, ""user_index"": 0}"
+null,219,{}
+null,219,{}
+open_position,220,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 16959341005, ""user_index"": 0}"
+null,220,{}
+null,220,{}
+open_position,221,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 3387717307, ""user_index"": 0}"
+null,221,{}
+null,221,{}
+open_position,222,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 676835507, ""user_index"": 0}"
+null,222,{}
+null,222,{}
+open_position,223,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 135230638, ""user_index"": 0}"
+null,223,{}
+null,223,{}
+open_position,224,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 27018575, ""user_index"": 0}"
+null,224,{}
+null,224,{}
+open_position,225,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 4070472879820, ""user_index"": 0}"
+null,225,{}
+null,225,{}
+open_position,226,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 864060296917, ""user_index"": 0}"
+null,226,{}
+null,226,{}
+open_position,227,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 175210599517, ""user_index"": 0}"
+null,227,{}
+null,227,{}
+open_position,228,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 35168762111, ""user_index"": 0}"
+null,228,{}
+null,228,{}
+open_position,229,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 7044476988, ""user_index"": 0}"
+null,229,{}
+null,229,{}
+open_position,230,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 1410452710, ""user_index"": 0}"
+null,230,{}
+null,230,{}
+open_position,231,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 282378658, ""user_index"": 0}"
+null,231,{}
+null,231,{}
+open_position,232,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 56532125, ""user_index"": 0}"
+null,232,{}
+null,232,{}
+open_position,233,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 3978928208363, ""user_index"": 0}"
+null,233,{}
+null,233,{}
+open_position,234,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 752827946109, ""user_index"": 0}"
+null,234,{}
+null,234,{}
+open_position,235,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 148910009417, ""user_index"": 0}"
+null,235,{}
+null,235,{}
+open_position,236,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 29693374227, ""user_index"": 0}"
+null,236,{}
+null,236,{}
+open_position,237,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 10278842557093, ""user_index"": 0}"
+null,237,{}
+null,237,{}
+open_position,238,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 1833041199083, ""user_index"": 0}"
+null,238,{}
+null,238,{}
+open_position,239,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 359254541591, ""user_index"": 0}"
+null,239,{}
+null,239,{}
+open_position,240,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 71510990296, ""user_index"": 0}"
+null,240,{}
+null,240,{}
+open_position,241,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 14277276932, ""user_index"": 0}"
+null,241,{}
+null,241,{}
+open_position,242,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 2852176790, ""user_index"": 0}"
+null,242,{}
+null,242,{}
+open_position,243,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 501322021662, ""user_index"": 0}"
+null,243,{}
+null,243,{}
+open_position,244,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 99647670964, ""user_index"": 0}"
+null,244,{}
+null,244,{}
+open_position,245,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 19889206203, ""user_index"": 0}"
+null,245,{}
+null,245,{}
+open_position,246,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 3734874620651, ""user_index"": 0}"
+null,246,{}
+null,246,{}
+open_position,247,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 778844295367, ""user_index"": 0}"
+null,247,{}
+null,247,{}
+open_position,248,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 157282356770, ""user_index"": 0}"
+null,248,{}
+null,248,{}
+open_position,249,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 31543330698, ""user_index"": 0}"
+null,249,{}
+null,249,{}
+open_position,250,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 6317203695, ""user_index"": 0}"
+null,250,{}
+null,250,{}
+open_position,251,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 1264793243, ""user_index"": 0}"
+null,251,{}
+null,251,{}
+open_position,252,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 253215488, ""user_index"": 0}"
+null,252,{}
+null,252,{}
+open_position,253,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 3838905759355, ""user_index"": 0}"
+null,253,{}
+null,253,{}
+open_position,254,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 736676485642, ""user_index"": 0}"
+null,254,{}
+null,254,{}
+open_position,255,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 146073333027, ""user_index"": 0}"
+null,255,{}
+null,255,{}
+open_position,256,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 29141648502, ""user_index"": 0}"
+null,256,{}
+null,256,{}
+open_position,257,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 5820758097, ""user_index"": 0}"
+null,257,{}
+null,257,{}
+open_position,258,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 1162917981, ""user_index"": 0}"
+null,258,{}
+null,258,{}
+open_position,259,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 232348457, ""user_index"": 0}"
+null,259,{}
+null,259,{}
+open_position,260,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 46422826, ""user_index"": 0}"
+null,260,{}
+null,260,{}
+open_position,261,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 9275369, ""user_index"": 0}"
+null,261,{}
+null,261,{}
+open_position,262,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 7852180927450, ""user_index"": 0}"
+null,262,{}
+null,262,{}
+open_position,263,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 7571624538641, ""user_index"": 0}"
+null,263,{}
+null,263,{}
+open_position,264,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 1682323790647, ""user_index"": 0}"
+null,264,{}
+null,264,{}
+open_position,265,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 345105293331, ""user_index"": 0}"
+null,265,{}
+null,265,{}
+open_position,266,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 69440149492, ""user_index"": 0}"
+null,266,{}
+null,266,{}
+open_position,267,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 13916096363, ""user_index"": 0}"
+null,267,{}
+null,267,{}
+open_position,268,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 2786571816, ""user_index"": 0}"
+null,268,{}
+null,268,{}
+open_position,269,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 557894508, ""user_index"": 0}"
+null,269,{}
+null,269,{}
+open_position,270,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 111691233, ""user_index"": 0}"
+null,270,{}
+null,270,{}
+open_position,271,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 22361147, ""user_index"": 0}"
+null,271,{}
+null,271,{}
+open_position,272,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 11436126229061, ""user_index"": 0}"
+null,272,{}
+null,272,{}
+open_position,273,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 2874990867650, ""user_index"": 0}"
+null,273,{}
+null,273,{}
+open_position,274,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 613840662355, ""user_index"": 0}"
+null,274,{}
+null,274,{}
+open_position,275,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 124645049944, ""user_index"": 0}"
+null,275,{}
+null,275,{}
+open_position,276,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 25026339572, ""user_index"": 0}"
+null,276,{}
+null,276,{}
+open_position,277,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 5013192427, ""user_index"": 0}"
+null,277,{}
+null,277,{}
+open_position,278,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 2951091275026, ""user_index"": 0}"
+null,278,{}
+null,278,{}
+open_position,279,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 554000033546, ""user_index"": 0}"
+null,279,{}
+null,279,{}
+open_position,280,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 109437563368, ""user_index"": 0}"
+null,280,{}
+null,280,{}
+open_position,281,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 9915937419801, ""user_index"": 0}"
+null,281,{}
+null,281,{}
+open_position,282,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 1694764775081, ""user_index"": 0}"
+null,282,{}
+null,282,{}
+open_position,283,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 330285433066, ""user_index"": 0}"
+null,283,{}
+null,283,{}
+open_position,284,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 65675177673, ""user_index"": 0}"
+null,284,{}
+null,284,{}
+open_position,285,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 7121547900351, ""user_index"": 0}"
+null,285,{}
+null,285,{}
+open_position,286,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 1611743995799, ""user_index"": 0}"
+null,286,{}
+null,286,{}
+open_position,287,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 332322564944, ""user_index"": 0}"
+null,287,{}
+null,287,{}
+open_position,288,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 66942203334, ""user_index"": 0}"
+null,288,{}
+null,288,{}
+open_position,289,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 13418522691, ""user_index"": 0}"
+null,289,{}
+null,289,{}
+open_position,290,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 2687059052, ""user_index"": 0}"
+null,290,{}
+null,290,{}
+open_position,291,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 207626249801, ""user_index"": 0}"
+null,291,{}
+null,291,{}
+open_position,292,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 41324726815, ""user_index"": 0}"
+null,292,{}
+null,292,{}
+open_position,293,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 8250383013, ""user_index"": 0}"
+null,293,{}
+null,293,{}
+open_position,294,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 1648175917, ""user_index"": 0}"
+null,294,{}
+null,294,{}
+open_position,295,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 329295246, ""user_index"": 0}"
+null,295,{}
+null,295,{}
+open_position,296,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 65793079, ""user_index"": 0}"
+null,296,{}
+null,296,{}
+open_position,297,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 13145582, ""user_index"": 0}"
+null,297,{}
+null,297,{}
+open_position,298,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 5871968805277, ""user_index"": 0}"
+null,298,{}
+null,298,{}
+open_position,299,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 1338794640202, ""user_index"": 0}"
+open_position,299,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 1000000000, ""user_index"": 0}"
+null,299,{}
+open_position,300,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 277429265882, ""user_index"": 0}"
+null,300,{}
+null,300,{}
+open_position,301,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 55911734659, ""user_index"": 0}"
+null,301,{}
+null,301,{}
+open_position,302,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 11208580908, ""user_index"": 0}"
+null,302,{}
+null,302,{}
+open_position,303,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 3070131134346, ""user_index"": 0}"
+null,303,{}
+null,303,{}
+open_position,304,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 573933468113, ""user_index"": 0}"
+null,304,{}
+remove_liquidity,304,"{""lp_token_amount"": 100000000000000000000, ""market_index"": 0, ""user_index"": 1}"
+open_position,305,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 113296774762, ""user_index"": 0}"
+null,305,{}
+null,305,{}
+open_position,306,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 22583150411, ""user_index"": 0}"
+null,306,{}
+null,306,{}
+open_position,307,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 4509986134, ""user_index"": 0}"
+null,307,{}
+null,307,{}
+open_position,308,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 901010424, ""user_index"": 0}"
+null,308,{}
+null,308,{}
+open_position,309,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 180018214, ""user_index"": 0}"
+null,309,{}
+null,309,{}
+open_position,310,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 35967770, ""user_index"": 0}"
+null,310,{}
+null,310,{}
+open_position,311,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 7186006, ""user_index"": 0}"
+null,311,{}
+null,311,{}
+open_position,312,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 5885526312995, ""user_index"": 0}"
+null,312,{}
+null,312,{}
+open_position,313,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 6128423765567, ""user_index"": 0}"
+null,313,{}
+null,313,{}
+open_position,314,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 1392884160422, ""user_index"": 0}"
+null,314,{}
+null,314,{}
+open_position,315,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 287546239488, ""user_index"": 0}"
+null,315,{}
+null,315,{}
+open_position,316,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 57937996309, ""user_index"": 0}"
+null,316,{}
+null,316,{}
+open_position,317,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 11614265539, ""user_index"": 0}"
+null,317,{}
+null,317,{}
+open_position,318,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 2325781471, ""user_index"": 0}"
+null,318,{}
+null,318,{}
+open_position,319,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 465645850, ""user_index"": 0}"
+null,319,{}
+null,319,{}
+open_position,320,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 93223934, ""user_index"": 0}"
+null,320,{}
+null,320,{}
+open_position,321,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 12311582571537, ""user_index"": 0}"
+null,321,{}
+null,321,{}
+open_position,322,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 2019897833924, ""user_index"": 0}"
+null,322,{}
+null,322,{}
+open_position,323,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 391783904599, ""user_index"": 0}"
+null,323,{}
+null,323,{}
+open_position,324,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 309142287623, ""user_index"": 0}"
+null,324,{}
+null,324,{}
+open_position,325,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 61492831751, ""user_index"": 0}"
+null,325,{}
+null,325,{}
+open_position,326,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 12275437413, ""user_index"": 0}"
+null,326,{}
+null,326,{}
+open_position,327,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 2452200935, ""user_index"": 0}"
+null,327,{}
+null,327,{}
+open_position,328,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 489932522, ""user_index"": 0}"
+null,328,{}
+null,328,{}
+open_position,329,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 97887905, ""user_index"": 0}"
+null,329,{}
+null,329,{}
+open_position,330,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 4441683104715, ""user_index"": 0}"
+null,330,{}
+null,330,{}
+open_position,331,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 837303084233, ""user_index"": 0}"
+null,331,{}
+null,331,{}
+open_position,332,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 165516514337, ""user_index"": 0}"
+null,332,{}
+null,332,{}
+open_position,333,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 33000821586, ""user_index"": 0}"
+null,333,{}
+null,333,{}
+open_position,334,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 6590806653, ""user_index"": 0}"
+null,334,{}
+null,334,{}
+open_position,335,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 1316733209, ""user_index"": 0}"
+null,335,{}
+null,335,{}
+open_position,336,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 263078625, ""user_index"": 0}"
+null,336,{}
+null,336,{}
+open_position,337,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 52562891, ""user_index"": 0}"
+null,337,{}
+null,337,{}
+open_position,338,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 1090198032914, ""user_index"": 0}"
+null,338,{}
+null,338,{}
+open_position,339,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 1823101737427, ""user_index"": 0}"
+null,339,{}
+null,339,{}
+open_position,340,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 373621334914, ""user_index"": 0}"
+null,340,{}
+null,340,{}
+open_position,341,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 75162335592, ""user_index"": 0}"
+null,341,{}
+null,341,{}
+open_position,342,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 15062208980, ""user_index"": 0}"
+null,342,{}
+null,342,{}
+open_position,343,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 3016045128, ""user_index"": 0}"
+null,343,{}
+null,343,{}
+open_position,344,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 603835392, ""user_index"": 0}"
+null,344,{}
+null,344,{}
+open_position,345,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 120888837, ""user_index"": 0}"
+null,345,{}
+null,345,{}
+open_position,346,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 24202303, ""user_index"": 0}"
+null,346,{}
+null,346,{}
+null,347,{}
+null,347,{}
+null,347,{}
+open_position,348,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 2791177924212, ""user_index"": 0}"
+null,348,{}
+null,348,{}
+open_position,349,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 538804095585, ""user_index"": 0}"
+null,349,{}
+null,349,{}
+open_position,350,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 106951158131, ""user_index"": 0}"
+null,350,{}
+null,350,{}
+open_position,351,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 21341197214, ""user_index"": 0}"
+null,351,{}
+null,351,{}
+open_position,352,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 4262870787, ""user_index"": 0}"
+null,352,{}
+null,352,{}
+open_position,353,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 851677811, ""user_index"": 0}"
+null,353,{}
+null,353,{}
+open_position,354,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 170163477, ""user_index"": 0}"
+null,354,{}
+null,354,{}
+open_position,355,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 33998393, ""user_index"": 0}"
+null,355,{}
+null,355,{}
+open_position,356,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 6716024472145, ""user_index"": 0}"
+null,356,{}
+null,356,{}
+open_position,357,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 1475202445041, ""user_index"": 0}"
+null,357,{}
+null,357,{}
+open_position,358,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 301695120988, ""user_index"": 0}"
+null,358,{}
+null,358,{}
+open_position,359,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 60665764607, ""user_index"": 0}"
+null,359,{}
+null,359,{}
+open_position,360,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 12156061047, ""user_index"": 0}"
+null,360,{}
+null,360,{}
+open_position,361,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 2434076008, ""user_index"": 0}"
+null,361,{}
+null,361,{}
+open_position,362,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 487319292, ""user_index"": 0}"
+null,362,{}
+null,362,{}
+open_position,363,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 97562157, ""user_index"": 0}"
+null,363,{}
+null,363,{}
+null,364,{}
+null,364,{}
+null,364,{}
+open_position,365,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 3252535161825, ""user_index"": 0}"
+null,365,{}
+null,365,{}
+open_position,366,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 621629003150, ""user_index"": 0}"
+null,366,{}
+null,366,{}
+open_position,367,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 123172906627, ""user_index"": 0}"
+null,367,{}
+null,367,{}
+open_position,368,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 24569584917, ""user_index"": 0}"
+null,368,{}
+null,368,{}
+open_position,369,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 4907397462, ""user_index"": 0}"
+null,369,{}
+null,369,{}
+open_position,370,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 980433671, ""user_index"": 0}"
+null,370,{}
+null,370,{}
+open_position,371,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 195888548, ""user_index"": 0}"
+null,371,{}
+null,371,{}
+open_position,372,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 39138436, ""user_index"": 0}"
+null,372,{}
+null,372,{}
+open_position,373,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 2721946485517, ""user_index"": 0}"
+null,373,{}
+null,373,{}
+open_position,374,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 4129588770322, ""user_index"": 0}"
+null,374,{}
+null,374,{}
+open_position,375,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 874610745473, ""user_index"": 0}"
+null,375,{}
+null,375,{}
+open_position,376,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 177254259850, ""user_index"": 0}"
+null,376,{}
+null,376,{}
+open_position,377,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 35574982411, ""user_index"": 0}"
+null,377,{}
+null,377,{}
+open_position,378,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 11257394104805, ""user_index"": 0}"
+null,378,{}
+null,378,{}
+open_position,379,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 2782572216811, ""user_index"": 0}"
+null,379,{}
+null,379,{}
+open_position,380,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 590350240905, ""user_index"": 0}"
+null,380,{}
+null,380,{}
+open_position,381,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 119693380420, ""user_index"": 0}"
+null,381,{}
+null,381,{}
+open_position,382,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 24024547519, ""user_index"": 0}"
+null,382,{}
+null,382,{}
+open_position,383,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 6515478365944, ""user_index"": 0}"
+null,383,{}
+null,383,{}
+open_position,384,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 1158610987566, ""user_index"": 0}"
+null,384,{}
+null,384,{}
+open_position,385,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 226982853328, ""user_index"": 0}"
+null,385,{}
+null,385,{}
+open_position,386,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 45178377166, ""user_index"": 0}"
+null,386,{}
+null,386,{}
+open_position,387,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 9019796209, ""user_index"": 0}"
+null,387,{}
+null,387,{}
+open_position,388,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 1801882523, ""user_index"": 0}"
+null,388,{}
+null,388,{}
+open_position,389,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 360004683, ""user_index"": 0}"
+null,389,{}
+null,389,{}
+open_position,390,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 71928895, ""user_index"": 0}"
+null,390,{}
+null,390,{}
+open_position,391,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 2846838766274, ""user_index"": 0}"
+null,391,{}
+null,391,{}
+open_position,392,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 1085467105310, ""user_index"": 0}"
+null,392,{}
+null,392,{}
+open_position,393,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 221106443939, ""user_index"": 0}"
+null,393,{}
+null,393,{}
+open_position,394,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 44423207503, ""user_index"": 0}"
+null,394,{}
+null,394,{}
+open_position,395,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 8899893802, ""user_index"": 0}"
+null,395,{}
+null,395,{}
+open_position,396,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 1782014347, ""user_index"": 0}"
+null,396,{}
+null,396,{}
+open_position,397,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 356769197, ""user_index"": 0}"
+null,397,{}
+null,397,{}
+open_position,398,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 71425912, ""user_index"": 0}"
+null,398,{}
+null,398,{}
+open_position,399,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 3083656838070, ""user_index"": 0}"
+null,399,{}
+null,399,{}
+open_position,400,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 588261248613, ""user_index"": 0}"
+null,400,{}
+null,400,{}
+open_position,401,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 116523498821, ""user_index"": 0}"
+null,401,{}
+null,401,{}
+open_position,402,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 23241745553, ""user_index"": 0}"
+null,402,{}
+null,402,{}
+open_position,403,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 4642123587, ""user_index"": 0}"
+null,403,{}
+null,403,{}
+open_position,404,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 927433263, ""user_index"": 0}"
+null,404,{}
+null,404,{}
+open_position,405,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 11006215891738, ""user_index"": 0}"
+null,405,{}
+null,405,{}
+open_position,406,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 2731176573123, ""user_index"": 0}"
+null,406,{}
+null,406,{}
+open_position,407,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 10982098819292, ""user_index"": 0}"
+null,407,{}
+null,407,{}
+open_position,408,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 1835608333025, ""user_index"": 0}"
+null,408,{}
+null,408,{}
+open_position,409,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 356780841172, ""user_index"": 0}"
+null,409,{}
+null,409,{}
+open_position,410,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 70908635961, ""user_index"": 0}"
+null,410,{}
+null,410,{}
+open_position,411,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 14152691884, ""user_index"": 0}"
+null,411,{}
+null,411,{}
+open_position,412,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 2827116187, ""user_index"": 0}"
+null,412,{}
+null,412,{}
+open_position,413,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 564834230, ""user_index"": 0}"
+null,413,{}
+null,413,{}
+open_position,414,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 112852701, ""user_index"": 0}"
+null,414,{}
+null,414,{}
+open_position,415,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 22547990, ""user_index"": 0}"
+null,415,{}
+null,415,{}
+open_position,416,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 4238125101947, ""user_index"": 0}"
+null,416,{}
+null,416,{}
+open_position,417,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 799603920315, ""user_index"": 0}"
+null,417,{}
+null,417,{}
+open_position,418,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 158086636955, ""user_index"": 0}"
+null,418,{}
+null,418,{}
+open_position,419,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 31520312196, ""user_index"": 0}"
+null,419,{}
+null,419,{}
+open_position,420,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 6295158865, ""user_index"": 0}"
+null,420,{}
+null,420,{}
+open_position,421,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 1257669129, ""user_index"": 0}"
+null,421,{}
+null,421,{}
+open_position,422,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 1637433776619, ""user_index"": 0}"
+null,422,{}
+null,422,{}
+open_position,423,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 320432234739, ""user_index"": 0}"
+null,423,{}
+null,423,{}
+open_position,424,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 63765073035, ""user_index"": 0}"
+null,424,{}
+null,424,{}
+open_position,425,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 12730076072, ""user_index"": 0}"
+null,425,{}
+null,425,{}
+open_position,426,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 2543063142, ""user_index"": 0}"
+null,426,{}
+null,426,{}
+open_position,427,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 7648659914592, ""user_index"": 0}"
+null,427,{}
+null,427,{}
+open_position,428,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 1713453097530, ""user_index"": 0}"
+null,428,{}
+null,428,{}
+open_position,429,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 4610990651031, ""user_index"": 0}"
+null,429,{}
+null,429,{}
+open_position,430,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 1000728306024, ""user_index"": 0}"
+null,430,{}
+null,430,{}
+open_position,431,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 204028299842, ""user_index"": 0}"
+null,431,{}
+null,431,{}
+open_position,432,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 40999736008, ""user_index"": 0}"
+null,432,{}
+null,432,{}
+open_position,433,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 8214337844, ""user_index"": 0}"
+null,433,{}
+null,433,{}
+open_position,434,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 1644758893, ""user_index"": 0}"
+null,434,{}
+null,434,{}
+open_position,435,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 329291144, ""user_index"": 0}"
+null,435,{}
+null,435,{}
+open_position,436,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 149473108212, ""user_index"": 0}"
+null,436,{}
+null,436,{}
+open_position,437,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 29783078634, ""user_index"": 0}"
+null,437,{}
+null,437,{}
+open_position,438,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 5947417839, ""user_index"": 0}"
+null,438,{}
+null,438,{}
+open_position,439,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 5591128378733, ""user_index"": 0}"
+null,439,{}
+null,439,{}
+open_position,440,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 1263671887222, ""user_index"": 0}"
+null,440,{}
+null,440,{}
+open_position,441,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 260454079276, ""user_index"": 0}"
+null,441,{}
+null,441,{}
+open_position,442,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 52460803706, ""user_index"": 0}"
+null,442,{}
+null,442,{}
+open_position,443,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 10515555042, ""user_index"": 0}"
+null,443,{}
+null,443,{}
+open_position,444,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 2285951713769, ""user_index"": 0}"
+null,444,{}
+null,444,{}
+open_position,445,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 485099808577, ""user_index"": 0}"
+null,445,{}
+null,445,{}
+open_position,446,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 11274401446264, ""user_index"": 0}"
+null,446,{}
+null,446,{}
+open_position,447,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 1831419177335, ""user_index"": 0}"
+null,447,{}
+null,447,{}
+open_position,448,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 354849053513, ""user_index"": 0}"
+null,448,{}
+null,448,{}
+open_position,449,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 70484056720, ""user_index"": 0}"
+null,449,{}
+null,449,{}
+open_position,450,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 14066355816, ""user_index"": 0}"
+null,450,{}
+null,450,{}
+open_position,451,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 14142816737563, ""user_index"": 0}"
+null,451,{}
+null,451,{}
+open_position,452,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 2374608887510, ""user_index"": 0}"
+null,452,{}
+null,452,{}
+open_position,453,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 2417168492757, ""user_index"": 0}"
+null,453,{}
+null,453,{}
+open_position,454,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 470402569345, ""user_index"": 0}"
+null,454,{}
+null,454,{}
+open_position,455,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 1267171981520, ""user_index"": 0}"
+null,455,{}
+null,455,{}
+open_position,456,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 249823514950, ""user_index"": 0}"
+null,456,{}
+null,456,{}
+open_position,457,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 49784349381, ""user_index"": 0}"
+null,457,{}
+null,457,{}
+open_position,458,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 9941736040, ""user_index"": 0}"
+null,458,{}
+null,458,{}
+open_position,459,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 1986152261, ""user_index"": 0}"
+null,459,{}
+null,459,{}
+open_position,460,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 396825130, ""user_index"": 0}"
+null,460,{}
+null,460,{}
+open_position,461,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 79285102, ""user_index"": 0}"
+null,461,{}
+null,461,{}
+open_position,462,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 15841539, ""user_index"": 0}"
+null,462,{}
+null,462,{}
+open_position,463,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 808888246156, ""user_index"": 0}"
+null,463,{}
+null,463,{}
+open_position,464,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 163332858597, ""user_index"": 0}"
+null,464,{}
+null,464,{}
+open_position,465,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 32756086253, ""user_index"": 0}"
+null,465,{}
+null,465,{}
+open_position,466,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 6560055010, ""user_index"": 0}"
+null,466,{}
+null,466,{}
+open_position,467,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 1313414475, ""user_index"": 0}"
+null,467,{}
+null,467,{}
+open_position,468,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 262949417, ""user_index"": 0}"
+null,468,{}
+null,468,{}
+open_position,469,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 52642858, ""user_index"": 0}"
+null,469,{}
+null,469,{}
+open_position,470,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 5243921157936, ""user_index"": 0}"
+null,470,{}
+null,470,{}
+open_position,471,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 995114585183, ""user_index"": 0}"
+null,471,{}
+null,471,{}
+open_position,472,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 196934146382, ""user_index"": 0}"
+null,472,{}
+null,472,{}
+open_position,473,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 39273475990, ""user_index"": 0}"
+null,473,{}
+null,473,{}
+open_position,474,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 7843899166, ""user_index"": 0}"
+null,474,{}
+null,474,{}
+open_position,475,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 2034926928310, ""user_index"": 0}"
+null,475,{}
+null,475,{}
+open_position,476,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 415627891107, ""user_index"": 0}"
+null,476,{}
+null,476,{}
+open_position,477,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 83552762188, ""user_index"": 0}"
+null,477,{}
+null,477,{}
+open_position,478,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 16741171428, ""user_index"": 0}"
+null,478,{}
+null,478,{}
+open_position,479,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 3352140676, ""user_index"": 0}"
+null,479,{}
+null,479,{}
+open_position,480,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 671120918, ""user_index"": 0}"
+null,480,{}
+null,480,{}
+open_position,481,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 134359199, ""user_index"": 0}"
+null,481,{}
+null,481,{}
+null,482,{}
+null,482,{}
+null,482,{}
+null,483,{}
+null,483,{}
+null,483,{}
+open_position,484,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 3411335467945, ""user_index"": 0}"
+null,484,{}
+null,484,{}
+open_position,485,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 707829727278, ""user_index"": 0}"
+null,485,{}
+null,485,{}
+open_position,486,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 142781655907, ""user_index"": 0}"
+null,486,{}
+null,486,{}
+open_position,487,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 28628617429, ""user_index"": 0}"
+null,487,{}
+null,487,{}
+open_position,488,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 5733207048, ""user_index"": 0}"
+null,488,{}
+null,488,{}
+open_position,489,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 1147858742, ""user_index"": 0}"
+null,489,{}
+null,489,{}
+open_position,490,"{""direction"": ""short"", ""market_index"": 0, ""quote_amount"": 229804413, ""user_index"": 0}"
+null,490,{}
+null,490,{}
+open_position,491,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 821345118080, ""user_index"": 0}"
+null,491,{}
+null,491,{}
+open_position,492,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 162685847673, ""user_index"": 0}"
+null,492,{}
+null,492,{}
+open_position,493,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 6124306089454, ""user_index"": 0}"
+null,493,{}
+null,493,{}
+open_position,494,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 1153718891723, ""user_index"": 0}"
+null,494,{}
+null,494,{}
+open_position,495,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 228039252644, ""user_index"": 0}"
+null,495,{}
+null,495,{}
+open_position,496,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 45465663855, ""user_index"": 0}"
+null,496,{}
+null,496,{}
+open_position,497,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 9080200968, ""user_index"": 0}"
+null,497,{}
+null,497,{}
+open_position,498,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 1814071037, ""user_index"": 0}"
+null,498,{}
+null,498,{}
+open_position,499,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 362445332, ""user_index"": 0}"
+null,499,{}
+null,499,{}
+open_position,500,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 2708190931522, ""user_index"": 0}"
+null,500,{}
+null,500,{}
+open_position,501,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 3308409068164, ""user_index"": 0}"
+null,501,{}
+null,501,{}
+open_position,502,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 642598445495, ""user_index"": 0}"
+null,502,{}
+null,502,{}
+open_position,503,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 127697350423, ""user_index"": 0}"
+null,503,{}
+null,503,{}
+open_position,504,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 25486541531, ""user_index"": 0}"
+null,504,{}
+null,504,{}
+open_position,505,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 5091119880, ""user_index"": 0}"
+null,505,{}
+null,505,{}
+open_position,506,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 1017162470, ""user_index"": 0}"
+null,506,{}
+null,506,{}
+open_position,507,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 203227329, ""user_index"": 0}"
+null,507,{}
+null,507,{}
+open_position,508,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 2972199700885, ""user_index"": 0}"
+null,508,{}
+null,508,{}
+open_position,509,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 579713731334, ""user_index"": 0}"
+null,509,{}
+null,509,{}
+open_position,510,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 115289970417, ""user_index"": 0}"
+null,510,{}
+null,510,{}
+open_position,511,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 23013710223, ""user_index"": 0}"
+null,511,{}
+null,511,{}
+open_position,512,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 4597293604, ""user_index"": 0}"
+null,512,{}
+null,512,{}
+open_position,513,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 918505602, ""user_index"": 0}"
+null,513,{}
+null,513,{}
+open_position,514,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 183516057, ""user_index"": 0}"
+null,514,{}
+null,514,{}
+open_position,515,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 36666236, ""user_index"": 0}"
+null,515,{}
+null,515,{}
+open_position,516,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 7325888, ""user_index"": 0}"
+null,516,{}
+null,516,{}
