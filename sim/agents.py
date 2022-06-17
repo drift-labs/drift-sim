@@ -47,6 +47,59 @@ def default_user_deposit(
     )
     return event
 
+class OpenClose(Agent):
+    def __init__(
+        self, 
+        start_time: int = 0, 
+        duration: int = -1, 
+        quote_amount: int = 100 * QUOTE_PRECISION, 
+        direction: str = 'long',
+        user_index: int = 0,
+        market_index: int = 0,
+    ):
+        self.start_time = start_time
+        self.duration = duration
+        self.direction = direction
+        self.quote_amount = quote_amount
+        self.user_index = user_index
+        self.market_index = market_index
+        self.has_opened = False
+        self.deposit_start = None
+        
+    def setup(self, state_i: ClearingHouse) -> Event: 
+        event = default_user_deposit(
+            self.user_index, 
+            state_i, 
+            username='openclose', 
+            deposit_amount=self.quote_amount
+        )
+        return event
+
+    def run(self, state_i: ClearingHouse) -> Event:
+        now = state_i.time
+        
+        if (now == self.start_time) or (now > self.start_time and not self.has_opened): 
+            self.deposit_start = now
+            self.has_opened = True
+            print('op...')
+            return OpenPositionEvent(
+                timestamp=now, 
+                direction=self.direction,
+                market_index=self.market_index, 
+                user_index=self.user_index, 
+                quote_amount=self.quote_amount
+            )
+
+        if self.has_opened and self.duration > 0 and now - self.deposit_start == self.duration:
+            print('cp...')
+            return ClosePositionEvent(
+                timestamp=now, 
+                market_index=self.market_index, 
+                user_index=self.user_index, 
+            )
+        
+        return NullEvent(now)
+
 class LP(Agent):
     def __init__(
         self, 
@@ -83,6 +136,7 @@ class LP(Agent):
         if (now == self.lp_start_time) or (now > self.lp_start_time and not self.has_deposited): 
             self.deposit_start = now
             self.has_deposited = True 
+            print('al..')
             return addLiquidityEvent(
                 timestamp=now, 
                 market_index=self.market_index, 
@@ -90,14 +144,15 @@ class LP(Agent):
                 quote_amount=self.deposit_amount
             )
 
-        if self.lp_duration > 0 and now - self.deposit_start == self.lp_duration:
+        if self.has_deposited and self.lp_duration > 0 and now - self.deposit_start == self.lp_duration:
             user: User = state_i.users[self.user_index]
             lp_position: LPPosition = user.lp_positions[self.market_index]
+            print('rl..')
             return removeLiquidityEvent(
-                now, 
-                self.market_index, 
-                self.user_index, 
-                lp_position.lp_tokens # full burn 
+                timestamp=now, 
+                market_index=self.market_index, 
+                user_index=self.user_index, 
+                lp_token_amount=lp_position.lp_tokens # full burn 
             )
         
         return NullEvent(now)

@@ -118,8 +118,7 @@ class removeLiquidityEvent(Event):
             self.market_index, 
             self.user_index, 
             self.lp_token_amount
-        )
-        
+        )    
         return clearing_house
     
     
@@ -147,3 +146,17 @@ class OpenPositionEvent(Event):
         
         return clearing_house
                 
+@dataclass
+class ClosePositionEvent(Event): 
+    user_index: int 
+    market_index: int
+    _event_name: str = "close_position"
+    
+    def run(self, clearing_house: ClearingHouse) -> ClearingHouse:        
+        clearing_house = clearing_house.close_position(
+            self.user_index, 
+            self.market_index
+        )
+        
+        return clearing_house
+         

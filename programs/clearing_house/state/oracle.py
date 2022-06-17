@@ -21,7 +21,7 @@ class Oracle:
             self.timestamps = timestamps
             
     def __len__(self):
-        return len(self.timestamps)
+        return int(max(self.timestamps))
     
     def get_timestamp_range(self):
         return int(min(self.timestamps)), int(max(self.timestamps))
