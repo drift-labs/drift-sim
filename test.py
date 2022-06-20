@@ -24,7 +24,7 @@ import pandas as pd
 import unittest
 
 #%%
-def default_set_up(self, n_users=1, default_collateral=1000):
+def default_set_up(self, n_users=1, default_collateral=1000, bq_ar=1e6):
     length = 10 
     self.default_collateral = default_collateral * QUOTE_PRECISION    
     self.funding_period = 60 # every 60 ts 
@@ -36,8 +36,8 @@ def default_set_up(self, n_users=1, default_collateral=1000):
     # mark price = 1$ 
     self.amm = AMM(
         oracle=self.oracle, 
-        base_asset_reserve=1_000_000 * AMM_RESERVE_PRECISION, 
-        quote_asset_reserve=1_000_000 * AMM_RESERVE_PRECISION,
+        base_asset_reserve=int(bq_ar) * AMM_RESERVE_PRECISION, 
+        quote_asset_reserve=int(bq_ar) * AMM_RESERVE_PRECISION,
         peg_multiplier=1 * PEG_PRECISION, 
         funding_period=self.funding_period
     )
@@ -140,108 +140,82 @@ class TestLP(unittest.TestCase):
         # should have made money from fees 
         self.assertGreater(user.collateral, prev_collateral)
         self.assertEqual(user.lp_positions[0].lp_tokens, 0)
+  
+    def test_lp(self):
+        # make bar larger for larger trades
+        default_set_up(self, n_users=2, default_collateral=0, bq_ar=1e8) 
         
-    def test_full_lp(self):
-        ch = self.clearing_house 
-        market: Market = self.clearing_house.markets[0]
-        self._test_n_percent_lp(1.0)
-        
-        # close LP
-        ch = ch.close_position(0, 0)
-        # close user
-        ch = ch.close_position(1, 0)
-                
-        # market is now balanced
-        self.assertEqual(
-            market.amm.net_base_asset_amount,
-            0
-        )
-        # self.assertEqual(
-        #     market.amm.base_asset_reserve,
-        #     market.amm.quote_asset_reserve,
-        # )
+        for user_close_first in [True, False]:
+            for trade_direction in [PositionDirection.LONG, PositionDirection.SHORT]:
+                for trade_size in [1e4, 1e6, 1e7]:
+                    for p in [1., .75, .5, .25, .01]:
+                        self._test_lp(p, trade_size, trade_direction, user_close_first)
+                        default_set_up(self, n_users=2, default_collateral=0, bq_ar=1e8) 
     
-    def test_half_lp(self):
-        self._test_n_percent_lp(0.5)
-    
-    def test_twenty_lp(self):
-        self._test_n_percent_lp(0.2)
-    
-    def test_twenty_five_lp(self):
-        self._test_n_percent_lp(0.25)
-        
-    def test_twenty_five_lp(self):
-        self._test_n_percent_lp(0.19)
-        
-    def test_a_lot_lp(self):
-        for p in [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]:
-            self._test_n_percent_lp(p)
-            self.setUp()
-    
-    def _test_n_percent_lp(self, percent):
-        ch = self.clearing_house
+    def _test_lp(self, lp_percent, trade_size, trade_direction, user_close_first):
+        ch: ClearingHouse = self.clearing_house
         market: Market = ch.markets[0]
-        lp: LPPosition = ch.users[0]
-        user: User = ch.users[1]
-
+        
+        lp_index = 0
+        user_index = 1 
+        
+        # print(lp_percent, trade_size, trade_direction)
+        
+        lp: User = ch.users[lp_index]
+        user: User = ch.users[user_index]
+        
         peg = market.amm.peg_multiplier / PEG_PRECISION
         sqrt_k = market.amm.sqrt_k / 1e13
         full_amm_position_quote = sqrt_k * peg * 2 * 1e6
-        percent_amm_position_quote = full_amm_position_quote * percent
+        percent_amm_position_quote = int(full_amm_position_quote * lp_percent)
+
+        # setup users        
+        ch = ch.deposit_user_collateral(
+            lp_index, 
+            percent_amm_position_quote
+        ).deposit_user_collateral(
+            1, 
+            trade_size * QUOTE_PRECISION
+        )
+        
+        # record total collateral pre trades     
+        total_collateral = 0 
+        init_collaterals = {}
+        for (i, user) in ch.users.items():
+            init_collaterals[i] = user.collateral
+            total_collateral += user.collateral 
+        total_collateral /= 1e6
         
         ch = ch.add_liquidity(
-            0, 0, percent_amm_position_quote
+            0, lp_index, percent_amm_position_quote
+        ).open_position(
+            trade_direction, user_index, trade_size * QUOTE_PRECISION, 0
+        ).remove_liquidity(
+            0, lp_index, lp.lp_positions[0].lp_tokens
+        ).close_position(
+            user_index, 0    
+        ).close_position(
+            lp_index, 0    
         )
+  
+        current_total_collateral = 0
+        for (i, user) in ch.users.items():
+            current_total_collateral += user.collateral
         
-        # user has percent of amm's tokens
-        self.assertAlmostEqual(
-            ch.markets[0].amm.lp_tokens / 1e6, 
-            ch.markets[0].amm.total_lp_tokens * (1 - percent) / 1e6, 
-            places=2
-        )
-        self.assertAlmostEqual(
-            lp.lp_positions[0].lp_tokens,
-            ch.markets[0].amm.total_lp_tokens * percent
-        )
-        self.assertAlmostEqual(
-            lp.lp_positions[0].lp_tokens + ch.markets[0].amm.lp_tokens,
-            ch.markets[0].amm.total_lp_tokens
-        )
+        #     ui_pnl = user.collateral - init_collaterals[i]
+        #     print(f'u{i} rpnl:', ui_pnl / 1e6)
+        # print("market:", market.amm.total_fee_minus_distributions / 1e6)
+        # print('mark', calculate_mark_price(market))
         
-        # new user goes long 
-        ch = ch.open_position(
-            PositionDirection.LONG, 
-            1, 
-            10_000 * QUOTE_PRECISION, 
-            0
-        )
+        expected_total_collateral = current_total_collateral + market.amm.total_fee_minus_distributions
+        expected_total_collateral /= 1e6
+        abs_difference = abs(total_collateral - expected_total_collateral) 
         
-        # removes lp 
-        prev_market_baa = ch.markets[0].amm.net_base_asset_amount
-        amount_should_take = prev_market_baa * percent
-        ch = ch.remove_liquidity(
-            0, 0, lp.lp_positions[0].lp_tokens
-        )
+        # print("test (total, expected):", total_collateral, expected_total_collateral)
+        # print('difference:', total_collateral - expected_total_collateral)
+        # print('testPass:', abs_difference <= 1e-3)
         
-        user_position = user.positions[0]
-        lp_position = lp.positions[0]
-        
-        self.assertEqual(
-            lp_position.quote_asset_amount / percent,
-            user_position.quote_asset_amount
-        )
-        self.assertAlmostEqual(
-            -lp_position.base_asset_amount / percent / 1e13,
-            user_position.base_asset_amount / 1e13
-        )
-        self.assertAlmostEqual(
-            lp_position.base_asset_amount / 1e13,
-            -amount_should_take / 1e13,
-        )
-        self.assertAlmostEqual(
-            (prev_market_baa - amount_should_take) / 1e13, 
-            ch.markets[0].amm.net_base_asset_amount / 1e13
-        )
+        self.assertLessEqual(abs_difference, 1e-3)
         
 
 class TestTWAPs(unittest.TestCase):
@@ -551,7 +525,33 @@ class TestClearingHousePositions(unittest.TestCase):
                 collateral_amount=self.default_collateral
             )        
         )
-
+        
+    def test_reserves(self):
+        ch = self.clearing_house
+        market = ch.markets[0]
+        trade_size = 100 * QUOTE_PRECISION
+        
+        init_bar, init_qar = market.amm.base_asset_reserve, market.amm.quote_asset_reserve
+        ch = ch.deposit_user_collateral(
+            user_index=0, 
+            collateral_amount=trade_size
+        ).open_position(
+            PositionDirection.LONG, 
+            0, trade_size, 0
+        )
+        
+        assert market.amm.base_asset_reserve < init_bar
+        assert market.amm.quote_asset_reserve > init_qar
+        
+        ch = ch.close_position(0, 0)
+        new_bar, new_qar = market.amm.base_asset_reserve, market.amm.quote_asset_reserve
+        
+        # print(init_bar, init_qar)
+        # print(new_bar, new_qar)
+        
+        self.assertEqual(init_bar, new_bar)
+        self.assertEqual(init_qar, new_qar)
+        
     def test_short_pnl(self):
         user_index = 0
         market_index = 0 
@@ -847,7 +847,9 @@ class TestClearingHousePositions(unittest.TestCase):
         # collateral decreases to pay for fees
         self.assertLess(user.collateral, prev_collateral)
         # market get fees
-        self.assertGreater(market.amm.total_fee, prev_fees)
+        self.assertGreater(market.amm.total_fee_minus_distributions, prev_fees)
 
 if __name__ == '__main__':
     unittest.main()
+
+# %%

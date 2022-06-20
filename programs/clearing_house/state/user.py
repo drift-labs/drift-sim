@@ -51,6 +51,7 @@ class LPPosition:
     
 @dataclass
 class User:
+    user_index: int
     collateral: int
     locked_collateral: int = 0
     

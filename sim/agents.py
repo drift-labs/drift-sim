@@ -81,7 +81,7 @@ class OpenClose(Agent):
         if (now == self.start_time) or (now > self.start_time and not self.has_opened): 
             self.deposit_start = now
             self.has_opened = True
-            print('op...')
+            print(f'u{self.user_index} op...')
             return OpenPositionEvent(
                 timestamp=now, 
                 direction=self.direction,
@@ -91,7 +91,7 @@ class OpenClose(Agent):
             )
 
         if self.has_opened and self.duration > 0 and now - self.deposit_start == self.duration:
-            print('cp...')
+            print(f'u{self.user_index} cp...')
             return ClosePositionEvent(
                 timestamp=now, 
                 market_index=self.market_index, 
@@ -136,7 +136,7 @@ class LP(Agent):
         if (now == self.lp_start_time) or (now > self.lp_start_time and not self.has_deposited): 
             self.deposit_start = now
             self.has_deposited = True 
-            print('al..')
+            print(f'u{self.user_index} al..')
             return addLiquidityEvent(
                 timestamp=now, 
                 market_index=self.market_index, 
@@ -147,7 +147,7 @@ class LP(Agent):
         if self.has_deposited and self.lp_duration > 0 and now - self.deposit_start == self.lp_duration:
             user: User = state_i.users[self.user_index]
             lp_position: LPPosition = user.lp_positions[self.market_index]
-            print('rl..')
+            print(f'u{self.user_index} rl..')
             return removeLiquidityEvent(
                 timestamp=now, 
                 market_index=self.market_index, 
