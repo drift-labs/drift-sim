@@ -126,17 +126,6 @@ class ClearingHouse:
         
         market.amm.total_lp_tokens = market.amm.sqrt_k
         
-        # prev_k = market.amm.sqrt_k
-        # market.amm.base_asset_reserve += user_lp_token_amount
-        # market.amm.quote_asset_reserve += user_lp_token_amount
-        # market.amm.sqrt_k = int((
-        #     market.amm.base_asset_reserve/1e13 * market.amm.quote_asset_reserve/1e13
-        # ) ** .5) * 1e13
-        
-        # print("k ratio:", market.amm.sqrt_k ** 2 / prev_k ** 2)
-        # assert market.amm.sqrt_k > prev_k, "k should increase"
-        # print('increasing k...')
-        
         # lock collateral 
         user.locked_collateral += quote_amount
         
@@ -148,7 +137,6 @@ class ClearingHouse:
             last_net_base_asset_amount=market.amm.net_base_asset_amount, 
             # TODO: figure out the earmark stuff
             last_total_fee_minus_distributions=market.amm.total_fee_minus_distributions, 
-            last_quote_asset_reserve=market.amm.quote_asset_reserve,
         )
         user.lp_positions[market_index] = user_lp_position
         
@@ -187,8 +175,8 @@ class ClearingHouse:
         
         # give them the amm position  
         amm_net_position_change = (
-            lp_position.last_net_base_asset_amount - 
-            market.amm.net_base_asset_amount
+            lp_position.last_net_base_asset_amount -
+            market.amm.net_base_asset_amount 
         )
         
         if amm_net_position_change != 0: 
@@ -204,9 +192,9 @@ class ClearingHouse:
                 direction_to_close,
                 market.amm.sqrt_k
             )
-
             # print('amm pos change:', amm_net_position_change/1e13)
-            base_position_amount = (
+
+            base_asset_amount = (
                 amm_net_position_change
                 * lp_token_amount 
                 / total_lp_tokens
@@ -215,7 +203,7 @@ class ClearingHouse:
 
             # someone goes long => amm_quote_position_change > 0
             amm_quote_position_change = (
-                new_quote_asset_reserve - 
+                new_quote_asset_reserve -
                 market.amm.quote_asset_reserve
             ) 
 
@@ -226,28 +214,21 @@ class ClearingHouse:
                 * (lp_token_amount / total_lp_tokens)
             ) * market.amm.peg_multiplier / AMM_TIMES_PEG_TO_QUOTE_PRECISION_RATIO
             
-            # convert to quote asset amount 
-            # quote_position_amount * market.amm.peg_multiplier / AMM_TIMES_PEG_TO_QUOTE_PRECISION_RATIO
-            # print(amm_quote_position_change, new_quote_asset_reserve/1e13, market.amm.quote_asset_reserve/1e13, market.amm.peg_multiplier/1e3)
-            
             last_funding_rate = {
                 True: market.amm.cumulative_funding_rate_long, 
                 False: market.amm.cumulative_funding_rate_short, 
-            }[base_position_amount > 0]
-
-            # # TODO maybe dont do this unless burning?
-            # market.amm.base_asset_reserve -= base_position_amount
-            # market.amm.quote_asset_reserve += quote_position_amount * AMM_TO_QUOTE_PRECISION_RATIO
+            }[base_asset_amount > 0]
 
             new_position = MarketPosition(
                 market_index=market_index,
-                base_asset_amount=base_position_amount, 
+                base_asset_amount=base_asset_amount, 
                 quote_asset_amount=abs(quote_position_amount), 
                 last_cumulative_funding_rate=last_funding_rate,
                 last_funding_rate_ts=self.time,
             )
-            # print(new_position)
             user.positions[market_index] = new_position
+    
+            # print(new_position)
             # print(
             #     f"user: {user.user_index} net_pos: {base_position_amount/1e13}"
             # )
@@ -269,22 +250,10 @@ class ClearingHouse:
         user.collateral += funding_payment_collateral
         market.amm.total_fee_minus_distributions -= funding_payment_collateral
         
-        # update market shit
-        reserve_scale = (market.amm.total_lp_tokens - lp_token_amount) \
-            / market.amm.total_lp_tokens
-        
-        market.amm.base_asset_reserve *= reserve_scale
-        market.amm.quote_asset_reserve *= reserve_scale
-        market.amm.sqrt_k -= lp_token_amount
-        
-        market.amm.total_lp_tokens = market.amm.sqrt_k
-        total_lp_tokens = market.amm.total_lp_tokens
-        
         # update the lp position 
         lp_position.last_total_fee_minus_distributions = market.amm.total_fee_minus_distributions  
         lp_position.last_cumulative_lp_funding = market.amm.cumulative_lp_funding 
         lp_position.last_net_base_asset_amount = market.amm.net_base_asset_amount 
-        lp_position.last_quote_asset_reserve = market.amm.quote_asset_reserve 
     
     ## burns the lp tokens, earns fees+funding, 
     ## and takes on the AMM's position (for realz)
@@ -310,6 +279,16 @@ class ClearingHouse:
         market_position: MarketPosition = user.positions[market_index]
         market.amm.net_base_asset_amount += market_position.base_asset_amount
         market.amm.net_quote_asset_amount += market_position.quote_asset_amount
+        
+        # update market shit
+        reserve_scale = (market.amm.total_lp_tokens - lp_token_amount) \
+            / market.amm.total_lp_tokens
+        
+        market.amm.base_asset_reserve *= reserve_scale
+        market.amm.quote_asset_reserve *= reserve_scale
+        market.amm.sqrt_k -= lp_token_amount
+        
+        market.amm.total_lp_tokens = market.amm.sqrt_k
 
         # unlock a portion of their collateral  
         total_lp_tokens = lp_position.lp_tokens

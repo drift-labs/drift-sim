@@ -1,5 +1,4 @@
 # %%
-# %%
 %reload_ext autoreload
 %autoreload 2
 
@@ -15,6 +14,8 @@ import driftpy
 import os 
 import datetime
 import math 
+from sim.agents import * 
+import numpy as np 
 
 from driftpy.math.amm import *
 from driftpy.math.trade import *
@@ -197,8 +198,8 @@ market: Market = ch.markets[0]
 
 mark_prices = []
 
-# percent = 1 #.5
-percent = 100
+percent = .5
+# percent = 100
 # trade_size = 1000
 # trade_size = 100_000 * 1e4
 trade_size = 1_000_000
@@ -308,8 +309,6 @@ plt.plot(mark_prices)
 # print(abs(mark_prices[0] - mark_prices[-1]) * _user_position.base_asset_amount / 1e13)
 
 #%%
-
-
 #%%
 #%%
 #%%
@@ -317,35 +316,6 @@ plt.plot(mark_prices)
 #%%
 
 #%%
-#%%
-bar, qar = 100, 100 
-sqrt_k = np.sqrt(bar * qar)
-print(sqrt_k)
-
-# add liq 
-add = 1
-bar, qar = bar + add, qar + add
-sqrt_k = np.sqrt(bar * qar)
-print(sqrt_k)
-
-# trade 
-tradesize = 10 
-bar += tradesize
-qar -= tradesize
-
-k = sqrt_k * sqrt_k
-bar = bar - add - trade_size
-_qar = bar / k
-print(_qar, qar - add + tradesize)
-
-# # remove liq
-# bar, qar = bar - add - tradesize, qar - add + tradesize
-# sqrt_k = np.sqrt(bar * qar)
-# bar += tradesize 
-# qar -= tradesize
-
-print(sqrt_k)
-
 #%%
 #%%
 #%%
@@ -370,8 +340,8 @@ print('mark', calculate_mark_price(market))
 percent = .5 # LP percentage 
 # percent = .5
 
-user_trade_size = 1_000_000
-# user_trade_size = 1_000
+# user_trade_size = 1_000_000
+user_trade_size = 1_000
 
 peg = market.amm.peg_multiplier / PEG_PRECISION
 sqrt_k = market.amm.sqrt_k / 1e13
@@ -417,18 +387,18 @@ print()
 print(user0.collateral + user1.collateral + market.amm.total_fee_minus_distributions)
 print(total_collateral * 1e6)
 
-print(
-    "u0, u1, calc upnl:",
-    _calculate_position_pnl(ch, market, user0.positions[0]), 
-    _calculate_position_pnl(ch, market, user1.positions[0]), 
-)
+# print(
+#     "u0, u1, calc upnl:",
+#     _calculate_position_pnl(ch, market, user0.positions[0]), 
+#     _calculate_position_pnl(ch, market, user1.positions[0]), 
+# )
 
-print('---mark', calculate_mark_price(market))
-print(
-    "u0, u1, calc entry:",
-    calculate_entry_price(user0.positions[0]) / 1e10, 
-    calculate_entry_price(user1.positions[0]) / 1e10, 
-)
+# print('---mark', calculate_mark_price(market))
+# print(
+#     "u0, u1, calc entry:",
+#     calculate_entry_price(user0.positions[0]) / 1e10, 
+#     calculate_entry_price(user1.positions[0]) / 1e10, 
+# )
 
 ch = ch.close_position(
     1, 0    
@@ -452,6 +422,8 @@ print("test (total, expected):", total_collateral, expected_total_collateral)
 print('difference:', total_collateral - expected_total_collateral)
 abs_difference <= 1e-3
 
+#%%
+#%%
 #%%
 
 # 100% = full amm position 
@@ -595,9 +567,6 @@ print("quote:", quote_amount_acquired / 1e6)
 #%%
 #%%
 #%%
-from sim.agents import * 
-import numpy as np 
-
 np.random.seed(0)
 
 # ch = setup_ch(
@@ -620,7 +589,7 @@ peg = market.amm.peg_multiplier / PEG_PRECISION
 sqrt_k = market.amm.sqrt_k / 1e13
 full_amm_position_quote = sqrt_k * peg * 2 * 1e6
 
-n_lps = 4
+n_lps = 2
 n_trades = 20
 
 # n_lps = 2
@@ -718,7 +687,7 @@ def collateral_difference(ch, initial_collatearl, verbose=False):
     for (i, user) in clearing_house.users.items():
         ui_pnl = user.collateral - init_collaterals[i]
         current_total_collateral += user.collateral
-        total_funding_payments += user.total_funding_payments
+        # total_funding_payments += user.total_funding_payments
     #     print(f'u{i} ({clearing_house.usernames[i]}) pnl:', ui_pnl)
     # print("market:", market.amm.total_fee_minus_distributions)
 
