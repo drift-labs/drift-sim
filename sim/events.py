@@ -114,6 +114,11 @@ class removeLiquidityEvent(Event):
     _event_name: str = "remove_liquidity"
     
     def run(self, clearing_house: ClearingHouse) -> ClearingHouse:
+        if self.lp_token_amount == 0: 
+            self.lp_token_amount = clearing_house \
+                .users[self.user_index] \
+                .lp_positions[self.market_index].lp_tokens
+
         clearing_house = clearing_house.remove_liquidity(
             self.market_index, 
             self.user_index, 

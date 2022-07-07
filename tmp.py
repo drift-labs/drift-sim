@@ -564,7 +564,143 @@ print("quote:", quote_amount_acquired / 1e6)
 #%%
 #%%
 #%%
+ch = setup_ch(
+    base_spread=0, 
+    strategies='',
+    n_steps=100,
+    n_users=0,
+)
+clearing_house = ch 
+market: Market = ch.markets[0]
+max_t = len(market.amm.oracle)
+
+peg = market.amm.peg_multiplier / PEG_PRECISION
+sqrt_k = market.amm.sqrt_k / 1e13
+full_amm_position_quote = sqrt_k * peg * 2 * 1e6
+
+lp_amount = full_amm_position_quote
+trade_amount = 100_000_000 * QUOTE_PRECISION
+n_lps = 20
+time = 0 
+
+events = []
+for i in range(n_lps):
+    events += [
+        DepositCollateralEvent(
+            user_index=i, 
+            deposit_amount=lp_amount, 
+            timestamp=time, 
+        ), 
+        addLiquidityEvent(
+            timestamp=time+1, 
+            market_index=0, 
+            user_index=i, 
+            quote_amount=lp_amount
+        ),
+    ]
+    time += 2
+
+events += [
+    DepositCollateralEvent(
+        user_index=i+1, 
+        deposit_amount=trade_amount, 
+        timestamp=time, 
+    ), 
+    OpenPositionEvent(
+        timestamp=time+1, 
+        user_index=i+1, 
+        direction='long', 
+        quote_amount=trade_amount, 
+        market_index=0
+    )
+]
+time += 2
+
+for i in range(n_lps):
+    events += [
+        removeLiquidityEvent(
+            timestamp=time, 
+            user_index=i,
+            market_index=0, 
+        )
+    ]
+    time += 1
+
+for e in events: 
+    ch = e.run(ch) # run the events 
+    # print(ch.markets[0].amm.net_base_asset_amount)
+
+ll_baa = 0 
+lp_baa = []
+for i in range(n_lps):
+    lp1 = ch.users[i].positions[0].base_asset_amount
+    print(
+        ch.users[i].lp_positions[0].fees_earned
+    )
+    # lp1 = ch.users[i].positions[0].quote_asset_amount
+    # last_baa = ch.users[i].lp_positions[0].last_net_base_asset_amount
+    # print(last_baa)
+    # ll_baa = last_baa
+    lp_baa.append(lp1)
+
+print(lp_baa)
+plt.plot(lp_baa)
+
+# lp0 = ch.users[0].positions[0].base_asset_amount
+# (lp0 - lp1) / 1e13
+
 #%%
+#%%
+#%%
+# events = [
+#     DepositCollateralEvent(
+#         user_index=0, 
+#         deposit_amount=lp_amount, 
+#         timestamp=0, 
+#         username="lp0"
+#     ),
+#     DepositCollateralEvent(
+#         user_index=1, 
+#         deposit_amount=lp_amount, 
+#         timestamp=0, 
+#         username="lp1"
+#     ),
+#     DepositCollateralEvent(
+#         user_index=2, 
+#         deposit_amount=trade_amount, 
+#         timestamp=0, 
+#         username="trader"
+#     ),
+#     addLiquidityEvent(
+#         timestamp=1, 
+#         market_index=0, 
+#         user_index=0, 
+#         quote_amount=lp_amount
+#     ),
+#     addLiquidityEvent(
+#         timestamp=2, 
+#         market_index=0, 
+#         user_index=1, 
+#         quote_amount=lp_amount
+#     ),
+#     OpenPositionEvent(
+#         timestamp=3, 
+#         user_index=2, 
+#         direction='long', 
+#         quote_amount=trade_amount, 
+#         market_index=0
+#     ), 
+#     removeLiquidityEvent(
+#         timestamp=4, 
+#         market_index=0, 
+#         user_index=0
+#     ), 
+#     removeLiquidityEvent(
+#         timestamp=5, 
+#         market_index=0, 
+#         user_index=1
+#     ), 
+# ]
 #%%
 #%%
 np.random.seed(0)

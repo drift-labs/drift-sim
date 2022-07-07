@@ -67,7 +67,6 @@ class AMM:
 
     # market making
     net_base_asset_amount: int = 0 # net user position
-    net_quote_asset_amount: int = 0
     base_spread: int = 0
     mark_std: int = 0
     buy_intensity: int = 0

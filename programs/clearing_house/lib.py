@@ -111,7 +111,7 @@ class ClearingHouse:
         # print("lp percent:", user_lp_token_amount / market.amm.lp_tokens)
 
         # assert user_lp_token_amount <= market.amm.lp_tokens, "trying to add too much liquidity"
-                        
+
         # deposit 50% of LP tokens then k increases by 2x
         # [sqrt(2) * x] * [sqrt(2) * y] = k * 2
         # increases k
@@ -238,6 +238,7 @@ class ClearingHouse:
         fee_amount = change_in_fees * lp_token_amount / total_lp_tokens  
         fee_amount = max_collateral_change(user, fee_amount)       
         user.collateral += fee_amount
+        lp_position.fees_earned += fee_amount
         market.amm.total_fee_minus_distributions -= fee_amount
         
         # give them portion of funding since deposit
@@ -253,7 +254,7 @@ class ClearingHouse:
         # update the lp position 
         lp_position.last_total_fee_minus_distributions = market.amm.total_fee_minus_distributions  
         lp_position.last_cumulative_lp_funding = market.amm.cumulative_lp_funding 
-        lp_position.last_net_base_asset_amount = market.amm.net_base_asset_amount 
+        # lp_position.last_net_base_asset_amount = market.amm.net_base_asset_amount 
     
     ## burns the lp tokens, earns fees+funding, 
     ## and takes on the AMM's position (for realz)
@@ -267,6 +268,7 @@ class ClearingHouse:
         market: Market = self.markets[market_index]
         lp_position: LPPosition = user.lp_positions[market_index]
         
+        assert lp_position.lp_tokens >= 0, "need lp tokens to remove"
         assert lp_token_amount <= lp_position.lp_tokens, "trying to remove too much liquidity"
         
         # settle them 
@@ -278,7 +280,6 @@ class ClearingHouse:
 
         market_position: MarketPosition = user.positions[market_index]
         market.amm.net_base_asset_amount += market_position.base_asset_amount
-        market.amm.net_quote_asset_amount += market_position.quote_asset_amount
         
         # update market shit
         reserve_scale = (market.amm.total_lp_tokens - lp_token_amount) \
@@ -463,7 +464,6 @@ class ClearingHouse:
 
         market.base_asset_amount += base_amount_acquired
         market.amm.net_base_asset_amount += base_amount_acquired
-        market.amm.net_quote_asset_amount -= quote_amount
                 
         return base_amount_acquired, quote_asset_amount_surplus
 
@@ -522,7 +522,6 @@ class ClearingHouse:
 
         market.base_asset_amount += base_amount_acquired
         market.amm.net_base_asset_amount += base_amount_acquired
-        market.amm.net_quote_asset_amount += quote_amount
         
         # compute pnl 
         if market_position.base_asset_amount > 0:
@@ -634,7 +633,6 @@ class ClearingHouse:
 
         market.base_asset_amount -= market_position.base_asset_amount
         market.amm.net_base_asset_amount -= market_position.base_asset_amount
-        market.amm.net_quote_asset_amount += quote_amount_acquired
         
         # update market position 
         market_position.last_cumulative_funding_rate = 0
