@@ -34,7 +34,7 @@ from dataclasses import dataclass, field
 from programs.clearing_house.math.pnl import *
 from programs.clearing_house.math.amm import *
 from programs.clearing_house.state import *
-from programs.clearing_house.state.user import User, MarketPosition, LPPosition
+from programs.clearing_house.state.user import User, MarketPosition 
 
 MARGIN_PRECISION = 10_000 # expo = -4
 
@@ -66,12 +66,10 @@ class ClearingHouse:
         # initialize user if not already 
         if user_index not in self.users: 
             market_positions = [MarketPosition() for _ in range(len(self.markets))]
-            lp_positions = [LPPosition() for _ in range(len(self.markets))]
             self.users[user_index] = User(
                 user_index=user_index,
                 collateral=0, 
                 positions=market_positions, 
-                lp_positions=lp_positions, 
             )
             self.usernames[user_index] = f"{name}{user_index}"
 
@@ -101,47 +99,31 @@ class ClearingHouse:
         assert user.collateral >= quote_amount, "Not enough collateral to add liquidity"
         
         # compute lp token amount for a given quote amount
-        # deposit / 2 / peg 
         user_lp_token_amount = int(
             quote_amount * AMM_TO_QUOTE_PRECISION_RATIO 
             / 2 
             / (market.amm.peg_multiplier / PEG_PRECISION)
         )
-        # print('lp tokens', user_lp_token_amount, 'total tokens', market.amm.lp_tokens, 'ratio', user_lp_token_amount / market.amm.lp_tokens)
-        # print("lp percent:", user_lp_token_amount / market.amm.lp_tokens)
-
-        # assert user_lp_token_amount <= market.amm.lp_tokens, "trying to add too much liquidity"
-
-        # deposit 50% of LP tokens then k increases by 2x
-        # [sqrt(2) * x] * [sqrt(2) * y] = k * 2
-        # increases k
-        # user_lp_token_amount = 0.5 * market.amm.lp_tokens
         
         reserve_scale =  (market.amm.total_lp_tokens + user_lp_token_amount) \
             / market.amm.total_lp_tokens
-        
+       
+        # update k 
         market.amm.base_asset_reserve *= reserve_scale
         market.amm.quote_asset_reserve *= reserve_scale
         market.amm.sqrt_k += user_lp_token_amount
-        
+
         market.amm.total_lp_tokens = market.amm.sqrt_k
         
         # lock collateral 
         user.locked_collateral += quote_amount
         
         # record other metrics
-        user_lp_position: LPPosition = LPPosition(
-            market_index=market_index,
-            lp_tokens=user_lp_token_amount,
-            last_cumulative_lp_funding=market.amm.cumulative_lp_funding,
-            last_net_base_asset_amount=market.amm.net_base_asset_amount, 
-            # TODO: figure out the earmark stuff
-            last_total_fee_minus_distributions=market.amm.total_fee_minus_distributions, 
-        )
-        user.lp_positions[market_index] = user_lp_position
-        
-        # transfer position from amm => user 
-        # market.amm.lp_tokens -= user_lp_token_amount
+        user_position = user.positions[market_index]
+        user_position.lp_tokens = user_lp_token_amount
+        user_position.last_cumulative_lp_funding = market.amm.cumulative_lp_funding
+        user_position.last_net_base_asset_amount = market.amm.net_base_asset_amount
+        user_position.last_total_fee_minus_distributions = market.amm.total_fee_minus_distributions
         
         return self 
     
@@ -152,7 +134,8 @@ class ClearingHouse:
     ):
         user: User = self.users[user_index]
         market: Market = self.markets[market_index]
-        lp_position: LPPosition = user.lp_positions[market_index]
+        lp_position: MarketPosition = user.positions[market_index]
+        assert lp_position.lp_tokens > 0, "trying to settle user who is not an lp"
         
         self.settle_lp_tokens(
             market, 
@@ -170,7 +153,7 @@ class ClearingHouse:
         lp_token_amount: int, 
     ):
         market_index = market.market_index
-        lp_position: LPPosition = user.lp_positions[market_index]
+        lp_position: MarketPosition = user.positions[market_index]
         total_lp_tokens = market.amm.total_lp_tokens
         
         # give them the amm position  
@@ -192,14 +175,12 @@ class ClearingHouse:
                 direction_to_close,
                 market.amm.sqrt_k
             )
-            # print('amm pos change:', amm_net_position_change/1e13)
 
             base_asset_amount = (
                 amm_net_position_change
                 * lp_token_amount 
                 / total_lp_tokens
             )
-            # print(new_quote_asset_reserve, lp_position.last_quote_asset_reserve)
 
             # someone goes long => amm_quote_position_change > 0
             amm_quote_position_change = (
@@ -208,7 +189,7 @@ class ClearingHouse:
             ) 
 
             # amm_quote_position_change > 0 then we need to increase cost basis 
-            ## market_position.quote_asset_amount is used for PnL 
+            # market_position.quote_asset_amount is used for PnL 
             quote_position_amount = int(
                 amm_quote_position_change
                 * (lp_token_amount / total_lp_tokens)
@@ -227,11 +208,6 @@ class ClearingHouse:
                 last_funding_rate_ts=self.time,
             )
             user.positions[market_index] = new_position
-    
-            # print(new_position)
-            # print(
-            #     f"user: {user.user_index} net_pos: {base_position_amount/1e13}"
-            # )
             
         # give them portion of fees since deposit 
         change_in_fees = market.amm.total_fee_minus_distributions - lp_position.last_total_fee_minus_distributions
@@ -254,7 +230,6 @@ class ClearingHouse:
         # update the lp position 
         lp_position.last_total_fee_minus_distributions = market.amm.total_fee_minus_distributions  
         lp_position.last_cumulative_lp_funding = market.amm.cumulative_lp_funding 
-        # lp_position.last_net_base_asset_amount = market.amm.net_base_asset_amount 
     
     ## burns the lp tokens, earns fees+funding, 
     ## and takes on the AMM's position (for realz)
@@ -266,7 +241,7 @@ class ClearingHouse:
     ):
         user: User = self.users[user_index]
         market: Market = self.markets[market_index]
-        lp_position: LPPosition = user.lp_positions[market_index]
+        lp_position: MarketPosition = user.positions[market_index]
         
         assert lp_position.lp_tokens >= 0, "need lp tokens to remove"
         assert lp_token_amount <= lp_position.lp_tokens, "trying to remove too much liquidity"
@@ -680,7 +655,7 @@ class ClearingHouse:
         user: User = self.users[user_index]
         market_position: MarketPosition = user.positions[market_index]
         
-        assert user.lp_positions[market_index].lp_tokens == 0, 'Cannot lp and close position'
+        assert user.positions[market_index].lp_tokens == 0, 'Cannot lp and close position'
         
         # do nothing 
         if market_position.base_asset_amount == 0:
@@ -727,7 +702,7 @@ class ClearingHouse:
         market_position: MarketPosition = user.positions[market_index]
         market = self.markets[market_index]
         oracle_price = market.amm.oracle.get_price(now)
-        assert user.lp_positions[market_index].lp_tokens == 0, 'Cannot lp and open position'
+        assert user.positions[market_index].lp_tokens == 0, 'Cannot lp and open position'
 
         mark_price_before = calculate_mark_price(market)
 

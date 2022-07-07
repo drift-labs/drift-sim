@@ -16,7 +16,7 @@ import numpy as np
 from programs.clearing_house.state import Oracle, User
 from programs.clearing_house.lib import ClearingHouse
 from sim.events import *
-from programs.clearing_house.state import User, LPPosition
+from programs.clearing_house.state import User 
 
 ''' Agents ABC '''
 
@@ -146,7 +146,7 @@ class LP(Agent):
 
         if self.has_deposited and self.lp_duration > 0 and now - self.deposit_start == self.lp_duration:
             user: User = state_i.users[self.user_index]
-            lp_position: LPPosition = user.lp_positions[self.market_index]
+            lp_position: MarketPosition = user.positions[self.market_index]
             print(f'u{self.user_index} rl..')
             return removeLiquidityEvent(
                 timestamp=now, 
