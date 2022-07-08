@@ -58,7 +58,7 @@ def default_set_up(self, n_users=1, default_collateral=1000, bq_ar=1e6):
 class TestLP(unittest.TestCase):
     
     def setUp(self):
-        default_set_up(self, n_users=2, default_collateral=10_000_000) 
+        default_set_up(self, n_users=2, default_collateral=10_000_000, bq_ar=100) 
         
     def test_deposit_remove_liquidity(self):
         ch = self.clearing_house 
@@ -67,10 +67,8 @@ class TestLP(unittest.TestCase):
         _user = copy.deepcopy(user)
         _userj = user.to_json(ch)
 
-        deposit_amount = 100 * QUOTE_PRECISION
+        deposit_amount = 10_000_000 * QUOTE_PRECISION
         ch = ch.add_liquidity(0, 0, deposit_amount)
-        
-        self.assertEqual(user.locked_collateral, deposit_amount)
         self.assertGreater(user.positions[0].lp_tokens, _user.positions[0].lp_tokens)
         
         ch = ch.remove_liquidity(
@@ -89,7 +87,7 @@ class TestLP(unittest.TestCase):
         user: User = ch.users[0]
         market: Market = ch.markets[0]
 
-        deposit_amount = 100 * QUOTE_PRECISION
+        deposit_amount = 1e6 * QUOTE_PRECISION
         ch = ch.add_liquidity(0, 0, deposit_amount)
         
         # do some trades
@@ -115,7 +113,7 @@ class TestLP(unittest.TestCase):
         ch = OpenPositionEvent(
             user_index=1, 
             direction='long',
-            quote_amount=100 * QUOTE_PRECISION,
+            quote_amount=1e6 * QUOTE_PRECISION,
             market_index=0,
             timestamp=ch.time,
         ).run(ch)
