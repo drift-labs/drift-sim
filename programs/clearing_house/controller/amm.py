@@ -109,9 +109,6 @@ def swap_base_asset(
     # update market
     amm.quote_asset_reserve = new_quote_asset_amount
     amm.base_asset_reserve = new_base_asset_amount
-    # amm.sqrt_k = int((
-    #     amm.base_asset_reserve * amm.quote_asset_reserve
-    # ) ** .5)
 
     return quote_asset_acquired, quote_asset_amount_surplus
 
@@ -130,8 +127,6 @@ def _swap_base_asset(
         swap_direction,
     )
     
-    # quote_reserve_change = abs(new_quote_asset_amount - initial_quote_asset_reserve)
-    
     # remove = go long by removing base asset from pool 
     quote_reserve_change = {
         SwapDirection.ADD: initial_quote_asset_reserve - new_quote_asset_amount,
@@ -147,8 +142,6 @@ def _swap_base_asset(
     
     if swap_direction == driftpy.math.amm.SwapDirection.REMOVE:
         quote_amount_acquired += 1
-    
-
     
     return new_base_asset_amount, new_quote_asset_amount, quote_amount_acquired
 

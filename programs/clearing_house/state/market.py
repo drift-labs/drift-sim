@@ -83,6 +83,7 @@ class AMM:
     strategies: str = ''
     
     minimum_quote_asset_trade_size: int = 10_000_000
+    minimum_base_asset_trade_size: int = 10_000_000
 
     quote_asset_amount_long: int = 0
     quote_asset_amount_short: int = 0

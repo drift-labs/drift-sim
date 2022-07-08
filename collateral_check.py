@@ -1,3 +1,6 @@
+## this notebook ensures the collateral of all users / lps add up if everyone 
+## were to close 
+
 # %%
 %reload_ext autoreload
 %autoreload 2

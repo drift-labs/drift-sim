@@ -63,30 +63,99 @@ def setup_ch(base_spread=0, strategies='', n_steps=100, n_users=2):
 
     return ch
 
-ch = setup_ch(n_users=2)
-
+ch = setup_ch(n_users=3)
 market = ch.markets[0]
-market.amm.total_fee_minus_distributions = 0 
+
+# from programs.clearing_house.controller.amm import _swap_base_asset
+# (new_base_asset_amount,
+# new_quote_asset_amount,
+# quote_asset_acquired) =  _swap_base_asset(market.amm, 1 * 1e13, SwapDirection.REMOVE)
+# print('quote in', quote_asset_acquired)
+#
+# market.amm.base_asset_reserve = new_base_asset_amount
+# market.amm.quote_asset_reserve = new_quote_asset_amount
+#
+# (new_base_asset_amount,
+# new_quote_asset_amount,
+# quote_asset_acquired) = _swap_base_asset(market.amm, 1 * 1e13, SwapDirection.ADD)
+# print('quote out', quote_asset_acquired)
+
+# compute initial collateral in system 
+init_collateral = 0 
+init_collaterals = {}
+for (i, user) in ch.users.items():
+    init_collaterals[i] = user.collateral
+    init_collateral += user.collateral 
+    print(f'u{i} collateral:', user.collateral)
+init_collateral /= 1e6
 
 ch.add_liquidity(0, 0, 1_000_000 * QUOTE_PRECISION)
 ch.add_liquidity(0, 1, 1_000_000 * QUOTE_PRECISION)
 
-market.amm.total_fee_minus_distributions = 100 
+ch.open_position(    
+    PositionDirection.LONG, 
+    2, 
+    100 * QUOTE_PRECISION,
+    0
+)
 
 ch.settle_lp(0, 0)
-print(market.amm.total_fee_minus_distributions)
 ch.settle_lp(0, 1)
-print(market.amm.total_fee_minus_distributions)
 
-print(
-    "market_fee, user_fee:",
-    market.amm.total_fee_minus_distributions, 
-    ch.users[0].positions[0].last_total_fee_minus_distributions,
-)
+# this settle loses the lp money
 og_collateral = ch.users[0].collateral
 ch.settle_lp(0, 0)
 post_settle_collateral = ch.users[0].collateral
 
-print('lp loses money:', post_settle_collateral < og_collateral)
+lp_money_lost = og_collateral - post_settle_collateral
+print("lp money lost:", lp_money_lost)
+print('lp loses money:', post_settle_collateral < og_collateral) # we dont want this
 
+print("close out all the users...")
+clearing_house = ch
+for market_index in range(len(clearing_house.markets)):
+    market: Market = clearing_house.markets[market_index]
+    
+    for user_index in clearing_house.users:
+        user: User = clearing_house.users[user_index]
+        position = user.positions[market_index]
+        is_lp = position.lp_tokens > 0
+        
+        if is_lp: 
+            event = removeLiquidityEvent(
+                clearing_house.time, 
+                market_index, 
+                user_index,
+                position.lp_tokens
+            )
+            clearing_house = event.run(clearing_house)
+            clearing_house = clearing_house.change_time(1)
+            print(f"closing lp{user_index}")
+        
+        if position.base_asset_amount != 0: 
+            event = ClosePositionEvent(
+                clearing_house.time, 
+                user_index, 
+                market_index
+            )
+            clearing_house = event.run(clearing_house)
+            clearing_house = clearing_house.change_time(1)
+            print(f'closing user{user_index}')
+
+# recompute total collateral in system
+final_collateral = 0
+for (i, user) in ch.users.items():
+    final_collateral += user.collateral
+    ui_pnl = user.collateral - init_collaterals[i]
+    print(f'u{i} rpnl:', ui_pnl / 1e6)
+
+print("market:", market.amm.total_fee_minus_distributions / 1e6)
+final_collateral = final_collateral + market.amm.total_fee_minus_distributions
+final_collateral /= 1e6
+
+print("test (init, final):", init_collateral, final_collateral)
+print('difference:', init_collateral - final_collateral)
+
+abs_difference = abs(init_collateral - final_collateral) 
+print('passes:', abs_difference <= 1e-3)
 

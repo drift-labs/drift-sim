@@ -33,6 +33,14 @@ from dataclasses import dataclass, field
 from programs.clearing_house.state import *
 
 @dataclass
+class LPMetrics:
+    fee_payment: int = 0
+    funding_payment: int = 0 
+    unsettled_pnl: int = 0 
+    base_asset_amount: int = 0 
+    quote_asset_amount: int = 0 
+    
+@dataclass
 class MarketPosition: 
     market_index: int = 0
     base_asset_amount: int = 0
@@ -51,7 +59,6 @@ class MarketPosition:
 class User:
     user_index: int
     collateral: int
-    locked_collateral: int = 0
     
     positions: list[MarketPosition] = field(default_factory=list)
     
