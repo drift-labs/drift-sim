@@ -133,13 +133,17 @@ class ClearingHouse:
         user: User = self.users[user_index]
         market: Market = self.markets[market_index]
         lp_position: MarketPosition = user.positions[market_index]
-        assert lp_position.lp_tokens > 0, "trying to settle user who is not an lp"
+        if lp_position.lp_tokens < 0:
+            print("warning: trying to settle user who is not an lp")
+            return self 
         
         self.settle_lp_tokens(
-            market, 
             user, 
+            market, 
             lp_position.lp_tokens # settle the full amount 
         )
+
+        return self
 
     def get_lp_metrics(
         self, 
@@ -249,21 +253,6 @@ class ClearingHouse:
         lp_position.last_total_fee_minus_distributions = market.amm.total_fee_minus_distributions
         lp_position.last_cumulative_funding_rate = market.amm.cumulative_lp_funding
 
-    def settle_lp(
-        self, 
-        market_index: int, 
-        user_index: int, 
-    ): 
-        user = self.users[user_index]
-        market = self.markets[market_index]
-        position = user.positions[market_index]
-
-        self.settle_lp_tokens(
-            user, 
-            market, 
-            position.lp_tokens # full settle 
-        )
-
     ## burns the lp tokens, earns fees+funding, 
     ## and takes on the AMM's position (for realz)
     def remove_liquidity(
@@ -290,7 +279,6 @@ class ClearingHouse:
         )
 
         market_position: MarketPosition = user.positions[market_index]
-
         market_position.lp_tokens -= lp_token_amount
 
         if market_position.base_asset_amount > 0:

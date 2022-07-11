@@ -1,4 +1,5 @@
 from multiprocessing import Event
+from typing import Set
 from driftpy.math.amm import calculate_amm_reserves_after_swap, get_swap_direction
 from driftpy.math.amm import calculate_swap_output, calculate_terminal_price, calculate_mark_price_amm
 from driftpy.math.trade import calculate_trade_slippage, calculate_target_price_trade, calculate_trade_acquired_amounts
@@ -13,7 +14,7 @@ import copy
 import pandas as pd
 import numpy as np
 
-from programs.clearing_house.state import Oracle, User
+from programs.clearing_house.state import Oracle, User, user
 from programs.clearing_house.lib import ClearingHouse
 from sim.events import *
 from programs.clearing_house.state import User 
@@ -284,6 +285,26 @@ class Noise(Agent):
             return NullEvent(timestamp=now)                                                          
 
         event = OpenPositionEvent(now, self.user_index, direction, trade_size, market_index)
+        return event
+
+class SettleLP(Agent):
+    def __init__(self, user_index: int, market_index: int, every_x_steps: int = 1) -> None:
+        self.user_index = user_index
+        self.market_index = market_index
+        self.every_x_steps = every_x_steps
+
+    def setup(self, state: ClearingHouse) -> Event:
+        return NullEvent(state.time)
+
+    def run(self, state: ClearingHouse) -> Event: 
+        event = NullEvent(state.time)
+        if state.time % self.every_x_steps == 0: 
+            event = SettleLPEvent(
+                timestamp=state.time, 
+                user_index=self.user_index, 
+                market_index=self.market_index,
+            )
+
         return event
 
 class ArbFunding(Agent):

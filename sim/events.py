@@ -69,7 +69,7 @@ class Event:
 class NullEvent(Event):     
     _event_name: str = "null"
     
-    def run(self, clearing_house: ClearingHouse) -> ClearingHouse:
+    def run(self, clearing_house: ClearingHouse, verbose=False) -> ClearingHouse:
         return clearing_house
     
 @dataclass
@@ -80,7 +80,9 @@ class DepositCollateralEvent(Event):
     
     _event_name: str = "deposit_collateral"
     
-    def run(self, clearing_house: ClearingHouse) -> ClearingHouse:
+    def run(self, clearing_house: ClearingHouse, verbose=False) -> ClearingHouse:
+        if verbose:
+            print(f'u{self.user_index} deposit...')
         clearing_house = clearing_house.deposit_user_collateral(
             self.user_index, 
             self.deposit_amount, 
@@ -96,7 +98,9 @@ class addLiquidityEvent(Event):
 
     _event_name: str = "add_liquidity"
 
-    def run(self, clearing_house: ClearingHouse) -> ClearingHouse:
+    def run(self, clearing_house: ClearingHouse, verbose=False) -> ClearingHouse:
+        if verbose:
+            print(f'u{self.user_index} {self._event_name}...')
         clearing_house = clearing_house.add_liquidity(
             self.market_index,
             self.user_index,
@@ -113,7 +117,9 @@ class removeLiquidityEvent(Event):
 
     _event_name: str = "remove_liquidity"
     
-    def run(self, clearing_house: ClearingHouse) -> ClearingHouse:
+    def run(self, clearing_house: ClearingHouse, verbose=False) -> ClearingHouse:
+        if verbose:
+            print(f'u{self.user_index} {self._event_name}...')
         if self.lp_token_amount == 0: 
             self.lp_token_amount = clearing_house \
                 .users[self.user_index] \
@@ -136,7 +142,9 @@ class OpenPositionEvent(Event):
     
     _event_name: str = "open_position"
     
-    def run(self, clearing_house: ClearingHouse) -> ClearingHouse:
+    def run(self, clearing_house: ClearingHouse, verbose=False) -> ClearingHouse:
+        if verbose:
+            print(f'u{self.user_index} {self._event_name}...')
         direction = {
             "long": PositionDirection.LONG,
             "short": PositionDirection.SHORT,
@@ -157,10 +165,28 @@ class ClosePositionEvent(Event):
     market_index: int
     _event_name: str = "close_position"
     
-    def run(self, clearing_house: ClearingHouse) -> ClearingHouse:        
+    def run(self, clearing_house: ClearingHouse, verbose=False) -> ClearingHouse:
+        if verbose:
+            print(f'u{self.user_index} {self._event_name}...')
         clearing_house = clearing_house.close_position(
             self.user_index, 
             self.market_index
+        )
+        
+        return clearing_house
+         
+@dataclass
+class SettleLPEvent(Event): 
+    user_index: int 
+    market_index: int
+    _event_name: str = "settle_lp"
+    
+    def run(self, clearing_house: ClearingHouse, verbose=False) -> ClearingHouse:
+        if verbose:
+            print(f'u{self.user_index} {self._event_name}...')
+        clearing_house = clearing_house.settle_lp(
+            self.market_index,
+            self.user_index, 
         )
         
         return clearing_house
