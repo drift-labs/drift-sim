@@ -34,14 +34,13 @@ import matplotlib.pyplot as plt
 import numpy as np 
 import pandas as pd
 from dataclasses import dataclass, field
-from driftpy.math.amm import calculate_price
 
 from programs.clearing_house.math.pnl import *
 from programs.clearing_house.math.amm import *
 from programs.clearing_house.state import *
 from programs.clearing_house.lib import *
 
-from sim.helpers import random_walk_oracle, rand_heterosk_oracle, class_to_json
+from sim.helpers import close_all_users, random_walk_oracle, rand_heterosk_oracle, class_to_json
 from sim.events import * 
 from sim.agents import * 
 
@@ -51,7 +50,7 @@ def setup_ch(base_spread=0, strategies='', n_steps=100, n_users=2):
     
     amm = AMM(
         oracle=oracle, 
-        base_asset_reserve=1_000_000 * 1e13, 
+        base_asset_reserve=1_000_000 * 1e13,
         quote_asset_reserve=1_000_000 * 1e13,
         funding_period=60,
         peg_multiplier=int(oracle.get_price(0)*1e3),
@@ -71,649 +70,6 @@ def setup_ch(base_spread=0, strategies='', n_steps=100, n_users=2):
 
     return ch
 
-"""
-user goes long 
-user goes closes long 
-user pnl = market fees 
-"""
-ch = setup_ch()
-
-user0: User = ch.users[0]
-user1: User = ch.users[1]
-market: Market = ch.markets[0]
-
-init_collateral = user0.collateral
-ch = ch.open_position(
-    PositionDirection.LONG, 0, 100 * QUOTE_PRECISION, 0
-).close_position(0, 0)
-
-math.isclose(
-    (user0.collateral + market.amm.total_fee_minus_distributions) / 1e6, 
-    init_collateral / 1e6
-)
-
-#%%
-"""
-u0 longs 
-u1 shorts 
-u0 closes (pays pnl to u0) 
-u1 closes (pnl from u1) 
-"""
-ch = setup_ch()
-
-user0: User = ch.users[0]
-user1: User = ch.users[1]
-market: Market = ch.markets[0]
-
-u0_init_collateral = user0.collateral
-u1_init_collateral = user1.collateral
-total_collateral = user0.collateral + user1.collateral
-
-total_collateral = user0.collateral + user1.collateral
-
-ch.open_position(
-    PositionDirection.LONG, 0, 100 * QUOTE_PRECISION, 0
-).open_position(
-    PositionDirection.SHORT, 1, 100 * QUOTE_PRECISION, 0
-).close_position(
-    0, 0
-).close_position(
-    1, 0
-)
-
-u0_pnl_collateral = user0.collateral - u0_init_collateral
-u1_pnl_collateral = user1.collateral - u1_init_collateral
-print(
-    "u0, u1 pnl:",
-    u0_pnl_collateral,
-    u1_pnl_collateral
-)
-
-expected_total_collateral = user0.collateral + user1.collateral + market.amm.total_fee_minus_distributions
-
-math.isclose(total_collateral/1e6, expected_total_collateral/1e6, rel_tol=1e-3)
-
-#%%
-"""
-u0 longs 
-u1 shorts smaller amount [price moves down]
-u0 closes (pays pnl to u0) [negative pnl is smaller]
-u1 closes (pnl from u1) [positive pnl is smaller]
-"""
-ch = setup_ch()
-
-user0: User = ch.users[0]
-user1: User = ch.users[1]
-market: Market = ch.markets[0]
-
-u0_init_collateral = user0.collateral
-u1_init_collateral = user1.collateral
-total_collateral = user0.collateral + user1.collateral
-
-ch.open_position(
-    PositionDirection.LONG, 0, 100 * QUOTE_PRECISION, 0
-).open_position(
-    PositionDirection.SHORT, 1, 50 * QUOTE_PRECISION, 0
-)
-
-print(user0.positions[0])
-print(user1.positions[0])
-
-ch = ch.close_position(
-    0, 0
-).close_position(
-    1, 0
-)
-
-u0_pnl_collateral = user0.collateral - u0_init_collateral
-u1_pnl_collateral = user1.collateral - u1_init_collateral
-print(
-    "u0, u1, market, pnl:",
-    u0_pnl_collateral,
-    u1_pnl_collateral, 
-    market.amm.total_fee_minus_distributions
-)
-
-expected_total_collateral = user0.collateral + user1.collateral + market.amm.total_fee_minus_distributions
-
-math.isclose(total_collateral/1e6, expected_total_collateral/1e6, rel_tol=1e-3)
-
-#%%
-#%%
-#%%
-#%%
-"""
-lp mints
-u0 longs (price goes up)
-lp burns (takes on a short pos)
-u1 closes 
-lp closes 
-"""
-np.random.seed(0)
-ch = setup_ch()
-
-user0: User = ch.users[0]
-user1: User = ch.users[1]
-market: Market = ch.markets[0]
-
-# percent = 1.
-# trade_size = 100_000 
-
-mark_prices = []
-
-percent = .5
-# percent = 100
-# trade_size = 1000
-# trade_size = 100_000 * 1e4
-trade_size = 1_000_000
-
-peg = market.amm.peg_multiplier / PEG_PRECISION
-sqrt_k = market.amm.sqrt_k / 1e13
-full_amm_position_quote = sqrt_k * peg * 2 * 1e6
-percent_amm_position_quote = int(full_amm_position_quote * percent)
-
-ch = ch.deposit_user_collateral(
-    0, percent_amm_position_quote
-).deposit_user_collateral(
-    1, trade_size * QUOTE_PRECISION
-)
-
-u0_init_collateral = user0.collateral
-u1_init_collateral = user1.collateral
-total_collateral = user0.collateral + user1.collateral
-
-print('og mark', calculate_mark_price(market))
-
-mark_prices.append(
-    calculate_mark_price(market)   
-)
-
-print('add liq...')
-print(market.amm.sqrt_k, market.amm.net_base_asset_amount)
-prev_k = market.amm.sqrt_k
-ch = ch.add_liquidity(
-    0, 0, percent_amm_position_quote
-)
-# hardcode
-# market.amm.base_asset_reserve *= 2 
-# market.amm.quote_asset_reserve *= 2 
-# market.amm.sqrt_k = int((
-#     market.amm.base_asset_reserve/1e13 * market.amm.quote_asset_reserve/1e13
-# ) ** .5) * 1e13
-
-print(market.amm.sqrt_k, market.amm.net_base_asset_amount)
-
-print('opening...')
-ch = ch.open_position(
-    PositionDirection.LONG, 1, trade_size * QUOTE_PRECISION, 0
-)
-
-print('rm liq...')
-print(market.amm.sqrt_k, market.amm.net_base_asset_amount)
-ch = ch.remove_liquidity(
-    0, 0, user0.lp_positions[0].lp_tokens
-)
-# # hardcode
-# market.amm.base_asset_reserve /= 2 
-# market.amm.quote_asset_reserve /= 2 
-# market.amm.sqrt_k /= 2
-
-print(market.amm.sqrt_k, market.amm.net_base_asset_amount)
-print("--- lp:", user0.positions[0])
-print("--- user:", user1.positions[0])
-
-mark_prices.append(
-    calculate_mark_price(market)   
-)
-
-print('postlong mark', calculate_mark_price(market))
-
-# print(
-#     "u0, u1, calc upnl:",
-#     calculate_position_pnl(market, user0.positions[0]), 
-#     calculate_position_pnl(market, user1.positions[0]), 
-# )
-
-_lp_position = copy.deepcopy(user0.positions[0])
-_user_position = copy.deepcopy(user1.positions[0])
-
-# lp close
-print('lp closes...')
-ch = ch.close_position(0, 0)
-print('post-lp close mark', calculate_mark_price(market))
-mark_prices.append(calculate_mark_price(market))
-
-# user close
-print('user closes...')
-ch = ch.close_position(1, 0)
-print('post-user close mark', calculate_mark_price(market))
-mark_prices.append(calculate_mark_price(market))
-
-print("lp", user0.positions[0])
-print(market.amm.sqrt_k, market.amm.net_base_asset_amount)
-
-u0_pnl_collateral = user0.collateral - u0_init_collateral
-u1_pnl_collateral = user1.collateral - u1_init_collateral
-print(
-    "pnl (u0, u1, market):",
-    u0_pnl_collateral / 1e6,
-    u1_pnl_collateral / 1e6, 
-    market.amm.total_fee_minus_distributions / 1e6
-)
-
-expected_total_collateral = user0.collateral + user1.collateral + market.amm.total_fee_minus_distributions
-print("test (total, post-sim):", total_collateral/1e6, expected_total_collateral/1e6)
-print("difference:", total_collateral/1e6 - expected_total_collateral/1e6)
-is_close = math.isclose(total_collateral/1e6, expected_total_collateral/1e6, abs_tol=1e-3)
-print('isclose:', is_close)
-
-plt.plot(mark_prices)
-# print(abs(mark_prices[0] - mark_prices[-1]) * _lp_position.base_asset_amount / 1e13)
-# print(abs(mark_prices[0] - mark_prices[-1]) * _user_position.base_asset_amount / 1e13)
-
-#%%
-#%%
-#%%
-#%%
-#%%
-#%%
-
-#%%
-#%%
-#%%
-#%%
-#%%
-#%%
-"""
-lp mints
-u0 longs (price goes up)
-lp burns (takes on a short pos)
-u1 closes 
-lp closes 
-"""
-np.random.seed(0)
-ch = setup_ch()
-
-user0: User = ch.users[0]
-user1: User = ch.users[1]
-market: Market = ch.markets[0]
-
-print('mark', calculate_mark_price(market))
-
-percent = .5 # LP percentage 
-# percent = .5
-
-# user_trade_size = 1_000_000
-user_trade_size = 1_000
-
-peg = market.amm.peg_multiplier / PEG_PRECISION
-sqrt_k = market.amm.sqrt_k / 1e13
-full_amm_position_quote = sqrt_k * peg * 2 * 1e6
-percent_amm_position_quote = int(full_amm_position_quote * percent)
-
-ch = ch.deposit_user_collateral(
-    0, 
-    percent_amm_position_quote
-).deposit_user_collateral(
-    1, 
-    user_trade_size * QUOTE_PRECISION
-)
-
-total_collateral = 0 
-init_collaterals = {}
-for (i, user) in ch.users.items():
-    init_collaterals[i] = user.collateral
-    total_collateral += user.collateral 
-    print(f'u{i} collateral:', user.collateral)
-total_collateral /= 1e6
-
-ch = ch.add_liquidity(
-    0, 0, percent_amm_position_quote
-).open_position(
-    PositionDirection.LONG, 1, user_trade_size * QUOTE_PRECISION, 0
-).remove_liquidity(
-    0, 0, user0.lp_positions[0].lp_tokens
-)
-
-print()
-print(user0)
-print()
-print('---')
-print()
-print(user1)
-print()
-print('---')
-print()
-print(market.amm.total_fee_minus_distributions)
-print()
-
-print(user0.collateral + user1.collateral + market.amm.total_fee_minus_distributions)
-print(total_collateral * 1e6)
-
-# print(
-#     "u0, u1, calc upnl:",
-#     _calculate_position_pnl(ch, market, user0.positions[0]), 
-#     _calculate_position_pnl(ch, market, user1.positions[0]), 
-# )
-
-# print('---mark', calculate_mark_price(market))
-# print(
-#     "u0, u1, calc entry:",
-#     calculate_entry_price(user0.positions[0]) / 1e10, 
-#     calculate_entry_price(user1.positions[0]) / 1e10, 
-# )
-
-ch = ch.close_position(
-    1, 0    
-).close_position(
-    0, 0    
-)
-
-current_total_collateral = 0
-for (i, user) in ch.users.items():
-    ui_pnl = user.collateral - init_collaterals[i]
-    current_total_collateral += user.collateral
-    print(f'u{i} rpnl:', ui_pnl / 1e6)
-print("market:", market.amm.total_fee_minus_distributions / 1e6)
-print('mark', calculate_mark_price(market))
-
-expected_total_collateral = current_total_collateral +  + market.amm.total_fee_minus_distributions
-expected_total_collateral /= 1e6
-
-abs_difference = abs(total_collateral - expected_total_collateral) 
-print("test (total, expected):", total_collateral, expected_total_collateral)
-print('difference:', total_collateral - expected_total_collateral)
-abs_difference <= 1e-3
-
-#%%
-#%%
-#%%
-
-# 100% = full amm position 
-# user goes long 
-# u take the short 
-# user closes (feeds you the pnl)
-# lp closes (takes your pnl)
-
-#%%
-
-# 50% = full amm position 
-# user goes long 
-# u take 50% of the short 
-# user closes (feeds you the pnl -- same as before) - really now 50% should go to market 
-# lp closes (50% of the pnl)
-# where did the other 50% go?
-
-#%%
-
-# 50% = full amm position 
-# user goes long 
-# u take 50% of the short 
-# user closes (feeds you the pnl -- same as before) - really now 50% should go to market 
-# lp closes (50% of the pnl)
-# where did the other 50% go?
-
-# 50% = full amm position 
-# user goes long 
-# u take 50% of the short 
-# user closes (feeds you the pnl -- same as before) - really now 50% should go to market 
-# lp closes (50% of the pnl)
-# where did the other 50% go?
-
-#%%
-ch = setup_ch(
-    base_spread=0, 
-    strategies='',
-    n_steps=100,
-    n_users=0,
-)
-init_collateral = 100 * QUOTE_PRECISION
-market = ch.markets[0]
-print('ar', market.amm.base_asset_reserve, market.amm.quote_asset_reserve)
-
-ch = ch.deposit_user_collateral(
-    user_index=0, 
-    collateral_amount=100 * QUOTE_PRECISION
-).open_position(
-    PositionDirection.LONG, 
-    0, 100 * QUOTE_PRECISION, 0
-).close_position(
-    0, 0
-)
-
-print('ar', market.amm.base_asset_reserve, market.amm.quote_asset_reserve)
-# ch.users[0].collateral + ch.markets[0].amm.total_fee_minus_distributions, init_collateral
-
-#%%
-#%%
-#%%
-# compute swap output 
-ch = setup_ch(
-    base_spread=0, 
-    strategies='',
-    n_steps=100,
-    n_users=0,
-)
-market = ch.markets[0]
-print('ar', market.amm.base_asset_reserve, market.amm.quote_asset_reserve)
-
-market: Market = ch.markets[0]
-direction = PositionDirection.LONG
-swap_direction = {
-    PositionDirection.SHORT: SwapDirection.REMOVE,
-    PositionDirection.LONG: SwapDirection.ADD
-}[direction]
-
-initial_base_asset_amount = market.amm.base_asset_reserve
-initial_quote_asset_amount = market.amm.quote_asset_reserve
-
-[new_quote_asset_amount, new_base_asset_amount] = driftpy.math.positions.calculate_amm_reserves_after_swap(
-    market.amm, 
-    driftpy.math.amm.AssetType.QUOTE,
-    1 * QUOTE_PRECISION, 
-    swap_direction,
-)
-# update market 
-market.amm.base_asset_reserve = new_base_asset_amount
-market.amm.quote_asset_reserve = new_quote_asset_amount
-print('ar', market.amm.base_asset_reserve, market.amm.quote_asset_reserve)
-
-assert initial_quote_asset_amount < new_quote_asset_amount
-assert initial_base_asset_amount > new_base_asset_amount
-
-base_amount_acquired = initial_base_asset_amount - new_base_asset_amount
-print("base:", base_amount_acquired / 1e13)
-# print('ar', market.amm.base_asset_reserve, market.amm.quote_asset_reserve)
-
-initial_quote_asset_reserve = market.amm.quote_asset_reserve
-swap_direction = {
-    PositionDirection.SHORT: SwapDirection.REMOVE,
-    PositionDirection.LONG: SwapDirection.ADD
-}[direction]
-
-initial_base_asset_amount = market.amm.base_asset_reserve
-initial_quote_asset_amount = market.amm.quote_asset_reserve
-
-[new_quote_asset_amount, new_base_asset_amount] = driftpy.math.positions.calculate_amm_reserves_after_swap(
-    market.amm, 
-    driftpy.math.amm.AssetType.BASE,
-    base_amount_acquired, 
-    SwapDirection.ADD,
-)
-
-# update market 
-# market.amm.base_asset_reserve = new_base_asset_amount
-# market.amm.quote_asset_reserve = new_quote_asset_amount
-print('ar', new_base_asset_amount, new_quote_asset_amount)
-
-assert initial_quote_asset_amount > new_quote_asset_amount
-assert initial_base_asset_amount < new_base_asset_amount
-
-#%%
-#%%
-quote_reserve_change = {
-    SwapDirection.ADD: initial_quote_asset_reserve - new_quote_asset_amount,
-    SwapDirection.REMOVE: new_quote_asset_amount - initial_quote_asset_reserve,
-}[swap_direction]
-
-# reserves to quote amount 
-quote_amount_acquired = (
-    quote_reserve_change 
-    * market.amm.peg_multiplier 
-    / AMM_TIMES_PEG_TO_QUOTE_PRECISION_RATIO
-)
-print("quote:", quote_amount_acquired / 1e6)
-
-#%%
-#%%
-#%%
-ch = setup_ch(
-    base_spread=0, 
-    strategies='',
-    n_steps=100,
-    n_users=0,
-)
-clearing_house = ch 
-market: Market = ch.markets[0]
-max_t = len(market.amm.oracle)
-
-peg = market.amm.peg_multiplier / PEG_PRECISION
-sqrt_k = market.amm.sqrt_k / 1e13
-full_amm_position_quote = sqrt_k * peg * 2 * 1e6
-
-lp_amount = full_amm_position_quote
-trade_amount = 100_000_000 * QUOTE_PRECISION
-n_lps = 20
-time = 0 
-
-events = []
-for i in range(n_lps):
-    events += [
-        DepositCollateralEvent(
-            user_index=i, 
-            deposit_amount=lp_amount, 
-            timestamp=time, 
-        ), 
-        addLiquidityEvent(
-            timestamp=time+1, 
-            market_index=0, 
-            user_index=i, 
-            quote_amount=lp_amount
-        ),
-    ]
-    time += 2
-
-events += [
-    DepositCollateralEvent(
-        user_index=i+1, 
-        deposit_amount=trade_amount, 
-        timestamp=time, 
-    ), 
-    OpenPositionEvent(
-        timestamp=time+1, 
-        user_index=i+1, 
-        direction='long', 
-        quote_amount=trade_amount, 
-        market_index=0
-    )
-]
-time += 2
-
-for i in range(n_lps):
-    events += [
-        removeLiquidityEvent(
-            timestamp=time, 
-            user_index=i,
-            market_index=0, 
-        )
-    ]
-    time += 1
-
-for e in events: 
-    ch = e.run(ch) # run the events 
-    # print(ch.markets[0].amm.net_base_asset_amount)
-
-ll_baa = 0 
-lp_baa = []
-for i in range(n_lps):
-    lp1 = ch.users[i].positions[0].base_asset_amount
-    print(
-        ch.users[i].lp_positions[0].fees_earned
-    )
-    # lp1 = ch.users[i].positions[0].quote_asset_amount
-    # last_baa = ch.users[i].lp_positions[0].last_net_base_asset_amount
-    # print(last_baa)
-    # ll_baa = last_baa
-    lp_baa.append(lp1)
-
-print(lp_baa)
-plt.plot(lp_baa)
-
-# lp0 = ch.users[0].positions[0].base_asset_amount
-# (lp0 - lp1) / 1e13
-
-#%%
-#%%
-#%%
-# events = [
-#     DepositCollateralEvent(
-#         user_index=0, 
-#         deposit_amount=lp_amount, 
-#         timestamp=0, 
-#         username="lp0"
-#     ),
-#     DepositCollateralEvent(
-#         user_index=1, 
-#         deposit_amount=lp_amount, 
-#         timestamp=0, 
-#         username="lp1"
-#     ),
-#     DepositCollateralEvent(
-#         user_index=2, 
-#         deposit_amount=trade_amount, 
-#         timestamp=0, 
-#         username="trader"
-#     ),
-#     addLiquidityEvent(
-#         timestamp=1, 
-#         market_index=0, 
-#         user_index=0, 
-#         quote_amount=lp_amount
-#     ),
-#     addLiquidityEvent(
-#         timestamp=2, 
-#         market_index=0, 
-#         user_index=1, 
-#         quote_amount=lp_amount
-#     ),
-#     OpenPositionEvent(
-#         timestamp=3, 
-#         user_index=2, 
-#         direction='long', 
-#         quote_amount=trade_amount, 
-#         market_index=0
-#     ), 
-#     removeLiquidityEvent(
-#         timestamp=4, 
-#         market_index=0, 
-#         user_index=0
-#     ), 
-#     removeLiquidityEvent(
-#         timestamp=5, 
-#         market_index=0, 
-#         user_index=1
-#     ), 
-# ]
-#%%
-#%%
-np.random.seed(0)
-
-# ch = setup_ch(
-#     base_spread=100, 
-#     strategies='PrePeg',
-#     n_steps=1_000,
-# )
-
 ch = setup_ch(
     base_spread=0, 
     strategies='',
@@ -729,116 +85,80 @@ sqrt_k = market.amm.sqrt_k / 1e13
 full_amm_position_quote = sqrt_k * peg * 2 * 1e6
 
 n_lps = 2
-n_trades = 20
+n_trades = 2
 
 # n_lps = 2
 # n_trades = 2
 
-def generate_lp(user_index):
-    start = np.random.randint(0, max_t)
-    dur = np.random.randint(0, max_t // 2)
-    amount = np.random.randint(0, full_amm_position_quote // (n_lps + 10))
-    return LP(
-        lp_start_time=start,
-        lp_duration=dur, 
-        deposit_amount=amount, 
-        user_index=user_index, 
-        market_index=0
-    )
+class RandomSimulation():
+    def __init__(self, ch: ClearingHouse) -> None:
+        self.ch = ch 
+        market: Market = ch.markets[0]
+        self.max_t = len(market.amm.oracle)
 
-def generate_trade(user_index):
-    start = np.random.randint(0, max_t)
-    dur = np.random.randint(0, max_t // 2)
-    amount = np.random.randint(0, 100_000)
-    
-    return OpenClose(
-        start_time=start,
-        duration=dur, 
-        direction='long' if np.random.choice([0, 1]) == 0 else 'short',
-        quote_amount=amount * QUOTE_PRECISION, 
-        user_index=user_index, 
-        market_index=0
-    )
+        peg = market.amm.peg_multiplier / PEG_PRECISION
+        sqrt_k = market.amm.sqrt_k / 1e13
+        self.full_amm_position_quote = sqrt_k * peg * 2 * 1e6
 
+    def generate_lp_settler(self, user_index, market_index) -> Agent:
+        return SettleLP(
+            user_index, 
+            market_index, 
+            every_x_steps=1, # tmp
+        )
+
+    def generate_lp(self, user_index, market_index) -> Agent:
+        start = np.random.randint(0, max_t)
+        dur = np.random.randint(0, max_t // 2)
+        amount = np.random.randint(0, full_amm_position_quote // (n_lps + 10))
+        return LP(
+            lp_start_time=start,
+            lp_duration=dur, 
+            deposit_amount=amount, 
+            user_index=user_index, 
+            market_index=market_index
+        )
+
+    def generate_trade(self, user_index, market_index) -> Agent:
+        start = np.random.randint(0, max_t)
+        dur = np.random.randint(0, max_t // 2)
+        amount = np.random.randint(0, 100_000)
+        
+        return OpenClose(
+            start_time=start,
+            duration=dur, 
+            direction='long' if np.random.choice([0, 1]) == 0 else 'short',
+            quote_amount=amount * QUOTE_PRECISION, 
+            user_index=user_index, 
+            market_index=market_index
+        )
+
+sim = RandomSimulation(ch)
 agents = []
 agents += [
-    generate_lp(i) for i in range(n_lps)
+    sim.generate_lp(i, 0) for i in range(n_lps)
 ]
+# agents += [
+#     sim.generate_lp_settler(i, 0) for i in range(n_lps)
+# ]
 agents += [
-    generate_trade(i) for i in range(n_lps, n_lps+n_trades)
+    sim.generate_trade(i, 0) for i in range(n_lps, n_lps+n_trades)
 ]
 
 def collateral_difference(ch, initial_collatearl, verbose=False):
     clearing_house = copy.deepcopy(ch)
-    
-    events = []
-    clearing_houses = []
-    mark_prices = []
-        
-    # close out all the users 
-    # print("close out all the users...")
-    for market_index in range(len(clearing_house.markets)):
-        market: Market = clearing_house.markets[market_index]
-        
-        for user_index in clearing_house.users:
-            user: User = clearing_house.users[user_index]
-            lp_position: LPPosition = user.lp_positions[market_index]
-            is_lp = lp_position.lp_tokens > 0
-            
-            if is_lp: 
-                event = removeLiquidityEvent(
-                    clearing_house.time, 
-                    market_index, 
-                    user_index,
-                    lp_position.lp_tokens
-                )
-                clearing_house = event.run(clearing_house)
-                
-                mark_prices.append(calculate_mark_price(market))
-                events.append(event)
-                clearing_houses.append(copy.deepcopy(clearing_house))
-            
-                if verbose: 
-                    print(f'u{user_index} rl...')
-                clearing_house = clearing_house.change_time(1)
-            
-            user: User = clearing_house.users[user_index]
-            market_position: MarketPosition = user.positions[market_index]
-            if market_position.base_asset_amount != 0: 
-                event = ClosePositionEvent(
-                    clearing_house.time, 
-                    user_index, 
-                    market_index
-                )
-                clearing_house = event.run(clearing_house)
-                
-                mark_prices.append(calculate_mark_price(market))
-                events.append(event)
-                clearing_houses.append(copy.deepcopy(clearing_house))
-                
-                if verbose: 
-                    print(f'u{user_index} cp...')
-                clearing_house = clearing_house.change_time(1)
 
+    clearing_house, (chs, events, mark_prices) = close_all_users(clearing_house, verbose)
+    
     # ensure collateral still adds up 
     current_total_collateral = 0
-    total_funding_payments = 0 
-    for (i, user) in clearing_house.users.items():
-        ui_pnl = user.collateral - init_collaterals[i]
+    for (_, user) in clearing_house.users.items():
         current_total_collateral += user.collateral
-        # total_funding_payments += user.total_funding_payments
-    #     print(f'u{i} ({clearing_house.usernames[i]}) pnl:', ui_pnl)
-    # print("market:", market.amm.total_fee_minus_distributions)
-
     end_total_collateral = current_total_collateral + market.amm.total_fee_minus_distributions
     end_total_collateral /= 1e6
-
     abs_difference = abs(initial_collatearl - end_total_collateral) 
-    # print("test (total, end):", initial_collatearl, end_total_collateral)
-    # print('difference:', abs_difference)
-    abs_difference <= 1e-3
     
-    return abs_difference, events, clearing_houses, mark_prices
+    return abs_difference, events, chs, mark_prices
 
 print('#agents:', len(agents))
 
@@ -852,9 +172,9 @@ for agent in agents:
     event = agent.setup(ch)
     ch = event.run(ch)
     
-    # events.append(event)
-    # clearing_houses.append(copy.deepcopy(ch))
-    # differences.append(0)
+    events.append(event)
+    clearing_houses.append(copy.deepcopy(ch))
+    differences.append(0)
     
     ch.change_time(1)
 
@@ -949,6 +269,59 @@ for k in good:
         print(k, diff)
 
 #%%
+# record total collateral pre trades     
+def compute_total_collateral(ch):
+    total_collateral = 0 
+    init_collaterals = {}
+    for (i, user) in ch.users.items():
+        init_collaterals[i] = user.collateral
+        total_collateral += user.collateral 
+    
+    for market_index in range(len(ch.markets)):
+        market: Market = ch.markets[market_index]
+        total_collateral += market.amm.total_fee_minus_distributions
+
+    total_collateral /= 1e6
+    return total_collateral
+
+ch = setup_ch(
+    base_spread=0, 
+    strategies='',
+    n_steps=100,
+    n_users=0,
+)
+
+init_events = [
+    DepositCollateralEvent(timestamp=0, user_index=0, deposit_amount=78096592245, username='LP', _event_name='deposit_collateral'),
+    DepositCollateralEvent(timestamp=1, user_index=1, deposit_amount=680701018549, username='LP', _event_name='deposit_collateral'),
+    DepositCollateralEvent(timestamp=2, user_index=2, deposit_amount=18231000000, username='openclose', _event_name='deposit_collateral'),
+    DepositCollateralEvent(timestamp=3, user_index=3, deposit_amount=27479000000, username='openclose', _event_name='deposit_collateral'),
+]
+for e in init_events: ch = e.run(ch)
+
+total_collateral = compute_total_collateral(ch)
+
+events = [
+    addLiquidityEvent(timestamp=227, market_index=0, user_index=0, quote_amount=78096592245, _event_name='add_liquidity'),
+    OpenPositionEvent(timestamp=274, user_index=3, direction='short', quote_amount=27479000000, market_index=0, _event_name='open_position'),
+    addLiquidityEvent(timestamp=290, market_index=0, user_index=1, quote_amount=680701018549, _event_name='add_liquidity'),
+    OpenPositionEvent(timestamp=314, user_index=2, direction='long', quote_amount=18231000000, market_index=0, _event_name='open_position'), 
+]
+
+_events = []
+for e in events: 
+    ch = e.run(ch)
+    _events.append(e)
+
+    abs_difference, close_events, _, _ = collateral_difference(ch, total_collateral, verbose=True)
+    if abs_difference > 1:
+        events += close_events
+        print('blahhH!!!')
+        break 
+    
+print(_events, close_events)
+print(abs_difference)
+
 #%%
 #%%
 #%%

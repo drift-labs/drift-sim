@@ -148,3 +148,23 @@ def close_all_users(clearing_house, verbose=False):
                 clearing_house = clearing_house.change_time(1)
 
     return clearing_house, (clearing_houses, events, mark_prices)
+
+def compute_total_collateral(ch):
+    init_collaterals = {}
+    total_collateral = 0 
+    for (i, user) in ch.users.items():
+        init_collaterals[i] = user.collateral
+        total_collateral += user.collateral
+    # user_collateral = total_collateral
+    # print('user collateral:', total_collateral/1e6)
+    
+    for market_index in range(len(ch.markets)):
+        market: Market = ch.markets[market_index]
+        total_collateral += market.amm.total_fee_minus_distributions
+        # subtract what we paid lps for 
+        total_collateral -= market.amm.lp_fee_payment
+    # print('market collateral:', (total_collateral - user_collateral)/1e6)
+    # print('total collateral:', total_collateral/1e6)
+
+    total_collateral /= 1e6
+    return total_collateral

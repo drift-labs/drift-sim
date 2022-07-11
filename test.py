@@ -17,6 +17,7 @@ from programs.clearing_house.state import *
 from programs.clearing_house.lib import * 
 from programs.clearing_house.state import * 
 from sim.events import * 
+from sim.helpers import compute_total_collateral
 
 import numpy as np 
 import pandas as pd
@@ -141,23 +142,21 @@ class TestLP(unittest.TestCase):
   
     def test_lp(self):
         # make bar larger for larger trades
-        default_set_up(self, n_users=2, default_collateral=0, bq_ar=1e8) 
         
         for user_close_first in [True, False]:
             for trade_direction in [PositionDirection.LONG, PositionDirection.SHORT]:
                 for trade_size in [1e4, 1e6, 1e7]:
                     for p in [1., .75, .5, .25, .01]:
-                        self._test_lp(p, trade_size, trade_direction, user_close_first)
                         default_set_up(self, n_users=2, default_collateral=0, bq_ar=1e8) 
+                        self._test_lp(p, trade_size, trade_direction, user_close_first)
     
     def _test_lp(self, lp_percent, trade_size, trade_direction, user_close_first):
+
         ch: ClearingHouse = self.clearing_house
         market: Market = ch.markets[0]
         
         lp_index = 0
         user_index = 1 
-        
-        # print(lp_percent, trade_size, trade_direction)
         
         lp: User = ch.users[lp_index]
         user: User = ch.users[user_index]
@@ -177,42 +176,32 @@ class TestLP(unittest.TestCase):
         )
         
         # record total collateral pre trades     
-        total_collateral = 0 
-        init_collaterals = {}
-        for (i, user) in ch.users.items():
-            init_collaterals[i] = user.collateral
-            total_collateral += user.collateral 
-        total_collateral /= 1e6
-        
+        init_collateral = compute_total_collateral(ch)
+
         ch = ch.add_liquidity(
             0, lp_index, percent_amm_position_quote
         ).open_position(
             trade_direction, user_index, trade_size * QUOTE_PRECISION, 0
         ).remove_liquidity(
             0, lp_index, lp.positions[0].lp_tokens
-        ).close_position(
-            user_index, 0    
-        ).close_position(
-            lp_index, 0    
         )
-  
-        current_total_collateral = 0
-        for (i, user) in ch.users.items():
-            current_total_collateral += user.collateral
+
+        if user_close_first:
+            ch = ch.close_position(
+                user_index, 0    
+            ).close_position(
+                lp_index, 0    
+            )
+        else: 
+            ch = ch.close_position(
+                lp_index, 0    
+            ).close_position(
+                user_index, 0    
+            )
         
-        #     ui_pnl = user.collateral - init_collaterals[i]
-        #     print(f'u{i} rpnl:', ui_pnl / 1e6)
-        # print("market:", market.amm.total_fee_minus_distributions / 1e6)
-        # print('mark', calculate_mark_price(market))
-        
-        expected_total_collateral = current_total_collateral + market.amm.total_fee_minus_distributions
-        expected_total_collateral /= 1e6
-        abs_difference = abs(total_collateral - expected_total_collateral) 
-        
-        # print("test (total, expected):", total_collateral, expected_total_collateral)
-        # print('difference:', total_collateral - expected_total_collateral)
-        # print('testPass:', abs_difference <= 1e-3)
-        
+        final_collateral = compute_total_collateral(ch)
+        abs_difference = abs(init_collateral - final_collateral)
+
         self.assertLessEqual(abs_difference, 1e-3)
         
 
@@ -846,6 +835,91 @@ class TestClearingHousePositions(unittest.TestCase):
         self.assertLess(user.collateral, prev_collateral)
         # market get fees
         self.assertGreater(market.amm.total_fee_minus_distributions, prev_fees)
+
+import math 
+class TestCollateral(unittest.TestCase):
+        
+    def setUp(self):
+        default_set_up(self, n_users=2)
+
+    def test_long_short(self):
+        """
+        user goes long 
+        user goes closes long 
+        user pnl = market fees 
+        """
+        ch = self.clearing_house
+        user0: User = ch.users[0]
+        market: Market = ch.markets[0]
+
+        init_collateral = user0.collateral
+        ch = ch.open_position(
+            PositionDirection.LONG, 0, 100 * QUOTE_PRECISION, 0
+        ).close_position(0, 0)
+
+        math.isclose(
+            (user0.collateral + market.amm.total_fee_minus_distributions) / 1e6, 
+            init_collateral / 1e6, 
+        )
+
+    def test_two_upnl(self):
+        """
+        u0 longs 
+        u1 shorts 
+        u0 closes (pays pnl to u0) 
+        u1 closes (pnl from u1) 
+        """
+
+        ch = self.clearing_house
+        user0: User = ch.users[0]
+        user1: User = ch.users[1]
+        market: Market = ch.markets[0]
+
+        total_collateral = user0.collateral + user1.collateral
+
+        total_collateral = user0.collateral + user1.collateral
+
+        ch.open_position(
+            PositionDirection.LONG, 0, 100 * QUOTE_PRECISION, 0
+        ).open_position(
+            PositionDirection.SHORT, 1, 100 * QUOTE_PRECISION, 0
+        ).close_position(
+            0, 0
+        ).close_position(
+            1, 0
+        )
+
+        expected_total_collateral = user0.collateral + user1.collateral + market.amm.total_fee_minus_distributions
+        math.isclose(total_collateral/1e6, expected_total_collateral/1e6, abs_tol=1e-3)
+
+    def test_two_upnl_smaller(self):
+        """
+        u0 longs 
+        u1 shorts smaller amount [price moves down]
+        u0 closes (pays pnl to u0) [negative pnl is smaller]
+        u1 closes (pnl from u1) [positive pnl is smaller]
+        """
+        ch = self.clearing_house 
+
+        user0: User = ch.users[0]
+        user1: User = ch.users[1]
+        market: Market = ch.markets[0]
+        total_collateral = user0.collateral + user1.collateral
+
+        ch.open_position(
+            PositionDirection.LONG, 0, 100 * QUOTE_PRECISION, 0
+        ).open_position(
+            PositionDirection.SHORT, 1, 50 * QUOTE_PRECISION, 0
+        )
+
+        ch = ch.close_position(
+            0, 0
+        ).close_position(
+            1, 0
+        )
+
+        expected_total_collateral = user0.collateral + user1.collateral + market.amm.total_fee_minus_distributions
+        math.isclose(total_collateral/1e6, expected_total_collateral/1e6, abs_tol=1e-3)
 
 if __name__ == '__main__':
     unittest.main()

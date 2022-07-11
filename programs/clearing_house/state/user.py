@@ -52,7 +52,7 @@ class MarketPosition:
     lp_tokens: int = 0
     last_total_fee_minus_distributions: int = 0
     last_cumulative_lp_funding: int = 0
-    last_net_base_asset_amount: int = 0
+    last_taker_net_baa: int = 0
     fees_earned: int = 0 
     
 @dataclass

@@ -106,22 +106,22 @@ class ClearingHouse:
             / (market.amm.peg_multiplier / PEG_PRECISION)
         )
         
+        # record other metrics
+        user_position = user.positions[market_index]
+        user_position.lp_tokens = user_lp_token_amount
+        user_position.last_taker_net_baa = market.amm.taker_net_baa
+        user_position.last_cumulative_lp_funding = market.amm.cumulative_lp_funding
+        user_position.last_total_fee_minus_distributions = market.amm.total_fee_minus_distributions
+
+        # update k 
         reserve_scale =  (market.amm.total_lp_tokens + user_lp_token_amount) \
             / market.amm.total_lp_tokens
-       
-        # update k 
         market.amm.base_asset_reserve *= reserve_scale
         market.amm.quote_asset_reserve *= reserve_scale
         market.amm.sqrt_k += user_lp_token_amount
 
-        market.amm.total_lp_tokens = market.amm.sqrt_k
-        
-        # record other metrics
-        user_position = user.positions[market_index]
-        user_position.lp_tokens = user_lp_token_amount
-        user_position.last_cumulative_lp_funding = market.amm.cumulative_lp_funding
-        user_position.last_net_base_asset_amount = market.amm.net_base_asset_amount
-        user_position.last_total_fee_minus_distributions = market.amm.total_fee_minus_distributions
+        # track new lp 
+        market.amm.total_lp_tokens += user_lp_token_amount
         
         return self 
     
@@ -133,6 +133,7 @@ class ClearingHouse:
         user: User = self.users[user_index]
         market: Market = self.markets[market_index]
         lp_position: MarketPosition = user.positions[market_index]
+
         if lp_position.lp_tokens < 0:
             print("warning: trying to settle user who is not an lp")
             return self 
@@ -169,8 +170,8 @@ class ClearingHouse:
 
         # give them the amm position  
         amm_net_position_change = (
-            lp_position.last_net_base_asset_amount -
-            market.amm.net_base_asset_amount 
+            lp_position.last_taker_net_baa -
+            market.amm.taker_net_baa 
         )
 
         market_baa = 0 
@@ -219,7 +220,8 @@ class ClearingHouse:
             else:
                 print('warning market position to small')
                 print(f"{base_asset_amount} {min_baa} : {quote_asset_amount} {min_qaa}")
-                unsettled_pnl = -market.amm.minimum_quote_asset_trade_size
+                tsize = market.amm.minimum_quote_asset_trade_size
+                unsettled_pnl = -tsize
             
         lp_metrics = LPMetrics(
             base_asset_amount=market_baa, 
@@ -245,13 +247,17 @@ class ClearingHouse:
         lp_position.base_asset_amount += lp_metrics.base_asset_amount
         lp_position.quote_asset_amount += lp_metrics.quote_asset_amount
 
-        lp_pnl = lp_metrics.fee_payment + lp_metrics.funding_payment
-        user.collateral += lp_pnl
-        market.amm.total_fee_minus_distributions -= lp_metrics.fee_payment
-    
-        lp_position.last_net_base_asset_amount = market.amm.net_base_asset_amount
-        lp_position.last_total_fee_minus_distributions = market.amm.total_fee_minus_distributions
+        lp_payment = lp_metrics.fee_payment + lp_metrics.funding_payment
+        user.collateral += lp_payment
+        user.collateral += lp_metrics.unsettled_pnl
+        market.amm.lp_fee_payment += lp_metrics.fee_payment
+
+        assert lp_metrics.unsettled_pnl <= 0, 'shouldnt happen'
+        market.amm.total_fee_minus_distributions += -lp_metrics.unsettled_pnl
+        
         lp_position.last_cumulative_funding_rate = market.amm.cumulative_lp_funding
+        lp_position.last_taker_net_baa = market.amm.taker_net_baa
+        lp_position.last_total_fee_minus_distributions = market.amm.total_fee_minus_distributions
 
     ## burns the lp tokens, earns fees+funding, 
     ## and takes on the AMM's position (for realz)
@@ -287,8 +293,11 @@ class ClearingHouse:
             market_position.last_cumulative_funding_rate = market.amm.cumulative_funding_rate_short
         
         # update market shit
-        market.amm.net_base_asset_amount += market_position.base_asset_amount
+        # track new position on lp stats 
+        market.amm.lp_net_baa += market_position.base_asset_amount
         market.open_interest += 1 
+
+        # market.amm.net_base_asset_amount += market_position.base_asset_amount
 
         total_lp_tokens = market.amm.sqrt_k
         reserve_scale = (total_lp_tokens - lp_token_amount) / total_lp_tokens 
@@ -457,6 +466,7 @@ class ClearingHouse:
 
         market.base_asset_amount += base_amount_acquired
         market.amm.net_base_asset_amount += base_amount_acquired
+        market.amm.taker_net_baa += base_amount_acquired
                 
         return base_amount_acquired, quote_asset_amount_surplus
 
@@ -515,7 +525,8 @@ class ClearingHouse:
 
         market.base_asset_amount += base_amount_acquired
         market.amm.net_base_asset_amount += base_amount_acquired
-        
+        market.amm.taker_net_baa += base_amount_acquired
+
         # compute pnl 
         if market_position.base_asset_amount > 0:
             pnl = quote_amount - initial_quote_asset_amount_closed
@@ -618,7 +629,6 @@ class ClearingHouse:
     
         # update market 
         market.open_interest -= 1        
-        market_position.quote_asset_amount = 0
 
         if market_position.base_asset_amount > 0:
             market.base_asset_amount_long -= market_position.base_asset_amount
@@ -629,10 +639,12 @@ class ClearingHouse:
 
         market.base_asset_amount -= market_position.base_asset_amount
         market.amm.net_base_asset_amount -= market_position.base_asset_amount
+        market.amm.taker_net_baa -= market_position.base_asset_amount
         
         # update market position 
         market_position.last_cumulative_funding_rate = 0
         market_position.base_asset_amount = 0
+        market_position.quote_asset_amount = 0
 
         return quote_amount_acquired, quote_asset_amount_surplus
     
@@ -716,6 +728,7 @@ class ClearingHouse:
     ):
         if (quote_amount == 0):
             return self 
+
         self_copy = copy.deepcopy(self) # incase of reverts 
         now = self.time
         

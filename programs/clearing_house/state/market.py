@@ -40,9 +40,10 @@ class AMM:
     peg_multiplier: int = 0 
     
     # liquidity providing 
-    total_lp_tokens: int = 0  
-    lp_tokens: int = 0
     cumulative_lp_funding: int = 0 
+    lp_net_baa: int = 0 
+    taker_net_baa: int = 0 
+    lp_fee_payment: int = 0
     
     # funding rates 
     last_funding_rate: int = 0

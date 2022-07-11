@@ -11,7 +11,6 @@ import driftpy
 import os 
 import datetime
 import math 
-from sim.agents import * 
 import numpy as np 
 
 from driftpy.math.amm import *
@@ -34,11 +33,12 @@ from programs.clearing_house.math.amm import *
 from programs.clearing_house.state import *
 from programs.clearing_house.lib import *
 
-from sim.helpers import close_all_users, random_walk_oracle, rand_heterosk_oracle, class_to_json
+from sim.helpers import *
 from sim.events import * 
 from sim.agents import * 
 
 def setup_ch(base_spread=0, strategies='', n_steps=100, n_users=2):
+    np.random.seed(0)
     prices, timestamps = random_walk_oracle(1, n_steps=n_steps)
     oracle = Oracle(prices=prices, timestamps=timestamps)
     
@@ -64,29 +64,14 @@ def setup_ch(base_spread=0, strategies='', n_steps=100, n_users=2):
 
     return ch
 
-# record total collateral pre trades     
-def compute_total_collateral(ch):
-    total_collateral = 0 
-    init_collaterals = {}
-    for (i, user) in ch.users.items():
-        init_collaterals[i] = user.collateral
-        total_collateral += user.collateral 
-    
-    for market_index in range(len(ch.markets)):
-        market: Market = ch.markets[market_index]
-        total_collateral += market.amm.total_fee_minus_distributions
-
-    total_collateral /= 1e6
-    return total_collateral
-
 def collateral_difference(ch, initial_collatearl, verbose=False):
     clearing_house = copy.deepcopy(ch)
 
     # close all the positions
     if verbose: 
         print('closing users..')
+        
     clearing_house, (chs, events, mark_prices) = close_all_users(clearing_house, verbose)
-    
     end_total_collateral = compute_total_collateral(clearing_house)
     abs_difference = abs(initial_collatearl - end_total_collateral) 
     
@@ -94,7 +79,7 @@ def collateral_difference(ch, initial_collatearl, verbose=False):
 
 #%%
 ch = setup_ch(
-    base_spread=0, 
+    base_spread=0,
     strategies='',
     n_steps=100,
     n_users=0,
@@ -125,14 +110,15 @@ for e in events:
 
     try: 
         abs_difference, close_events, _, _ = collateral_difference(ch, total_collateral)
-    except Exception: 
+    except Exception as e: 
         broke = True 
+        print(e)
    
     if abs_difference > 1 or broke:
+        print("abs diff:", abs_difference)
         print('blahhH!!!')
         break 
    
-from pprint import pprint as print
 print([e._event_name for e in _events])
     
 abs_difference, close_events, _, _ = collateral_difference(ch, total_collateral, verbose=True)
