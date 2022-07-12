@@ -1,55 +1,32 @@
-total_fees = 0
-total_lp_balance = 0 # interest space 
-total_lp_tokens = 0 # real space 
-fee_cum_interest = 1
+cumm_fee_per_lp = 0 
+total_lp_shares = 0 
 
-def add_lp(deposit_amount):
-    global total_lp_balance, total_lp_tokens, fee_cum_interest
-    lp_balance = deposit_amount / fee_cum_interest
-    total_lp_balance += lp_balance
-    total_lp_tokens += deposit_amount
-    return lp_balance
+def add_liquidty(token_amount): 
+    global total_lp_shares
+    total_lp_shares += token_amount
+    return (token_amount, cumm_fee_per_lp)
 
-def remove_lp(lp_balance):
-    global total_lp_balance, total_lp_tokens, fee_cum_interest
-    lp_tokens = lp_balance * fee_cum_interest
-    total_lp_balance -= lp_balance
-    total_lp_tokens -= lp_tokens
-    return lp_tokens
+def remove_liquidity(token_amount, last_cumm_fee):
+    global total_lp_shares
+    total_lp_shares -= token_amount
+    fee_payment = token_amount * (cumm_fee_per_lp - last_cumm_fee)
+    return fee_payment
 
-# lp adds 
-deposit_amount = 100 
-lp0_balance = add_lp(deposit_amount)
+# add lp 
+lp0_shares, lp0_last_cumm_fee = add_liquidty(10) 
 
-# another lp adds 
-deposit_amount = 100 
-lp1_balance = add_lp(deposit_amount)
+# add lp 
+lp1_shares, lp1_last_cumm_fee = add_liquidty(20) 
 
-# trading occurs 
+# fees 
 fee = 10 
-fee_cum_interest += (total_lp_tokens + fee) / total_lp_balance - fee_cum_interest
-total_lp_tokens += fee
+cumm_fee_per_lp += fee / total_lp_shares
 
-# another lp adds 
-deposit_amount = 100 
-lp2_balance = add_lp(deposit_amount)
+# remove lp 
+lp1_fee_payment = remove_liquidity(lp1_shares, lp1_last_cumm_fee)
 
-# trading occurs 
-fee = 10 
-fee_cum_interest += (total_lp_tokens + fee) / total_lp_balance - fee_cum_interest
-total_lp_tokens += fee 
+# remove lp 
+lp0_fee_payment = remove_liquidity(lp0_shares, lp0_last_cumm_fee)
 
-# lp removes 
-lp0_balance = remove_lp(lp0_balance)
-lp1_balance = remove_lp(lp1_balance)
-lp2_balance = remove_lp(lp2_balance)
-
-# 108.38709677419354 108.38709677419354
-print(
-    lp0_balance, lp1_balance 
-)
-
-# 103.2258064516129
-print(
-    lp2_balance
-)
+print(lp0_fee_payment)
+print(lp1_fee_payment)
