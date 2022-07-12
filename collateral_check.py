@@ -148,7 +148,7 @@ sqrt_k = market.amm.sqrt_k / 1e13
 full_amm_position_quote = sqrt_k * peg * 2 * 1e6
 
 n_lps = 2
-n_trades = 10
+n_trades = 1
 
 # n_lps = 2
 # n_trades = 2
@@ -247,8 +247,8 @@ for i, e in enumerate(events):
 def pprint(x):
     print("\t", x, "\n")
 
-# _ = [pprint(e) for e in events if e._event_name != 'null']
-_ = [print(e._event_name, e.user_index) for e in events if e._event_name != 'null']
+_ = [pprint(e) for e in events if e._event_name != 'null']
+# _ = [print(e._event_name, e.user_index) for e in events if e._event_name != 'null']
 
 #%%
 _events = [e for e in events if e._event_name != 'null']
@@ -275,7 +275,20 @@ abs_difference = abs(init_total_collateral - end_total_collateral)
 abs_difference
 
 #%%
+json_chs = [
+    ch.to_json() for ch in tqdm(clearing_houses)
+]
+results = pd.DataFrame(json_chs)
+keep_columns = results.columns
+keep_columns = [c for c in keep_columns if results[c].dtype == float or results[c].dtype == int]
+# keep_columns = [c for c in keep_columns if 'u1' in c] # only lp 
+filtered_df = results[keep_columns]
+filtered_df.plot()
+
 #%%
+df = pd.DataFrame(data=clearing_houses[-1].to_json(), index=[0])
+df.plot()
+
 #%%
 #%%
 #%%

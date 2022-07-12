@@ -155,6 +155,7 @@ def compute_total_collateral(ch):
     for (i, user) in ch.users.items():
         init_collaterals[i] = user.collateral
         total_collateral += user.collateral
+
     # user_collateral = total_collateral
     # print('user collateral:', total_collateral/1e6)
     
@@ -163,6 +164,8 @@ def compute_total_collateral(ch):
         total_collateral += market.amm.total_fee_minus_distributions
         # subtract what we paid lps for 
         total_collateral -= market.amm.lp_fee_payment
+        total_collateral += market.amm.upnl
+
     # print('market collateral:', (total_collateral - user_collateral)/1e6)
     # print('total collateral:', total_collateral/1e6)
 

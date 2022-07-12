@@ -44,6 +44,20 @@ def max_collateral_change(user, delta):
         delta = -user.collateral
     return delta
 
+def get_updated_k_result(
+    market: Market, 
+    new_sqrt_k: int, 
+): 
+    sqrt_percision = 1e13 
+    sqrt_k_ratio = new_sqrt_k * sqrt_percision / market.amm.sqrt_k
+
+    bar = market.amm.base_asset_reserve * sqrt_k_ratio / sqrt_percision
+    sqrt_k = new_sqrt_k
+    invariant = sqrt_k * sqrt_k
+    qar = invariant / bar 
+
+    return bar, qar, sqrt_k
+
 @dataclass
 class ClearingHouse: 
     total_usdc = 0 
@@ -81,7 +95,6 @@ class ClearingHouse:
         
         return self 
     
-    
     ## adds quote amount to take on the AMM's position (virtually) and have 
     ## a proportion of the future fees earned -- tracked by a lp_token
     def add_liquidity(
@@ -113,12 +126,12 @@ class ClearingHouse:
         user_position.last_cumulative_lp_funding = market.amm.cumulative_lp_funding
         user_position.last_total_fee_minus_distributions = market.amm.total_fee_minus_distributions
 
-        # update k 
-        reserve_scale =  (market.amm.total_lp_tokens + user_lp_token_amount) \
-            / market.amm.total_lp_tokens
-        market.amm.base_asset_reserve *= reserve_scale
-        market.amm.quote_asset_reserve *= reserve_scale
-        market.amm.sqrt_k += user_lp_token_amount
+        # update k
+        new_sqrt_k = market.amm.sqrt_k + user_lp_token_amount
+        bar, qar, sqrt_k = get_updated_k_result(market, new_sqrt_k)
+        market.amm.base_asset_reserve = bar 
+        market.amm.quote_asset_reserve = qar 
+        market.amm.sqrt_k = sqrt_k
 
         # track new lp 
         market.amm.total_lp_tokens += user_lp_token_amount
@@ -156,16 +169,19 @@ class ClearingHouse:
         lp_token_amount = lp_tokens_to_settle
 
         # give them portion of fees since deposit 
+        # print('lp fee (total, last):', market.amm.total_fee_minus_distributions, lp_position.last_total_fee_minus_distributions)
         change_in_fees = market.amm.total_fee_minus_distributions - lp_position.last_total_fee_minus_distributions
         assert change_in_fees >= 0, "lp loses money"
 
         fee_payment = change_in_fees * lp_token_amount / total_lp_tokens  
 
         # give them portion of funding since deposit
+        print(market.amm.cumulative_lp_funding, lp_position.last_cumulative_lp_funding)
         change_in_funding = (
-            market.amm.cumulative_lp_funding 
-            - lp_position.last_cumulative_lp_funding  
+            market.amm.cumulative_lp_funding   
+            - lp_position.last_cumulative_lp_funding
         ) / AMM_TO_QUOTE_PRECISION_RATIO # in quote 
+        change_in_funding *= -1 # consistent with settle_funding         
         funding_payment = change_in_funding * lp_token_amount / total_lp_tokens  
 
         # give them the amm position  
@@ -247,14 +263,22 @@ class ClearingHouse:
         lp_position.base_asset_amount += lp_metrics.base_asset_amount
         lp_position.quote_asset_amount += lp_metrics.quote_asset_amount
 
-        lp_payment = lp_metrics.fee_payment + lp_metrics.funding_payment
-        user.collateral += lp_payment
-        user.collateral += lp_metrics.unsettled_pnl
-        market.amm.lp_fee_payment += lp_metrics.fee_payment
-
-        assert lp_metrics.unsettled_pnl <= 0, 'shouldnt happen'
-        market.amm.total_fee_minus_distributions += -lp_metrics.unsettled_pnl
+        lp_payment = lp_metrics.fee_payment + lp_metrics.unsettled_pnl
         
+        print("lp funding payment:", lp_metrics.funding_payment)
+        print("lp fee payment:", lp_metrics.fee_payment)
+
+        lp_payment += lp_metrics.funding_payment
+        lp_payment = max_collateral_change(user, lp_payment)
+        user.collateral += lp_payment
+
+        market.amm.lp_fee_payment += lp_metrics.fee_payment
+       
+        # this increases it so its ok? 
+        assert lp_metrics.unsettled_pnl <= 0, 'shouldnt happen'
+        # market.amm.total_fee_minus_distributions -= lp_metrics.unsettled_pnl
+        market.amm.upnl -= lp_metrics.unsettled_pnl
+    
         lp_position.last_cumulative_funding_rate = market.amm.cumulative_lp_funding
         lp_position.last_taker_net_baa = market.amm.taker_net_baa
         lp_position.last_total_fee_minus_distributions = market.amm.total_fee_minus_distributions
@@ -265,15 +289,18 @@ class ClearingHouse:
         self, 
         market_index: int, 
         user_index: int, 
-        lp_token_amount: int, 
+        lp_token_amount: int = -1, 
     ):
         user: User = self.users[user_index]
         market: Market = self.markets[market_index]
         lp_position: MarketPosition = user.positions[market_index]
+
+        if lp_token_amount == -1:
+            lp_token_amount = lp_position.lp_tokens
         
         assert lp_position.lp_tokens >= 0, "need lp tokens to remove"
-        assert lp_token_amount <= lp_position.lp_tokens, "trying to remove too much liquidity"
-     
+        assert lp_token_amount <= lp_position.lp_tokens, f"trying to remove too much liquidity: {lp_token_amount} > {lp_position.lp_tokens}"
+
         # tmp
         assert lp_token_amount == lp_position.lp_tokens, "can only burn full lp tokens"
 
@@ -295,16 +322,17 @@ class ClearingHouse:
         # update market shit
         # track new position on lp stats 
         market.amm.lp_net_baa += market_position.base_asset_amount
-        market.open_interest += 1 
+        if market_position.base_asset_amount > 0:
+            market.open_interest += 1 
 
         # market.amm.net_base_asset_amount += market_position.base_asset_amount
 
-        total_lp_tokens = market.amm.sqrt_k
-        reserve_scale = (total_lp_tokens - lp_token_amount) / total_lp_tokens 
-        
-        market.amm.base_asset_reserve *= reserve_scale
-        market.amm.quote_asset_reserve *= reserve_scale
-        market.amm.sqrt_k -= lp_token_amount
+        # update k
+        new_sqrt_k = market.amm.sqrt_k - lp_token_amount
+        bar, qar, sqrt_k = get_updated_k_result(market, new_sqrt_k)
+        market.amm.base_asset_reserve = bar 
+        market.amm.quote_asset_reserve = qar 
+        market.amm.sqrt_k = sqrt_k
 
         return self 
         
@@ -341,26 +369,30 @@ class ClearingHouse:
                     next_update_wait = next_update_wait - funding_period
         
         if time_since_last_update >= next_update_wait:
+            # print('updating funding ...')
             mark_twap = update_mark_twap(market.amm, now) # not MARK_PRICE
             oracle_twap = update_oracle_twap(market.amm, now) # not MARK_PRICE
             
-            price_spread = mark_twap - oracle_twap
+            # print(mark_twap, oracle_twap)
+            price_spread = mark_twap - oracle_twap 
                         
             max_price_spread = oracle_twap / 33 # 3% of oracle price
             clamped_price_spread = np.clip(price_spread, -max_price_spread, max_price_spread)
                     
-            adjustment = 24 ## 24 slots of funding period time till full payback -- hardcode for now
+            adjustment = 1 ## 24 slots of funding period time till full payback -- hardcode for now
             funding_rate = int(clamped_price_spread * FUNDING_PRECISION / adjustment)
+            # print(funding_rate)
             
             market.amm.cumulative_funding_rate_long += funding_rate
             market.amm.cumulative_funding_rate_short += funding_rate
                         
             market.amm.last_funding_rate = funding_rate
-            market.amm.last_funding_rate_ts = now     
+            market.amm.last_funding_rate_ts = now
             
             # track lp funding 
             # TODO: double check compute lp funding 
-            market_net_position = -market.amm.net_base_asset_amount # AMM_RSERVE_PRE
+            print("taker nbaa:", market.amm.taker_net_baa)
+            market_net_position = -market.amm.taker_net_baa # AMM_RSERVE_PRE
             market_funding_rate = funding_rate # FUNDING_PRECISION 
         
             market_funding_payment = (
@@ -397,10 +429,9 @@ class ClearingHouse:
                 funding_payment = (
                     funding_delta 
                     * position.base_asset_amount
-                    / MARK_PRICE_PRECISION 
                     / FUNDING_PRECISION
                 )
-                  
+                
                 # long @ f0 funding rate 
                 # mark < oracle => funding_payment = mark - oracle < 0 => cum_funding decreases 
                 # amm_cum < f0 [bc of decrease]
@@ -414,10 +445,10 @@ class ClearingHouse:
                 position.last_funding_rate_ts = now 
                 
         # dont pay more than the total number of fees 
-        total_funding_payment = min(total_funding_payment, market.amm.total_fee_minus_distributions)
         total_funding_payment = max_collateral_change(user, total_funding_payment)
+        print("user funding:", total_funding_payment)
         
-        market.amm.total_fee_minus_distributions -= total_funding_payment # market pays funding
+        market.amm.upnl -= total_funding_payment
         user.collateral += total_funding_payment
 
         return self
@@ -616,17 +647,15 @@ class ClearingHouse:
             market_position.quote_asset_amount,
             swap_direction
         )
+        # print('close pnl/col:', pnl, user.collateral, user.collateral + pnl)
 
         # update collateral
         user.collateral = calculate_updated_collateral(
             user.collateral,
             pnl,
         )
-       
-        # # TODO: tmp
-        # user.collateral += pnl 
-        # market.amm.total_fee_minus_distributions -= pnl
-    
+        # print(user.collateral)
+
         # update market 
         market.open_interest -= 1        
 
@@ -702,6 +731,8 @@ class ClearingHouse:
         
         # apply user fee
         exchange_fee = abs(quote_amount * float(self.fee_structure.numerator) / float(self.fee_structure.denominator))
+        # print('close fee/col:', exchange_fee, user.collateral, user.collateral - exchange_fee)
+        
         exchange_fee = max_collateral_change(user, -exchange_fee)
         user.collateral += exchange_fee
         

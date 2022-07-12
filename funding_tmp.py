@@ -52,6 +52,7 @@ def collateral_difference(ch, initial_collatearl, verbose=False):
     
     return abs_difference, events, chs, mark_prices
 
+#%%
 prices = [2] * 20
 timestamps = np.arange(len(prices))
 oracle = Oracle(prices=prices, timestamps=timestamps)
@@ -61,7 +62,7 @@ amm = AMM(
     base_asset_reserve=1_000_000 * 1e13,
     quote_asset_reserve=1_000_000 * 1e13,
     funding_period=2,
-    peg_multiplier=int(oracle.get_price(0)+2*1e3), # funding goes to longs
+    peg_multiplier=int((oracle.get_price(0)-1)*1e3), # funding goes to longs
 )
 market = Market(amm)
 fee_structure = FeeStructure(numerator=1, denominator=100)
@@ -75,7 +76,6 @@ for i in range(2):
         timestamp=ch.time,
     ).run(ch)
 
-#%%
 np.random.seed(74)
 
 peg = market.amm.peg_multiplier / PEG_PRECISION
@@ -92,11 +92,17 @@ ch.add_liquidity(
     0, 1, full_amm_position_quote
 )
 
+# user goes long (should get paid)
 ch.open_position(
    PositionDirection.LONG, 
-   0, 100 * QUOTE_PRECISION, 0
+   0, 
+   100 * QUOTE_PRECISION, 
+   0 
 )
 ch.change_time(5)
+print(
+    ch.users[0].positions[0].base_asset_amount
+)
 
 ch.update_funding_rate(0)
 ch.settle_funding_rates(0)
@@ -109,7 +115,7 @@ ch.remove_liquidity(
 )
 
 print('done')
-
+# print(ch.to_json())
 
 # %%
 # %%

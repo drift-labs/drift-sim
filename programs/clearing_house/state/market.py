@@ -44,6 +44,7 @@ class AMM:
     lp_net_baa: int = 0 
     taker_net_baa: int = 0 
     lp_fee_payment: int = 0
+    upnl: int = 0 
     
     # funding rates 
     last_funding_rate: int = 0
