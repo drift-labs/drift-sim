@@ -44,9 +44,12 @@ lp0_balance = remove_lp(lp0_balance)
 lp1_balance = remove_lp(lp1_balance)
 lp2_balance = remove_lp(lp2_balance)
 
+# 108.38709677419354 108.38709677419354
 print(
     lp0_balance, lp1_balance 
 )
+
+# 103.2258064516129
 print(
     lp2_balance
 )
