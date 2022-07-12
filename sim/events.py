@@ -113,18 +113,14 @@ class addLiquidityEvent(Event):
 class removeLiquidityEvent(Event):
     market_index: int = 0 
     user_index: int = 0 
-    lp_token_amount: int = 0 
+    lp_token_amount: int = -1
 
     _event_name: str = "remove_liquidity"
     
     def run(self, clearing_house: ClearingHouse, verbose=False) -> ClearingHouse:
         if verbose:
             print(f'u{self.user_index} {self._event_name}...')
-        if self.lp_token_amount == 0: 
-            self.lp_token_amount = clearing_house \
-                .users[self.user_index] \
-                .lp_positions[self.market_index].lp_tokens
-
+        
         clearing_house = clearing_house.remove_liquidity(
             self.market_index, 
             self.user_index, 

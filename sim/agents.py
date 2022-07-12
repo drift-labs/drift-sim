@@ -147,14 +147,12 @@ class LP(Agent):
 
         if self.has_deposited and self.lp_duration > 0 and now - self.deposit_start == self.lp_duration:
             user: User = state_i.users[self.user_index]
-            lp_position: MarketPosition = user.positions[self.market_index]
             print(f'u{self.user_index} rl..')
             return removeLiquidityEvent(
                 timestamp=now, 
                 market_index=self.market_index, 
                 user_index=self.user_index, 
-                lp_token_amount=lp_position.lp_tokens # full burn 
-            )
+            ) # full burn 
         
         return NullEvent(now)
         

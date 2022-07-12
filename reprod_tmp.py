@@ -1,4 +1,7 @@
 # %%
+%reload_ext autoreload
+%autoreload 2
+
 import pandas as pd
 pd.options.plotting.backend = "plotly"
 
@@ -11,6 +14,7 @@ import driftpy
 import os 
 import datetime
 import math 
+from sim.agents import * 
 import numpy as np 
 
 from driftpy.math.amm import *
@@ -33,12 +37,11 @@ from programs.clearing_house.math.amm import *
 from programs.clearing_house.state import *
 from programs.clearing_house.lib import *
 
-from sim.helpers import *
+from sim.helpers import close_all_users, random_walk_oracle, compute_total_collateral
 from sim.events import * 
 from sim.agents import * 
 
-def setup_ch(base_spread=0, strategies='', n_steps=100, n_users=2):
-    np.random.seed(0)
+def setup_ch(base_spread=0, strategies='', n_steps=100):
     prices, timestamps = random_walk_oracle(1, n_steps=n_steps)
     oracle = Oracle(prices=prices, timestamps=timestamps)
     
@@ -49,18 +52,11 @@ def setup_ch(base_spread=0, strategies='', n_steps=100, n_users=2):
         funding_period=60,
         peg_multiplier=int(oracle.get_price(0)*1e3),
         base_spread=base_spread,
-        strategies=strategies,
+        strategies=strategies
     )
     market = Market(amm)
     fee_structure = FeeStructure(numerator=1, denominator=100)
     ch = ClearingHouse([market], fee_structure)
-
-    for i in range(n_users):
-        ch = DepositCollateralEvent(
-            user_index=i, 
-            deposit_amount=1_000 * QUOTE_PRECISION, 
-            timestamp=ch.time,
-        ).run(ch)
 
     return ch
 
@@ -78,28 +74,29 @@ def collateral_difference(ch, initial_collatearl, verbose=False):
     return abs_difference, events, chs, mark_prices
 
 #%%
+np.random.seed(74)
 ch = setup_ch(
     base_spread=0,
-    strategies='',
     n_steps=100,
-    n_users=0,
 )
 
 init_events = [
-    DepositCollateralEvent(timestamp=0, user_index=0, deposit_amount=78096592245, username='LP', _event_name='deposit_collateral'),
-    DepositCollateralEvent(timestamp=1, user_index=1, deposit_amount=680701018549, username='LP', _event_name='deposit_collateral'),
-    DepositCollateralEvent(timestamp=2, user_index=2, deposit_amount=18231000000, username='openclose', _event_name='deposit_collateral'),
-    DepositCollateralEvent(timestamp=3, user_index=3, deposit_amount=27479000000, username='openclose', _event_name='deposit_collateral'),
+    DepositCollateralEvent(timestamp=0, user_index=0, deposit_amount=806218985594, username='LP', _event_name='deposit_collateral'), 
+    DepositCollateralEvent(timestamp=1, user_index=1, deposit_amount=880899980195, username='LP', _event_name='deposit_collateral'), 
+    DepositCollateralEvent(timestamp=2, user_index=2, deposit_amount=73635000000, username='openclose', _event_name='deposit_collateral'), 
+    DepositCollateralEvent(timestamp=3, user_index=3, deposit_amount=81138000000, username='openclose', _event_name='deposit_collateral'), 
 ]
 for e in init_events: ch = e.run(ch)
 
 total_collateral = compute_total_collateral(ch)
 
 events = [
-    addLiquidityEvent(timestamp=227, market_index=0, user_index=0, quote_amount=78096592245, _event_name='add_liquidity'),
-    OpenPositionEvent(timestamp=274, user_index=3, direction='short', quote_amount=27479000000, market_index=0, _event_name='open_position'),
-    addLiquidityEvent(timestamp=290, market_index=0, user_index=1, quote_amount=680701018549, _event_name='add_liquidity'),
-    OpenPositionEvent(timestamp=314, user_index=2, direction='long', quote_amount=18231000000, market_index=0, _event_name='open_position'), 
+    addLiquidityEvent(timestamp=197, market_index=0, user_index=1, quote_amount=880899980195, _event_name='add_liquidity'), 
+    OpenPositionEvent(timestamp=211, user_index=3, direction='long', quote_amount=81138000000, market_index=0, _event_name='open_position'), 
+    removeLiquidityEvent(timestamp=211, market_index=0, user_index=1, lp_token_amount=-1, _event_name='remove_liquidity'), 
+    # removeLiquidityEvent(timestamp=211, market_index=0, user_index=1, lp_token_amount=331939098724470592, _event_name='remove_liquidity'), 
+    ClosePositionEvent(timestamp=212, user_index=1, market_index=0, _event_name='close_position'), 
+    ClosePositionEvent(timestamp=213, user_index=3, market_index=0, _event_name='close_position'), 
 ]
 
 broke = False
@@ -124,3 +121,8 @@ print([e._event_name for e in _events])
 abs_difference, close_events, _, _ = collateral_difference(ch, total_collateral, verbose=True)
 print(close_events)
 print(abs_difference)
+
+# %%
+
+
+# %%
