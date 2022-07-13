@@ -108,7 +108,7 @@ def close_all_users(clearing_house, verbose=False):
         for user_index in clearing_house.users:
             user: User = clearing_house.users[user_index]
             lp_position: MarketPosition = user.positions[market_index]
-            is_lp = lp_position.lp_tokens > 0
+            is_lp = lp_position.lp_shares > 0
             
             if is_lp: 
                 if verbose: 
@@ -118,7 +118,7 @@ def close_all_users(clearing_house, verbose=False):
                     clearing_house.time, 
                     market_index, 
                     user_index,
-                    lp_position.lp_tokens
+                    lp_position.lp_shares
                 )
                 clearing_house = event.run(clearing_house)
                 
@@ -161,9 +161,7 @@ def compute_total_collateral(ch):
     
     for market_index in range(len(ch.markets)):
         market: Market = ch.markets[market_index]
-        total_collateral += market.amm.total_fee_minus_distributions
-        # subtract what we paid lps for 
-        total_collateral -= market.amm.lp_fee_payment
+        total_collateral += market.amm.total_fee_minus_distributions 
         total_collateral += market.amm.upnl
 
     # print('market collateral:', (total_collateral - user_collateral)/1e6)

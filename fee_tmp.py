@@ -1,5 +1,3 @@
-# NOTE: i used print statements for the LP and traders funding payments and made sure they added up
-
 # %%
 import pandas as pd
 pd.options.plotting.backend = "plotly"
@@ -40,7 +38,6 @@ from sim.helpers import close_all_users, random_walk_oracle, compute_total_colla
 from sim.events import * 
 from sim.agents import * 
 
-
 def collateral_difference(ch, initial_collatearl, verbose=False):
     clearing_house = copy.deepcopy(ch)
 
@@ -64,7 +61,7 @@ amm = AMM(
     base_asset_reserve=1_000_000 * 1e13,
     quote_asset_reserve=1_000_000 * 1e13,
     funding_period=2,
-    peg_multiplier=int((oracle.get_price(0)-1)*1e3), # funding goes to longs
+    peg_multiplier=int(oracle.get_price(0)*1e3), 
 )
 market = Market(amm)
 fee_structure = FeeStructure(numerator=1, denominator=100)
@@ -83,12 +80,15 @@ np.random.seed(74)
 peg = market.amm.peg_multiplier / PEG_PRECISION
 sqrt_k = market.amm.sqrt_k / 1e13
 full_amm_position_quote = sqrt_k * peg * 2 * 1e6
+full_amm_position_quote -= 100 * 1e6
 
 ch = DepositCollateralEvent(
     user_index=1, 
     deposit_amount=full_amm_position_quote, 
     timestamp=ch.time,
 ).run(ch)
+
+from sim.helpers import compute_total_collateral, close_all_users
 
 init_collateral = compute_total_collateral(ch)
 
@@ -103,53 +103,27 @@ ch.open_position(
    100 * QUOTE_PRECISION, 
    0 
 )
-ch.change_time(5)
-print(
-    'trader baa:',
-    ch.users[0].positions[0].base_asset_amount,
-    ch.users[0].positions[0].quote_asset_amount
-)
 
-ch.update_funding_rate(0)
-ch.settle_funding_rates(0)
+trader = ch.users[0].positions[0]
+baa = trader.base_asset_amount
+print(trader)
 
-lp_share = ch.users[1].positions[0].lp_shares / ch.markets[0].amm.total_lp_shares
-print('lp share', lp_share)
-assert lp_share == 0.5
+# ch.remove_liquidity(
+#    0, 1 
+# )
 
-ch.remove_liquidity(
-    0, 1
-)
+lp = ch.users[1].positions[0]
+market = ch.markets[0]
+metrics = ch.get_lp_metrics(lp, lp.lp_shares, market)
+print(metrics)
 
-ch.change_time(5)
-print(
-    'lp baa:',
-    ch.users[1].positions[0].base_asset_amount,
-    ch.users[1].positions[0].quote_asset_amount
-)
+print(market.amm.total_fee_minus_distributions)
 
 ch = close_all_users(ch)[0]
 end_collateral = compute_total_collateral(ch)
 
 print(init_collateral, end_collateral)
-print(market.amm.upnl)
 
-print('pnls...')
-# u0pnl = ch.users[0].collateral - init_collateral
-# u1pnl = ch.users[1].collateral - init_collateral - full_amm_position_quote
-#
-# print(
-#     u0pnl
-# )
-# print(
-#     u1pnl
-# )
-# print(
-#     u0pnl + u1pnl
-# )
-# print(
-#     market.amm.total_fee_minus_distributions + market.amm.upnl
-# )
 print('done')
 # print(ch.to_json())
 

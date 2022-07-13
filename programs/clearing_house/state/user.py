@@ -45,15 +45,13 @@ class MarketPosition:
     market_index: int = 0
     base_asset_amount: int = 0
     quote_asset_amount: int = 0
-    last_cumulative_funding_rate: int = 0
     last_funding_rate_ts: int = 0
 
     # lp stuff
-    lp_tokens: int = 0
-    last_total_fee_minus_distributions: int = 0
-    last_cumulative_lp_funding: int = 0
-    last_taker_net_baa: int = 0
-    fees_earned: int = 0 
+    lp_shares: int = 0
+    last_cumulative_funding_rate: int = 0
+    last_cumulative_fee_per_lp: int = 0 
+    last_cumulative_net_base_asset_amount_per_lp: int = 0 
     
 @dataclass
 class User:

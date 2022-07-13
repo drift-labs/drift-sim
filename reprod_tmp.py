@@ -1,7 +1,6 @@
 # %%
-%reload_ext autoreload
-%autoreload 2
-
+# %reload_ext autoreload
+# %autoreload 
 import pandas as pd
 pd.options.plotting.backend = "plotly"
 
@@ -74,29 +73,27 @@ def collateral_difference(ch, initial_collatearl, verbose=False):
     return abs_difference, events, chs, mark_prices
 
 #%%
-np.random.seed(74)
+np.random.seed(624)
 ch = setup_ch(
     base_spread=0,
     n_steps=100,
 )
 
 init_events = [
-    DepositCollateralEvent(timestamp=0, user_index=0, deposit_amount=806218985594, username='LP', _event_name='deposit_collateral'), 
-    DepositCollateralEvent(timestamp=1, user_index=1, deposit_amount=880899980195, username='LP', _event_name='deposit_collateral'), 
-    DepositCollateralEvent(timestamp=2, user_index=2, deposit_amount=73635000000, username='openclose', _event_name='deposit_collateral'), 
-    DepositCollateralEvent(timestamp=3, user_index=3, deposit_amount=81138000000, username='openclose', _event_name='deposit_collateral'), 
+    DepositCollateralEvent(timestamp=0, user_index=0, deposit_amount=300456705925, username='LP', _event_name='deposit_collateral'),
+    DepositCollateralEvent(timestamp=1, user_index=1, deposit_amount=298379581556, username='LP', _event_name='deposit_collateral'),
+    DepositCollateralEvent(timestamp=2, user_index=2, deposit_amount=99497000000, username='openclose', _event_name='deposit_collateral'),
 ]
 for e in init_events: ch = e.run(ch)
 
 total_collateral = compute_total_collateral(ch)
 
 events = [
-    addLiquidityEvent(timestamp=197, market_index=0, user_index=1, quote_amount=880899980195, _event_name='add_liquidity'), 
-    OpenPositionEvent(timestamp=211, user_index=3, direction='long', quote_amount=81138000000, market_index=0, _event_name='open_position'), 
-    removeLiquidityEvent(timestamp=211, market_index=0, user_index=1, lp_token_amount=-1, _event_name='remove_liquidity'), 
-    # removeLiquidityEvent(timestamp=211, market_index=0, user_index=1, lp_token_amount=331939098724470592, _event_name='remove_liquidity'), 
-    ClosePositionEvent(timestamp=212, user_index=1, market_index=0, _event_name='close_position'), 
-    ClosePositionEvent(timestamp=213, user_index=3, market_index=0, _event_name='close_position'), 
+    addLiquidityEvent(timestamp=49, market_index=0, user_index=0, quote_amount=300456705925, _event_name='add_liquidity'),
+    OpenPositionEvent(timestamp=52, user_index=2, direction='long', quote_amount=99497000000, market_index=0, _event_name='open_position'),
+    removeLiquidityEvent(timestamp=52, market_index=0, user_index=0, lp_token_amount=110405198032262800, _event_name='remove_liquidity'),
+    ClosePositionEvent(timestamp=53, user_index=0, market_index=0, _event_name='close_position'),
+    ClosePositionEvent(timestamp=54, user_index=2, market_index=0, _event_name='close_position'),
 ]
 
 broke = False
@@ -108,6 +105,7 @@ for e in events:
     try: 
         abs_difference, close_events, _, _ = collateral_difference(ch, total_collateral)
     except Exception as e: 
+        abs_difference = 0
         broke = True 
         print(e)
    
@@ -122,7 +120,59 @@ abs_difference, close_events, _, _ = collateral_difference(ch, total_collateral,
 print(close_events)
 print(abs_difference)
 
+exit()
+
+# %%
+# %%
+# %%
+# %%
+# %%
+np.random.seed(74)
+ch = setup_ch(
+    base_spread=0,
+    n_steps=100,
+)
+
+init_events = [
+    DepositCollateralEvent(timestamp=0, user_index=0, deposit_amount=518187136446, username='LP', _event_name='deposit_collateral'), 
+    DepositCollateralEvent(timestamp=1, user_index=1, deposit_amount=969304333976, username='LP', _event_name='deposit_collateral'), 
+    DepositCollateralEvent(timestamp=2, user_index=2, deposit_amount=21850000000, username='openclose', _event_name='deposit_collateral'), 
+]
+for e in init_events: ch = e.run(ch)
+total_collateral = compute_total_collateral(ch)
+
+init_ch = copy.deepcopy(ch).to_json()
+
+events = [
+    OpenPositionEvent(timestamp=236, user_index=2, direction='short', quote_amount=21850000000, market_index=0, _event_name='open_position'), 
+
+    # addLiquidityEvent(timestamp=353, market_index=0, user_index=1, quote_amount=969304333976, _event_name='add_liquidity'), 
+    addLiquidityEvent(timestamp=353, market_index=0, user_index=1, quote_amount=518187136446, _event_name='add_liquidity'), 
+    addLiquidityEvent(timestamp=381, market_index=0, user_index=0, quote_amount=518187136446, _event_name='add_liquidity'), 
+    
+    ClosePositionEvent(timestamp=481, user_index=2, market_index=0, _event_name='close_position'), 
+
+    removeLiquidityEvent(timestamp=513, market_index=0, user_index=0, lp_token_amount=-1, _event_name='remove_liquidity'), 
+    ClosePositionEvent(timestamp=518, user_index=0, market_index=0, _event_name='close_position'), 
+    
+    removeLiquidityEvent(timestamp=519, market_index=0, user_index=1, lp_token_amount=-1, _event_name='remove_liquidity'), 
+    ClosePositionEvent(timestamp=520, user_index=1, market_index=0, _event_name='close_position'), 
+]
+
+for e in events: 
+    ch = e.run(ch, verbose=True)
+
+end_ch = copy.deepcopy(ch).to_json()
+
+compute_total_collateral(ch), total_collateral, compute_total_collateral(ch) - total_collateral
+
+# %%
+for k in init_ch.keys(): 
+    if type(init_ch[k]) in [int, float]:
+        diff = end_ch[k] - init_ch[k]
+        if abs(diff) > 0: 
+            print(k, diff)
+
 # %%
 
 
-# %%

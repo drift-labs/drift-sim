@@ -70,10 +70,10 @@ class TestLP(unittest.TestCase):
 
         deposit_amount = 10_000_000 * QUOTE_PRECISION
         ch = ch.add_liquidity(0, 0, deposit_amount)
-        self.assertGreater(user.positions[0].lp_tokens, _user.positions[0].lp_tokens)
+        self.assertGreater(user.positions[0].lp_shares, _user.positions[0].lp_shares)
         
         ch = ch.remove_liquidity(
-            0, 0, user.positions[0].lp_tokens
+            0, 0, user.positions[0].lp_shares
         )
         _userj2 = user.to_json(ch)
         
@@ -124,7 +124,7 @@ class TestLP(unittest.TestCase):
         
         # remove_liquidity lp position         
         ch = ch.remove_liquidity(
-            0, 0, user.positions[0].lp_tokens
+            0, 0, user.positions[0].lp_shares
         )
         ch.change_time(1)
         
@@ -138,7 +138,7 @@ class TestLP(unittest.TestCase):
         
         # should have made money from fees 
         self.assertGreater(user.collateral, prev_collateral)
-        self.assertEqual(user.positions[0].lp_tokens, 0)
+        self.assertEqual(user.positions[0].lp_shares, 0)
   
     def test_lp(self):
         # make bar larger for larger trades
@@ -183,7 +183,7 @@ class TestLP(unittest.TestCase):
         ).open_position(
             trade_direction, user_index, trade_size * QUOTE_PRECISION, 0
         ).remove_liquidity(
-            0, lp_index, lp.positions[0].lp_tokens
+            0, lp_index, lp.positions[0].lp_shares
         )
 
         if user_close_first:
@@ -338,7 +338,7 @@ class TestClearingHousePositiveFunding(unittest.TestCase):
         )
                 
         self.assertGreater(market.base_asset_amount_long, 0)
-        self.assertGreater(market.base_asset_amount, 0)        
+        self.assertGreater(market.amm.net_base_asset_amount, 0)        
         
         # fast forward time 
         ch = ch.change_time(1 * self.funding_period)
@@ -445,7 +445,7 @@ class TestClearingHouseNegativeFunding(unittest.TestCase):
         )
         
         self.assertGreater(market.base_asset_amount_long, 0)
-        self.assertGreater(market.base_asset_amount, 0)        
+        self.assertGreater(market.amm.net_base_asset_amount, 0)        
         
         # fast forward time 
         ch = ch.change_time(1 * self.funding_period)

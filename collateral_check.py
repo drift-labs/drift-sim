@@ -131,7 +131,7 @@ def collateral_difference(ch, initial_collateral, verbose=False):
 
 #%%
 seed = np.random.randint(0, 1e3)
-# seed = 74
+seed = 624
 print('seed:', seed)
 
 np.random.seed(seed)
@@ -191,11 +191,13 @@ initial_collateral = compute_total_collateral(ch)
 early_exit = False
 abs_difference = 0 
 
+from tqdm import tqdm 
 for x in tqdm(range(len(market.amm.oracle))):
     if x < ch.time:
         continue
     
     for i, agent in enumerate(agents):
+        # print(ch.markets[0].amm.cumulative_fee_per_lp)
         event_i = agent.run(ch)
         
         if event_i._event_name != 'null':
@@ -209,6 +211,7 @@ for x in tqdm(range(len(market.amm.oracle))):
             differences.append(abs_difference)
     
         if abs_difference > 1:
+            print('blahhh', abs_difference)
             early_exit = True 
             break 
                 
@@ -223,29 +226,29 @@ clearing_houses += _chs
 mark_prices += _mark_prices
 
 differences.append(abs_difference)
-abs_difference
+print("abs difference:", abs_difference)
 
 #%%
 plt.plot([d for d in differences if d != 0])
 print(np.unique(differences))
 
-#%%
-import matplotlib.colors as mcolors
-cmap = mcolors.BASE_COLORS
-keys = list(cmap.keys())
-
-mark_change = np.array(mark_prices) - mark_prices[0]
-above = True 
-plt.plot(mark_change)
-for i, e in enumerate(events): 
-    if e._event_name != 'null':
-        color = cmap[keys[e.user_index % len(keys)]]
-        plt.scatter(i, mark_change[i], color=color)
-        plt.text(i+0.5, mark_change[i], e._event_name, rotation=90)
-
+# #%%
+# import matplotlib.colors as mcolors
+# cmap = mcolors.BASE_COLORS
+# keys = list(cmap.keys())
+#
+# mark_change = np.array(mark_prices) - mark_prices[0]
+# above = True 
+# plt.plot(mark_change)
+# for i, e in enumerate(events): 
+#     if e._event_name != 'null':
+#         color = cmap[keys[e.user_index % len(keys)]]
+#         plt.scatter(i, mark_change[i], color=color)
+#         plt.text(i+0.5, mark_change[i], e._event_name, rotation=90)
+#
 #%%
 def pprint(x):
-    print("\t", x, "\n")
+    print("\t", x)
 
 _ = [pprint(e) for e in events if e._event_name != 'null']
 # _ = [print(e._event_name, e.user_index) for e in events if e._event_name != 'null']

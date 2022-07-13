@@ -40,9 +40,14 @@ class AMM:
     peg_multiplier: int = 0 
     
     # liquidity providing 
-    cumulative_lp_funding: int = 0 
-    lp_net_baa: int = 0 
-    taker_net_baa: int = 0 
+    cumulative_funding_payment_per_lp: int = 0 
+    cumulative_fee_per_lp: int = 0 
+    cumulative_net_base_asset_amount_per_lp: int = 0 
+    total_lp_shares: int = 0
+    amm_lp_shares: int = 0
+
+    # lp_net_baa: int = 0 
+    # taker_net_baa: int = 0 
     lp_fee_payment: int = 0
     upnl: int = 0 
     
@@ -121,8 +126,8 @@ class AMM:
         else:
             self.sqrt_k = self.base_asset_reserve
         
-        self.total_lp_tokens = self.sqrt_k
-        self.lp_tokens = self.total_lp_tokens # amm gets it all at start 
+        self.total_lp_shares = self.sqrt_k
+        self.amm_lp_shares = self.total_lp_shares # amm has it all at once
         
         # # TODO 1 token per sqrt k 
         # reserves_in_quote = self.quote_asset_reserve / 1e13 * QUOTE_PRECISION
