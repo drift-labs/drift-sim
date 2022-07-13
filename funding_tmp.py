@@ -132,7 +132,6 @@ ch = close_all_users(ch)[0]
 end_collateral = compute_total_collateral(ch)
 
 print(init_collateral, end_collateral)
-print(market.amm.upnl)
 
 print('pnls...')
 # u0pnl = ch.users[0].collateral - init_collateral

@@ -264,8 +264,8 @@ class ClearingHouse:
 
         # payments 
         lp_payment = lp_metrics.fee_payment + lp_metrics.unsettled_pnl + lp_metrics.funding_payment
-        print("lp funding payment:", lp_metrics.funding_payment)
-        print("lp fee payment:", lp_metrics.fee_payment)
+        # print("lp funding payment:", lp_metrics.funding_payment)
+        # print("lp fee payment:", lp_metrics.fee_payment)
 
         lp_payment = max_collateral_change(user, lp_payment)
         user.collateral += lp_payment
@@ -400,7 +400,7 @@ class ClearingHouse:
             funding_slice = market_funding_payment * 1e13 / market.amm.total_lp_shares
             market.amm.upnl += -1 * funding_slice * market.amm.amm_lp_shares / 1e13 
             market.amm.cumulative_funding_payment_per_lp += funding_slice
-            print('amm funding payment', -1 * funding_slice * market.amm.amm_lp_shares / 1e13)
+            # print('amm funding payment', -1 * funding_slice * market.amm.amm_lp_shares / 1e13)
 
         return self
         
@@ -445,7 +445,7 @@ class ClearingHouse:
                 
         # dont pay more than the total number of fees 
         total_funding_payment = max_collateral_change(user, total_funding_payment)
-        print("user funding:", total_funding_payment)
+        # print("user funding:", total_funding_payment)
         user.collateral += total_funding_payment
 
         return self
