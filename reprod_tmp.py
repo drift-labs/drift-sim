@@ -1,6 +1,6 @@
 # %%
-# %reload_ext autoreload
-# %autoreload 
+%reload_ext autoreload
+%autoreload 
 import pandas as pd
 pd.options.plotting.backend = "plotly"
 
@@ -73,37 +73,43 @@ def collateral_difference(ch, initial_collatearl, verbose=False):
     return abs_difference, events, chs, mark_prices
 
 #%%
-np.random.seed(624)
+seed = 912
+np.random.seed(seed)
 ch = setup_ch(
     base_spread=0,
     n_steps=100,
 )
 
-init_events = [
-    DepositCollateralEvent(timestamp=0, user_index=0, deposit_amount=300456705925, username='LP', _event_name='deposit_collateral'),
-    DepositCollateralEvent(timestamp=1, user_index=1, deposit_amount=298379581556, username='LP', _event_name='deposit_collateral'),
-    DepositCollateralEvent(timestamp=2, user_index=2, deposit_amount=99497000000, username='openclose', _event_name='deposit_collateral'),
-]
-for e in init_events: ch = e.run(ch)
-
-total_collateral = compute_total_collateral(ch)
-
 events = [
-    addLiquidityEvent(timestamp=49, market_index=0, user_index=0, quote_amount=300456705925, _event_name='add_liquidity'),
-    OpenPositionEvent(timestamp=52, user_index=2, direction='long', quote_amount=99497000000, market_index=0, _event_name='open_position'),
-    removeLiquidityEvent(timestamp=52, market_index=0, user_index=0, lp_token_amount=110405198032262800, _event_name='remove_liquidity'),
-    ClosePositionEvent(timestamp=53, user_index=0, market_index=0, _event_name='close_position'),
-    ClosePositionEvent(timestamp=54, user_index=2, market_index=0, _event_name='close_position'),
+    DepositCollateralEvent(timestamp=0, user_index=0, deposit_amount=2264545145255, username='LP', _event_name='deposit_collateral'),
+    DepositCollateralEvent(timestamp=14, user_index=14, deposit_amount=97722000000, username='openclose', _event_name='deposit_collateral'),
+    DepositCollateralEvent(timestamp=4, user_index=4, deposit_amount=1596254751582, username='LP', _event_name='deposit_collateral'),
+    
+    addLiquidityEvent(timestamp=32, market_index=0, user_index=0, quote_amount=2264545145255, _event_name='add_liquidity'),
+    OpenPositionEvent(timestamp=44, user_index=14, direction='long', quote_amount=97722000000, market_index=0, _event_name='open_position'),
+    addLiquidityEvent(timestamp=69, market_index=0, user_index=4, quote_amount=1596254751582, _event_name='add_liquidity'),
+    
+    # removeLiquidityEvent(timestamp=69, market_index=0, user_index=0, lp_token_amount=548024090134795008, _event_name='remove_liquidity'),
+    # ClosePositionEvent(timestamp=70, user_index=0, market_index=0, _event_name='close_position'),
+    # removeLiquidityEvent(timestamp=71, market_index=0, user_index=4, lp_token_amount=386296585736895552, _event_name='remove_liquidity'),
+    # ClosePositionEvent(timestamp=72, user_index=14, market_index=0, _event_name='close_position'),
 ]
 
+init_total_collateral = 0
 broke = False
 _events = []
 for e in events: 
+    if e._event_name != 'deposit_collateral' and init_total_collateral == 0:
+        init_total_collateral = compute_total_collateral(ch)
+
+    # ch.time = e.timestamp 
     ch = e.run(ch, verbose=True)
-    _events.append(e)
+    _events.append(e)    
+
+    if init_total_collateral == 0: continue
 
     try: 
-        abs_difference, close_events, _, _ = collateral_difference(ch, total_collateral)
+        abs_difference, close_events, _, _ = collateral_difference(ch, init_total_collateral)
     except Exception as e: 
         abs_difference = 0
         broke = True 
@@ -115,14 +121,44 @@ for e in events:
         break 
    
 print([e._event_name for e in _events])
-    
-abs_difference, close_events, _, _ = collateral_difference(ch, total_collateral, verbose=True)
+
+abs_difference, close_events, _chs, _ = collateral_difference(ch, init_total_collateral, verbose=True)
+ch = _chs[-1]
 print(close_events)
 print(abs_difference)
 
-exit()
+# %%
+
 
 # %%
+# %%
+# %%
+lp_fee_payments = 0 
+market_fees = 0 
+market: Market = ch.markets[0]
+for (_, user) in ch.users.items(): 
+    position: MarketPosition = user.positions[0]
+    lp_fee_payments += position.lp_fee_payments
+    market_fees += position.market_fee_payments
+
+total_payments = lp_fee_payments + market.amm.total_fee_minus_distributions
+print(total_payments, market_fees)
+print(abs(total_payments) - abs(market_fees))
+
+# %%
+lp_funding_payments = 0 
+market_funding = 0 
+market: Market = ch.markets[0]
+for (_, user) in ch.users.items(): 
+    position: MarketPosition = user.positions[0]
+    lp_funding_payments += position.lp_funding_payments
+    market_funding += position.market_funding_payments
+total_payments = market.amm.upnl + lp_funding_payments
+market_funding + total_payments
+
+# %%
+
+
 # %%
 # %%
 # %%

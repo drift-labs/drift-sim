@@ -42,6 +42,7 @@ class LPMetrics:
     
 @dataclass
 class MarketPosition: 
+    user_index: int
     market_index: int = 0
     base_asset_amount: int = 0
     quote_asset_amount: int = 0
@@ -52,6 +53,13 @@ class MarketPosition:
     last_cumulative_funding_rate: int = 0
     last_cumulative_fee_per_lp: int = 0 
     last_cumulative_net_base_asset_amount_per_lp: int = 0 
+
+    # other metrics for debugging
+    lp_funding_payments: int = 0 
+    lp_fee_payments: int = 0 
+    market_fee_payments: int = 0 
+    market_funding_payments: int = 0
+    total_baa: int = 0 
     
 @dataclass
 class User:

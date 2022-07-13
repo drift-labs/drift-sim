@@ -41,6 +41,7 @@ MARGIN_PRECISION = 10_000 # expo = -4
 def max_collateral_change(user, delta):
     if user.collateral + delta < 0: 
         print("warning neg collateral...")
+        assert False
         delta = -user.collateral
     return delta
 
@@ -80,7 +81,7 @@ class ClearingHouse:
     ):
         # initialize user if not already 
         if user_index not in self.users: 
-            market_positions = [MarketPosition() for _ in range(len(self.markets))]
+            market_positions = [MarketPosition(user_index) for _ in range(len(self.markets))]
             self.users[user_index] = User(
                 user_index=user_index,
                 collateral=0, 
@@ -182,6 +183,11 @@ class ClearingHouse:
         funding_payment = change_in_funding * lp_token_amount / 1e13
 
         # give them the amm position  
+        # print(
+        #     "lp settling (last, curr):", 
+        #     lp_position.last_cumulative_net_base_asset_amount_per_lp,
+        #     market.amm.cumulative_net_base_asset_amount_per_lp
+        # )
         amm_net_position_change = (
             lp_position.last_cumulative_net_base_asset_amount_per_lp -
             market.amm.cumulative_net_base_asset_amount_per_lp
@@ -261,11 +267,15 @@ class ClearingHouse:
         # market position 
         lp_position.base_asset_amount += lp_metrics.base_asset_amount
         lp_position.quote_asset_amount += lp_metrics.quote_asset_amount
+        print(f"lp{lp_position.user_index} baa:", lp_metrics.base_asset_amount)
 
         # payments 
         lp_payment = lp_metrics.fee_payment + lp_metrics.unsettled_pnl + lp_metrics.funding_payment
         # print("lp funding payment:", lp_metrics.funding_payment)
         # print("lp fee payment:", lp_metrics.fee_payment)
+
+        lp_position.lp_funding_payments += lp_metrics.funding_payment
+        lp_position.lp_fee_payments += lp_metrics.fee_payment
 
         lp_payment = max_collateral_change(user, lp_payment)
         user.collateral += lp_payment
@@ -308,8 +318,6 @@ class ClearingHouse:
         )
 
         market_position: MarketPosition = user.positions[market_index]
-        market_position.lp_shares -= lp_token_amount
-        market.amm.total_lp_shares -= lp_token_amount
 
         baa = market_position.base_asset_amount
         qaa = market_position.quote_asset_amount
@@ -322,6 +330,9 @@ class ClearingHouse:
             baa, 
             qaa
         )
+        
+        market_position.lp_shares -= lp_token_amount
+        market.amm.total_lp_shares -= lp_token_amount
 
         # update k
         new_sqrt_k = market.amm.sqrt_k - lp_token_amount
@@ -395,12 +406,15 @@ class ClearingHouse:
                 market_funding_rate 
                 * market_net_position 
                 / FUNDING_PRECISION
-            ) / AMM_TO_QUOTE_PRECISION_RATIO 
+                / AMM_TO_QUOTE_PRECISION_RATIO
+            )  
             
             funding_slice = market_funding_payment * 1e13 / market.amm.total_lp_shares
             market.amm.upnl += -1 * funding_slice * market.amm.amm_lp_shares / 1e13 
             market.amm.cumulative_funding_payment_per_lp += funding_slice
-            # print('amm funding payment', -1 * funding_slice * market.amm.amm_lp_shares / 1e13)
+            
+            print('other lp funding:', )
+            print('amm funding payment:', -1 * funding_slice * market.amm.amm_lp_shares / 1e13)
 
         return self
         
@@ -430,6 +444,7 @@ class ClearingHouse:
                     funding_delta 
                     * position.base_asset_amount
                     / FUNDING_PRECISION
+                    / AMM_TO_QUOTE_PRECISION_RATIO
                 )
                 
                 # long @ f0 funding rate 
@@ -438,14 +453,16 @@ class ClearingHouse:
                 # amm_cum - f0 < 0  :: long doesnt get paid in funding 
                 # flip sign to make long get paid (not in v1 program? maybe doing something wrong)
                 funding_payment = -funding_payment
-                total_funding_payment += funding_payment / AMM_TO_QUOTE_PRECISION_RATIO
+
+                total_funding_payment += funding_payment 
+                position.market_funding_payments += funding_payment
                 
                 position.last_cumulative_funding_rate = amm_cumulative_funding_rate
                 position.last_funding_rate_ts = now 
                 
         # dont pay more than the total number of fees 
         total_funding_payment = max_collateral_change(user, total_funding_payment)
-        # print("user funding:", total_funding_payment)
+        print("user funding:", total_funding_payment)
         user.collateral += total_funding_payment
 
         return self
@@ -457,7 +474,6 @@ class ClearingHouse:
         market_position: MarketPosition, 
         market: Market
     ):         
-            
         # do swap 
         swap_direction = {
             PositionDirection.LONG: SwapDirection.ADD,
@@ -494,6 +510,9 @@ class ClearingHouse:
         if is_reduce or is_close:
             assert quote_amount < 0
 
+        if is_new_position: 
+            print('new pos:', base_amount_acquired)
+
         # update market 
         if (is_new_position and base_amount_acquired > 0) or market_position.base_asset_amount > 0:
             market.base_asset_amount_long += base_amount_acquired
@@ -519,7 +538,8 @@ class ClearingHouse:
         market_position.base_asset_amount += base_amount_acquired
         market_position.quote_asset_amount += quote_amount
 
-        market.amm.cumulative_net_base_asset_amount_per_lp += base_amount_acquired / market.amm.total_lp_shares
+        if market_position.lp_shares == 0: 
+            market.amm.cumulative_net_base_asset_amount_per_lp += base_amount_acquired / market.amm.total_lp_shares
 
     def repeg(self, market: Market, new_peg: int):
 
@@ -724,6 +744,8 @@ class ClearingHouse:
         
         assert user.positions[market_index].lp_shares == 0, 'Cannot lp and close position'
         
+        self.settle_funding_rates(user_index)
+
         # do nothing 
         if market_position.base_asset_amount == 0:
             return self 
@@ -737,6 +759,9 @@ class ClearingHouse:
         # apply user fee
         exchange_fee = -abs(quote_amount * float(self.fee_structure.numerator) / float(self.fee_structure.denominator))        
         self.apply_fee(exchange_fee, user, market) # TODO: incorp surplus 
+
+        ## try to update funding rate 
+        self.update_funding_rate(market_index)
 
         # exchange_fee = max_collateral_change(user, -exchange_fee)
         # user.collateral += exchange_fee
@@ -819,6 +844,7 @@ class ClearingHouse:
         quote_asset_amount_surplus = self.update_position_with_quote_asset_amount(
             quote_amount, direction, user, market_position, market
         )
+        market_position.total_baa += market_position.base_asset_amount
             
         # TODO: 
         # risk increasing ? ... 
@@ -834,7 +860,6 @@ class ClearingHouse:
         # apply user fee
         # print(quote_amount, float(self.fee_structure.numerator) / float(self.fee_structure.denominator))
         exchange_fee = -abs(quote_amount * float(self.fee_structure.numerator) / float(self.fee_structure.denominator))
-
 
         exchange_fee = max_collateral_change(user, exchange_fee)
         assert(exchange_fee < 0)
@@ -858,6 +883,7 @@ class ClearingHouse:
         fee = max_collateral_change(user, fee)
         assert(fee < 0)
         user.collateral += fee 
+        user.positions[market.market_index].market_fee_payments += fee 
 
         fee_slice = fee * 1e13 / market.amm.total_lp_shares
         market.amm.total_fee_minus_distributions -= fee_slice / 1e13 * market.amm.amm_lp_shares

@@ -131,7 +131,7 @@ def collateral_difference(ch, initial_collateral, verbose=False):
 
 #%%
 seed = np.random.randint(0, 1e3)
-seed = 624
+# seed = 912
 print('seed:', seed)
 
 np.random.seed(seed)
@@ -147,8 +147,8 @@ peg = market.amm.peg_multiplier / PEG_PRECISION
 sqrt_k = market.amm.sqrt_k / 1e13
 full_amm_position_quote = sqrt_k * peg * 2 * 1e6
 
-n_lps = 2
-n_trades = 1
+n_lps = 40
+n_trades = 40
 
 # n_lps = 2
 # n_trades = 2
@@ -266,16 +266,18 @@ ch = setup_ch(
 
 init_total_collateral = 0 
 for e in _events: 
-    ch.time = e.timestamp
-    ch = e.run(ch)
     if e._event_name != 'deposit_collateral' and init_total_collateral == 0:
         init_total_collateral = compute_total_collateral(ch)     
+        
+    # ch.time = e.timestamp
+    ch = e.run(ch)
     
 # recompute collateral 
 end_total_collateral = compute_total_collateral(ch)
+
 # ensure collateral still adds up 
 abs_difference = abs(init_total_collateral - end_total_collateral)
-abs_difference
+abs_difference, init_total_collateral, end_total_collateral
 
 #%%
 json_chs = [

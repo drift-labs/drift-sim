@@ -140,7 +140,7 @@ class OpenPositionEvent(Event):
     
     def run(self, clearing_house: ClearingHouse, verbose=False) -> ClearingHouse:
         if verbose:
-            print(f'u{self.user_index} {self._event_name}...')
+            print(f'u{self.user_index} {self._event_name} {self.direction} {self.quote_amount}...')
         direction = {
             "long": PositionDirection.LONG,
             "short": PositionDirection.SHORT,
