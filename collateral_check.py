@@ -74,7 +74,7 @@ def setup_ch(base_spread=0, strategies='', n_steps=100, n_users=2):
 
 #%%
 seed = np.random.randint(0, 1e3)
-seed = 252
+# seed = 252
 print('seed:', seed)
 
 np.random.seed(seed)
@@ -88,8 +88,8 @@ market: Market = ch.markets[0]
 # n_lps = 40
 # n_trades = 40
 
-n_lps = 2
-n_trades = 2
+n_lps = 20
+n_trades = 20
 
 sim = RandomSimulation(ch)
 agents = []
@@ -152,7 +152,6 @@ for x in tqdm(range(len(market.amm.oracle))):
                 settle_tracker[k] = False
         
         if event_i._event_name != 'null':
-            print(event_i._event_name)
             ch = event_i.run(ch)
                 
             mark_prices.append(calculate_mark_price(market))    

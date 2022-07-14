@@ -120,7 +120,7 @@ def close_all_users(clearing_house, verbose=False):
                     timestamp=clearing_house.time, 
                     market_index=market_index, 
                     user_index=user_index,
-                    lp_token_amount=lp_position.lp_shares
+                    lp_token_amount=-1
                 )
                 clearing_house = event.run(clearing_house)
                 
@@ -162,6 +162,7 @@ def compute_total_collateral(ch):
         market: Market = ch.markets[market_index]
         total_collateral += market.amm.total_fee_minus_distributions 
         total_collateral += market.amm.upnl
+        total_collateral += market.amm.lp_funding_payment
 
     total_collateral /= 1e6
     return total_collateral
@@ -177,10 +178,11 @@ class RandomSimulation():
         self.full_amm_position_quote = sqrt_k * peg * 2 * 1e6
 
     def generate_lp_settler(self, user_index, market_index) -> Agent:
+        update_every = np.random.randint(0, self.max_t // 2)
         return SettleLP(
             user_index, 
             market_index, 
-            every_x_steps=1, # tmp
+            every_x_steps=update_every, 
         )
 
     def generate_lp(self, user_index, market_index) -> Agent:
@@ -223,3 +225,4 @@ def collateral_difference(ch, initial_collateral, verbose=False):
     abs_difference = abs(initial_collateral - end_total_collateral) 
     
     return abs_difference, events, chs, mark_prices
+# %%
