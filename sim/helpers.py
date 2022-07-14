@@ -117,10 +117,10 @@ def close_all_users(clearing_house, verbose=False):
                     print(f'u{user_index} rl...')
                 
                 event = removeLiquidityEvent(
-                    clearing_house.time, 
-                    market_index, 
-                    user_index,
-                    lp_position.lp_shares
+                    timestamp=clearing_house.time, 
+                    market_index=market_index, 
+                    user_index=user_index,
+                    lp_token_amount=lp_position.lp_shares
                 )
                 clearing_house = event.run(clearing_house)
                 
@@ -157,17 +157,69 @@ def compute_total_collateral(ch):
     for (i, user) in ch.users.items():
         init_collaterals[i] = user.collateral
         total_collateral += user.collateral
-
-    # user_collateral = total_collateral
-    # print('user collateral:', total_collateral/1e6)
     
     for market_index in range(len(ch.markets)):
         market: Market = ch.markets[market_index]
         total_collateral += market.amm.total_fee_minus_distributions 
         total_collateral += market.amm.upnl
 
-    # print('market collateral:', (total_collateral - user_collateral)/1e6)
-    # print('total collateral:', total_collateral/1e6)
-
     total_collateral /= 1e6
     return total_collateral
+
+class RandomSimulation():
+    def __init__(self, ch: ClearingHouse) -> None:
+        self.ch = ch 
+        market = ch.markets[0]
+        self.max_t = len(market.amm.oracle)
+
+        peg = market.amm.peg_multiplier / PEG_PRECISION
+        sqrt_k = market.amm.sqrt_k / 1e13
+        self.full_amm_position_quote = sqrt_k * peg * 2 * 1e6
+
+    def generate_lp_settler(self, user_index, market_index) -> Agent:
+        return SettleLP(
+            user_index, 
+            market_index, 
+            every_x_steps=1, # tmp
+        )
+
+    def generate_lp(self, user_index, market_index) -> Agent:
+        start = np.random.randint(0, self.max_t)
+        dur = np.random.randint(0, self.max_t // 2)
+        amount = np.random.randint(0, self.full_amm_position_quote)
+        print("lp deposit amount:", amount)
+        return LP(
+            lp_start_time=start,
+            lp_duration=dur, 
+            deposit_amount=amount, 
+            user_index=user_index, 
+            market_index=market_index
+        )
+
+    def generate_trade(self, user_index, market_index) -> Agent:
+        start = np.random.randint(0, self.max_t)
+        dur = np.random.randint(0, self.max_t // 2)
+        amount = np.random.randint(0, 100_000)
+        
+        return OpenClose(
+            start_time=start,
+            duration=dur, 
+            direction='long' if np.random.choice([0, 1]) == 0 else 'short',
+            quote_amount=amount * QUOTE_PRECISION, 
+            user_index=user_index, 
+            market_index=market_index
+        )
+
+def collateral_difference(ch, initial_collateral, verbose=False):
+    clearing_house = copy.deepcopy(ch)
+
+    # close everyone 
+    clearing_house, (chs, events, mark_prices) = close_all_users(clearing_house, verbose)
+    
+    # recompute collateral 
+    end_total_collateral = compute_total_collateral(clearing_house)
+
+    # ensure collateral still adds up 
+    abs_difference = abs(initial_collateral - end_total_collateral) 
+    
+    return abs_difference, events, chs, mark_prices

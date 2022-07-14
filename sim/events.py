@@ -180,6 +180,7 @@ class SettleLPEvent(Event):
     def run(self, clearing_house: ClearingHouse, verbose=False) -> ClearingHouse:
         if verbose:
             print(f'u{self.user_index} {self._event_name}...')
+            
         clearing_house = clearing_house.settle_lp(
             self.market_index,
             self.user_index, 

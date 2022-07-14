@@ -107,12 +107,15 @@ class ClearingHouse:
         assert quote_amount > 0 
         
         user: User = self.users[user_index]
-        
         market: Market = self.markets[market_index]
-        assert user.positions[market_index].base_asset_amount == 0, "Close position before lping"
-        assert user.collateral >= quote_amount, "Not enough collateral to add liquidity"
+        user_position = user.positions[market_index]
+
+        assert user_position.base_asset_amount == 0, "Close position before lping"
+        assert user.collateral >= quote_amount, f"Not enough collateral to add liquidity: {user.collateral} {quote_amount}"
+        assert user_position.lp_shares == 0, "not impld yet"
         
         # compute lp token amount for a given quote amount
+        # TODO: remove 
         user_lp_token_amount = int(
             quote_amount * AMM_TO_QUOTE_PRECISION_RATIO 
             / 2 
@@ -120,7 +123,6 @@ class ClearingHouse:
         )
         
         # record other metrics
-        user_position = user.positions[market_index]
         user_position.lp_shares = user_lp_token_amount
         user_position.last_cumulative_net_base_asset_amount_per_lp = market.amm.cumulative_net_base_asset_amount_per_lp
         user_position.last_cumulative_funding_rate = market.amm.cumulative_funding_payment_per_lp
@@ -136,6 +138,10 @@ class ClearingHouse:
         # track new lp 
         market.amm.total_lp_shares += user_lp_token_amount
 
+        print(
+            user_lp_token_amount / market.amm.total_lp_shares
+        )
+
         # TODO: margin system checking
         
         return self 
@@ -149,9 +155,9 @@ class ClearingHouse:
         market: Market = self.markets[market_index]
         lp_position: MarketPosition = user.positions[market_index]
 
-        if lp_position.lp_shares < 0:
+        if lp_position.lp_shares <= 0:
             print("warning: trying to settle user who is not an lp")
-            return self 
+            return self
         
         self.settle_lp_shares(
             user, 
@@ -188,6 +194,7 @@ class ClearingHouse:
         #     lp_position.last_cumulative_net_base_asset_amount_per_lp,
         #     market.amm.cumulative_net_base_asset_amount_per_lp
         # )
+
         amm_net_position_change = (
             lp_position.last_cumulative_net_base_asset_amount_per_lp -
             market.amm.cumulative_net_base_asset_amount_per_lp
@@ -263,17 +270,50 @@ class ClearingHouse:
     ):
         lp_position = user.positions[market.market_index]
         lp_metrics = self.get_lp_metrics(lp_position, lp_token_amount, market)
+        
+        # print('--- lp settle ---')
+        # print(f"lp{lp_position.user_index} (baa qaa):", lp_metrics.base_asset_amount, lp_metrics.quote_asset_amount / 1e6)
+        # print(f"lp{lp_position.user_index} funding payment:", lp_metrics.funding_payment)
+        # print(f"lp{lp_position.user_index} fee payment:", lp_metrics.fee_payment)
 
+        is_new_position = lp_position.base_asset_amount == 0 
+        is_increase = lp_position.base_asset_amount > 0 and lp_metrics.base_asset_amount > 0 \
+            or lp_position.base_asset_amount < 0 and lp_metrics.base_asset_amount < 0
+
+
+        # print('settling...')
         # market position 
-        lp_position.base_asset_amount += lp_metrics.base_asset_amount
-        lp_position.quote_asset_amount += lp_metrics.quote_asset_amount
-        print(f"lp{lp_position.user_index} baa:", lp_metrics.base_asset_amount)
+        baa_change = abs(lp_metrics.base_asset_amount)
+        if is_increase or is_new_position:
+            # print('increasing...')
+            lp_position.base_asset_amount += lp_metrics.base_asset_amount
+            lp_position.quote_asset_amount += lp_metrics.quote_asset_amount
+        # is reduce/close
+        elif baa_change > 0: 
+            
+            if baa_change == abs(lp_position.base_asset_amount): 
+                # print('closing...')
+                lp_position.base_asset_amount = 0 
+                lp_position.quote_asset_amount = 0
+            elif abs(lp_position.base_asset_amount) > baa_change: 
+                # print('reducing...')
+                # reduce 
+                initial_quote_closed = (
+                    lp_position.quote_asset_amount * baa_change / abs(lp_position.base_asset_amount)
+                )
+                lp_position.base_asset_amount += lp_metrics.base_asset_amount
+                lp_position.quote_asset_amount -= initial_quote_closed
+            else: 
+                # print('flipping...')
+                # flips -- lp_baa > market_baa && sign(lp_baa) != sign(market_baa)
+                # close & increase 
+                quote_after_close = lp_metrics.quote_asset_amount - lp_position.quote_asset_amount
+                net_baa = lp_metrics.base_asset_amount + lp_position.base_asset_amount 
+                lp_position.base_asset_amount = net_baa
+                lp_position.quote_asset_amount = quote_after_close
 
         # payments 
         lp_payment = lp_metrics.fee_payment + lp_metrics.unsettled_pnl + lp_metrics.funding_payment
-        # print("lp funding payment:", lp_metrics.funding_payment)
-        # print("lp fee payment:", lp_metrics.fee_payment)
-
         lp_position.lp_funding_payments += lp_metrics.funding_payment
         lp_position.lp_fee_payments += lp_metrics.fee_payment
 
@@ -285,9 +325,12 @@ class ClearingHouse:
         market.amm.upnl -= lp_metrics.unsettled_pnl
 
         # update stats 
-        lp_position.last_cumulative_net_base_asset_amount_per_lp = market.amm.cumulative_net_base_asset_amount_per_lp
         lp_position.last_cumulative_funding_rate = market.amm.cumulative_funding_payment_per_lp
         lp_position.last_cumulative_fee_per_lp = market.amm.cumulative_fee_per_lp
+
+        lp_position.last_cumulative_net_base_asset_amount_per_lp = market.amm.cumulative_net_base_asset_amount_per_lp
+
+        return lp_metrics
 
     ## burns the lp tokens, earns fees+funding, 
     ## and takes on the AMM's position (for realz)
@@ -311,16 +354,26 @@ class ClearingHouse:
         assert lp_token_amount == lp_position.lp_shares, "can only burn full lp tokens"
 
         # settle them 
-        self.settle_lp_shares(
+        lp_metrics = self.settle_lp_shares(
             user, 
             market, 
             lp_token_amount
         )
+        
+        # # market position 
+        # lp_position.base_asset_amount += lp_metrics.base_asset_amount
+        # lp_position.quote_asset_amount += lp_metrics.quote_asset_amount
+        # print(f"lp{lp_position.user_index} baa:", lp_metrics.base_asset_amount)
+        # lp_position.last_cumulative_net_base_asset_amount_per_lp = market.amm.cumulative_net_base_asset_amount_per_lp
 
         market_position: MarketPosition = user.positions[market_index]
 
         baa = market_position.base_asset_amount
         qaa = market_position.quote_asset_amount
+        
+        print('-- lp position -- ')
+        print(f'baa qaa: {baa} {qaa/ 1e6}')
+
         market_position.base_asset_amount = 0 
         market_position.quote_asset_amount = 0 
 
@@ -410,11 +463,12 @@ class ClearingHouse:
             )  
             
             funding_slice = market_funding_payment * 1e13 / market.amm.total_lp_shares
-            market.amm.upnl += -1 * funding_slice * market.amm.amm_lp_shares / 1e13 
+            market.amm.lp_funding_payment += -1 * funding_slice * market.amm.amm_lp_shares / 1e13 
             market.amm.cumulative_funding_payment_per_lp += funding_slice
             
-            print('other lp funding:', )
-            print('amm funding payment:', -1 * funding_slice * market.amm.amm_lp_shares / 1e13)
+            # print('-- funding update --')
+            # print('amm funding payment:', -1 * funding_slice * market.amm.amm_lp_shares / 1e13)
+            # print('other lp funding:', -1 * funding_slice * (market.amm.total_lp_shares - market.amm.amm_lp_shares) / 1e13)
 
         return self
         
@@ -462,8 +516,8 @@ class ClearingHouse:
                 
         # dont pay more than the total number of fees 
         total_funding_payment = max_collateral_change(user, total_funding_payment)
-        print("user funding:", total_funding_payment)
         user.collateral += total_funding_payment
+        # print(f"u{position.user_index} funding:", total_funding_payment)
 
         return self
 
@@ -505,13 +559,16 @@ class ClearingHouse:
         is_reduce = market_position.base_asset_amount > 0 and base_amount_acquired < 0 \
                 or market_position.base_asset_amount < 0 and base_amount_acquired > 0
         is_new_position = market_position.base_asset_amount == 0 and base_amount_acquired != 0
-        is_close = market_position.base_asset_amount - base_amount_acquired == 0 and market_position.base_asset_amount != 0
+        is_close = market_position.base_asset_amount + base_amount_acquired == 0 and market_position.base_asset_amount != 0
 
         if is_reduce or is_close:
             assert quote_amount < 0
 
         if is_new_position: 
-            print('new pos:', base_amount_acquired)
+            print('new pos (b q):', base_amount_acquired, quote_amount/1e6)
+        
+        if is_close: 
+            print('closing pos (b q):', base_amount_acquired, quote_amount/1e6)
 
         # update market 
         if (is_new_position and base_amount_acquired > 0) or market_position.base_asset_amount > 0:
@@ -522,6 +579,7 @@ class ClearingHouse:
             market.amm.quote_asset_amount_short += quote_amount
 
         market.amm.net_base_asset_amount += base_amount_acquired
+        print('->net_Baa', market.amm.net_base_asset_amount)
 
         # update position
         if market_position.base_asset_amount == 0:
@@ -695,10 +753,10 @@ class ClearingHouse:
            -quote_amount_acquired
         )
 
-        # update market position 
-        market_position.last_cumulative_funding_rate = 0
-        market_position.base_asset_amount = 0
-        market_position.quote_asset_amount = 0
+        # # update market position 
+        # market_position.last_cumulative_funding_rate = 0
+        # market_position.base_asset_amount = 0
+        # market_position.quote_asset_amount = 0
 
         return quote_amount_acquired, quote_asset_amount_surplus
     
@@ -886,6 +944,12 @@ class ClearingHouse:
         user.positions[market.market_index].market_fee_payments += fee 
 
         fee_slice = fee * 1e13 / market.amm.total_lp_shares
+        
+        # print('-- new fee payment --')
+        # print('total fee:', fee)
+        # print('market fee:', fee_slice / 1e13 * market.amm.amm_lp_shares)
+        # print('other lp fee:', fee_slice / 1e13 * (market.amm.total_lp_shares - market.amm.amm_lp_shares))
+
         market.amm.total_fee_minus_distributions -= fee_slice / 1e13 * market.amm.amm_lp_shares
         market.amm.cumulative_fee_per_lp -= fee_slice
 

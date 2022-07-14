@@ -297,11 +297,15 @@ class SettleLP(Agent):
     def run(self, state: ClearingHouse) -> Event: 
         event = NullEvent(state.time)
         if state.time % self.every_x_steps == 0: 
-            event = SettleLPEvent(
-                timestamp=state.time, 
-                user_index=self.user_index, 
-                market_index=self.market_index,
-            )
+            if state.users[self.user_index].positions[self.market_index].lp_shares != 0:
+                # only settle if/when they are an lp 
+                event = SettleLPEvent(
+                    timestamp=state.time, 
+                    user_index=self.user_index, 
+                    market_index=self.market_index,
+                )
+            else: 
+                event = NullEvent(state.time)
 
         return event
 

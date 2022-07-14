@@ -2,8 +2,8 @@
 ## were to close 
 
 # %%
-%reload_ext autoreload
-%autoreload 2
+# %reload_ext autoreload
+# %autoreload 2
 
 import pandas as pd
 pd.options.plotting.backend = "plotly"
@@ -36,12 +36,13 @@ import numpy as np
 import pandas as pd
 from dataclasses import dataclass, field
 
+from sim.helpers import *
+
 from programs.clearing_house.math.pnl import *
 from programs.clearing_house.math.amm import *
 from programs.clearing_house.state import *
 from programs.clearing_house.lib import *
 
-from sim.helpers import close_all_users, random_walk_oracle, compute_total_collateral
 from sim.events import * 
 from sim.agents import * 
 
@@ -72,66 +73,8 @@ def setup_ch(base_spread=0, strategies='', n_steps=100, n_users=2):
     return ch
 
 #%%
-class RandomSimulation():
-    def __init__(self, ch: ClearingHouse) -> None:
-        self.ch = ch 
-        market: Market = ch.markets[0]
-        self.max_t = len(market.amm.oracle)
-
-        peg = market.amm.peg_multiplier / PEG_PRECISION
-        sqrt_k = market.amm.sqrt_k / 1e13
-        self.full_amm_position_quote = sqrt_k * peg * 2 * 1e6
-
-    def generate_lp_settler(self, user_index, market_index) -> Agent:
-        return SettleLP(
-            user_index, 
-            market_index, 
-            every_x_steps=1, # tmp
-        )
-
-    def generate_lp(self, user_index, market_index) -> Agent:
-        start = np.random.randint(0, max_t)
-        dur = np.random.randint(0, max_t // 2)
-        amount = np.random.randint(0, full_amm_position_quote // (n_lps + 10))
-        return LP(
-            lp_start_time=start,
-            lp_duration=dur, 
-            deposit_amount=amount, 
-            user_index=user_index, 
-            market_index=market_index
-        )
-
-    def generate_trade(self, user_index, market_index) -> Agent:
-        start = np.random.randint(0, max_t)
-        dur = np.random.randint(0, max_t // 2)
-        amount = np.random.randint(0, 100_000)
-        
-        return OpenClose(
-            start_time=start,
-            duration=dur, 
-            direction='long' if np.random.choice([0, 1]) == 0 else 'short',
-            quote_amount=amount * QUOTE_PRECISION, 
-            user_index=user_index, 
-            market_index=market_index
-        )
-
-def collateral_difference(ch, initial_collateral, verbose=False):
-    clearing_house = copy.deepcopy(ch)
-
-    # close everyone 
-    clearing_house, (chs, events, mark_prices) = close_all_users(clearing_house, verbose)
-    
-    # recompute collateral 
-    end_total_collateral = compute_total_collateral(clearing_house)
-
-    # ensure collateral still adds up 
-    abs_difference = abs(initial_collateral - end_total_collateral) 
-    
-    return abs_difference, events, chs, mark_prices
-
-#%%
 seed = np.random.randint(0, 1e3)
-# seed = 912
+seed = 252
 print('seed:', seed)
 
 np.random.seed(seed)
@@ -141,26 +84,21 @@ ch = setup_ch(
     n_steps=100,
 )
 market: Market = ch.markets[0]
-max_t = len(market.amm.oracle)
 
-peg = market.amm.peg_multiplier / PEG_PRECISION
-sqrt_k = market.amm.sqrt_k / 1e13
-full_amm_position_quote = sqrt_k * peg * 2 * 1e6
+# n_lps = 40
+# n_trades = 40
 
-n_lps = 40
-n_trades = 40
-
-# n_lps = 2
-# n_trades = 2
+n_lps = 2
+n_trades = 2
 
 sim = RandomSimulation(ch)
 agents = []
 agents += [
     sim.generate_lp(i, 0) for i in range(n_lps)
 ]
-# agents += [
-#     sim.generate_lp_settler(i, 0) for i in range(n_lps)
-# ]
+agents += [
+    sim.generate_lp_settler(i, 0) for i in range(n_lps)
+]
 agents += [
     sim.generate_trade(i, 0) for i in range(n_lps, n_lps+n_trades)
 ]
@@ -174,9 +112,9 @@ differences = []
 
 # setup agents
 for agent in agents:        
-    event = agent.setup(ch)
+    event: Event = agent.setup(ch)
     if event._event_name != 'null':
-        ch = event.run(ch)
+        ch = event.run(ch, verbose=True)
     
     events.append(event)
     clearing_houses.append(copy.deepcopy(ch))
@@ -190,6 +128,9 @@ initial_collateral = compute_total_collateral(ch)
 # run agents 
 early_exit = False
 abs_difference = 0 
+settle_tracker = {}
+for (_, user) in ch.users.items(): 
+    settle_tracker[user.user_index] = False 
 
 from tqdm import tqdm 
 for x in tqdm(range(len(market.amm.oracle))):
@@ -197,10 +138,21 @@ for x in tqdm(range(len(market.amm.oracle))):
         continue
     
     for i, agent in enumerate(agents):
-        # print(ch.markets[0].amm.cumulative_fee_per_lp)
         event_i = agent.run(ch)
+
+        # tmp soln 
+        # only settle once after another non-settle event (otherwise you get settle spam in the events)
+        if event_i._event_name == 'settle_lp':
+            if settle_tracker[event_i.user_index]:
+                continue
+            else: 
+                settle_tracker[event_i.user_index] = True    
+        elif event_i._event_name != 'null':
+            for k in settle_tracker.keys(): 
+                settle_tracker[k] = False
         
         if event_i._event_name != 'null':
+            print(event_i._event_name)
             ch = event_i.run(ch)
                 
             mark_prices.append(calculate_mark_price(market))    
@@ -226,73 +178,113 @@ clearing_houses += _chs
 mark_prices += _mark_prices
 
 differences.append(abs_difference)
+
+# if abs_difference > 1: 
+_ = [print(f"{e},") for e in events if e._event_name != 'null']
+
+print('---')
+_ = [print("\t", e._event_name) for e in events if e._event_name != 'null']
+print('---')
+print(f"seed = {seed}")
 print("abs difference:", abs_difference)
+print('net baa', clearing_houses[-1].markets[0].amm.net_base_asset_amount)
+print('---')
+
+# %%
+lp_fee_payments = 0 
+market_fees = 0 
+market: Market = ch.markets[0]
+for (_, user) in ch.users.items(): 
+    position: MarketPosition = user.positions[0]
+    lp_fee_payments += position.lp_fee_payments
+    market_fees += position.market_fee_payments
+
+total_payments = lp_fee_payments + market.amm.total_fee_minus_distributions
+print('fee difference', abs(total_payments) - abs(market_fees))
+
+# %%
+lp_funding_payments = 0 
+market_funding = 0 
+market: Market = ch.markets[0]
+for (_, user) in ch.users.items(): 
+    position: MarketPosition = user.positions[0]
+    lp_funding_payments += position.lp_funding_payments
+    market_funding += position.market_funding_payments
+total_payments = market.amm.lp_funding_payment + lp_funding_payments
+print('funding difference:', market_funding + total_payments)
 
 #%%
-plt.plot([d for d in differences if d != 0])
-print(np.unique(differences))
+#%%
+#%%
+
 
 # #%%
-# import matplotlib.colors as mcolors
-# cmap = mcolors.BASE_COLORS
-# keys = list(cmap.keys())
-#
-# mark_change = np.array(mark_prices) - mark_prices[0]
-# above = True 
-# plt.plot(mark_change)
-# for i, e in enumerate(events): 
-#     if e._event_name != 'null':
-#         color = cmap[keys[e.user_index % len(keys)]]
-#         plt.scatter(i, mark_change[i], color=color)
-#         plt.text(i+0.5, mark_change[i], e._event_name, rotation=90)
-#
-#%%
-def pprint(x):
-    print("\t", x)
+# #%%
+# #%%
+# plt.plot([d for d in differences if d != 0])
+# print(np.unique(differences))
 
-_ = [pprint(e) for e in events if e._event_name != 'null']
-# _ = [print(e._event_name, e.user_index) for e in events if e._event_name != 'null']
+# # #%%
+# # import matplotlib.colors as mcolors
+# # cmap = mcolors.BASE_COLORS
+# # keys = list(cmap.keys())
+# #
+# # mark_change = np.array(mark_prices) - mark_prices[0]
+# # above = True 
+# # plt.plot(mark_change)
+# # for i, e in enumerate(events): 
+# #     if e._event_name != 'null':
+# #         color = cmap[keys[e.user_index % len(keys)]]
+# #         plt.scatter(i, mark_change[i], color=color)
+# #         plt.text(i+0.5, mark_change[i], e._event_name, rotation=90)
+# #
+# #%%
+# def pprint(x):
+#     print("\t", x)
 
-#%%
-_events = [e for e in events if e._event_name != 'null']
-print(len(_events))
+# _ = [pprint(e) for e in events if e._event_name != 'null']
+# # _ = [print(e._event_name, e.user_index) for e in events if e._event_name != 'null']
 
-np.random.seed(seed)
-ch = setup_ch(
-    base_spread=0, 
-    strategies='',
-    n_steps=100,
-)
+# #%%
+# _events = [e for e in events if e._event_name != 'null']
+# print(len(_events))
 
-init_total_collateral = 0 
-for e in _events: 
-    if e._event_name != 'deposit_collateral' and init_total_collateral == 0:
-        init_total_collateral = compute_total_collateral(ch)     
+# np.random.seed(seed)
+# ch = setup_ch(
+#     base_spread=0, 
+#     strategies='',
+#     n_steps=100,
+# )
+
+# init_total_collateral = 0 
+# for e in _events: 
+#     if e._event_name != 'deposit_collateral' and init_total_collateral == 0:
+#         init_total_collateral = compute_total_collateral(ch)     
         
-    # ch.time = e.timestamp
-    ch = e.run(ch)
+#     # ch.time = e.timestamp
+#     ch = e.run(ch)
     
-# recompute collateral 
-end_total_collateral = compute_total_collateral(ch)
+# # recompute collateral 
+# end_total_collateral = compute_total_collateral(ch)
 
-# ensure collateral still adds up 
-abs_difference = abs(init_total_collateral - end_total_collateral)
-abs_difference, init_total_collateral, end_total_collateral
+# # ensure collateral still adds up 
+# abs_difference = abs(init_total_collateral - end_total_collateral)
+# abs_difference, init_total_collateral, end_total_collateral
 
-#%%
-json_chs = [
-    ch.to_json() for ch in tqdm(clearing_houses)
-]
-results = pd.DataFrame(json_chs)
-keep_columns = results.columns
-keep_columns = [c for c in keep_columns if results[c].dtype == float or results[c].dtype == int]
-# keep_columns = [c for c in keep_columns if 'u1' in c] # only lp 
-filtered_df = results[keep_columns]
-filtered_df.plot()
+# #%%
+# json_chs = [
+#     ch.to_json() for ch in tqdm(clearing_houses)
+# ]
+# results = pd.DataFrame(json_chs)
+# keep_columns = results.columns
+# keep_columns = [c for c in keep_columns if results[c].dtype == float or results[c].dtype == int]
+# # keep_columns = [c for c in keep_columns if 'u1' in c] # only lp 
+# filtered_df = results[keep_columns]
+# filtered_df.plot()
 
-#%%
-df = pd.DataFrame(data=clearing_houses[-1].to_json(), index=[0])
-df.plot()
+# #%%
+# df = pd.DataFrame(data=clearing_houses[-1].to_json(), index=[0])
+# df.plot()
 
 #%%
 #%%
