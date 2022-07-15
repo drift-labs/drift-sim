@@ -73,23 +73,20 @@ def setup_ch(base_spread=0, strategies='', n_steps=100, n_users=2):
     return ch
 
 #%%
-seed = np.random.randint(0, 1e3)
-# seed = 252
-print('seed:', seed)
-
+seed = 85
 np.random.seed(seed)
+print('seed', seed)
 ch = setup_ch(
-    base_spread=0, 
-    strategies='',
     n_steps=100,
+    base_spread=100,
 )
 market: Market = ch.markets[0]
 
 # n_lps = 40
 # n_trades = 40
 
-n_lps = 20
-n_trades = 20
+n_lps = 2
+n_trades = 2
 
 sim = RandomSimulation(ch)
 agents = []
@@ -176,6 +173,9 @@ events += _events
 clearing_houses += _chs
 mark_prices += _mark_prices
 
+if len(clearing_houses) > 0:
+    ch = clearing_houses[-1]
+
 differences.append(abs_difference)
 
 # if abs_difference > 1: 
@@ -199,7 +199,8 @@ for (_, user) in ch.users.items():
     market_fees += position.market_fee_payments
 
 total_payments = lp_fee_payments + market.amm.total_fee_minus_distributions
-print('fee difference', abs(total_payments) - abs(market_fees))
+print(total_payments, market_fees)
+print(abs(total_payments) - abs(market_fees))
 
 # %%
 lp_funding_payments = 0 
@@ -210,7 +211,7 @@ for (_, user) in ch.users.items():
     lp_funding_payments += position.lp_funding_payments
     market_funding += position.market_funding_payments
 total_payments = market.amm.lp_funding_payment + lp_funding_payments
-print('funding difference:', market_funding + total_payments)
+market_funding + total_payments
 
 #%%
 #%%
