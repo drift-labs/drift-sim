@@ -47,10 +47,12 @@ class MarketPosition:
     base_asset_amount: int = 0
     quote_asset_amount: int = 0
     last_funding_rate_ts: int = 0
+    lp_has_market_position: bool = False
 
     # lp stuff
     lp_shares: int = 0
     last_cumulative_funding_rate: int = 0
+    last_cumulative_funding_rate_lp: int = 0
     last_cumulative_fee_per_lp: int = 0 
     last_cumulative_net_base_asset_amount_per_lp: int = 0 
 

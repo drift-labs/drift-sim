@@ -222,7 +222,8 @@ def collateral_difference(ch, initial_collateral, verbose=False):
     end_total_collateral = compute_total_collateral(clearing_house)
 
     # ensure collateral still adds up 
-    abs_difference = abs(initial_collateral - end_total_collateral) 
+    difference = initial_collateral - end_total_collateral
+    abs_difference = abs(difference) 
     
-    return abs_difference, events, chs, mark_prices
+    return (abs_difference, difference), events, chs, mark_prices
 # %%

@@ -1,6 +1,6 @@
 # %%
-# %reload_ext autoreload
-# %autoreload 
+%reload_ext autoreload
+%autoreload 
 import pandas as pd
 pd.options.plotting.backend = "plotly"
 
@@ -61,11 +61,12 @@ def setup_ch(base_spread=0, strategies='', n_steps=100):
     return ch
 
 #%%
-seed = 252
+seed = 85
 np.random.seed(seed)
+print('seed', seed)
 ch = setup_ch(
-    base_spread=0,
     n_steps=100,
+    base_spread=0,
 )
 market = ch.markets[0]
 
@@ -75,20 +76,18 @@ full_amm_position_quote = sqrt_k * peg * 2 * 1e6
 
 trade_size = 1_000_000 * QUOTE_PRECISION
 events = [
-    DepositCollateralEvent(timestamp=0, user_index=0, deposit_amount=1361582938536, username='LP', _event_name='deposit_collateral'),
-    DepositCollateralEvent(timestamp=1, user_index=1, deposit_amount=2112755967356, username='LP', _event_name='deposit_collateral'),
-    DepositCollateralEvent(timestamp=4, user_index=2, deposit_amount=43942000000, username='openclose', _event_name='deposit_collateral'),
-    DepositCollateralEvent(timestamp=5, user_index=3, deposit_amount=60892000000, username='openclose', _event_name='deposit_collateral'),
+    DepositCollateralEvent(timestamp=0, user_index=0, deposit_amount=1998590197697, username='LP', _event_name='deposit_collateral'),
+    DepositCollateralEvent(timestamp=1, user_index=1, deposit_amount=4255468411490, username='LP', _event_name='deposit_collateral'),
+    DepositCollateralEvent(timestamp=4, user_index=2, deposit_amount=79010000000, username='openclose', _event_name='deposit_collateral'),
+    DepositCollateralEvent(timestamp=5, user_index=3, deposit_amount=1802000000, username='openclose', _event_name='deposit_collateral'),
 
-    addLiquidityEvent(timestamp=41, market_index=0, user_index=1, quote_amount=2112755967356, _event_name='add_liquidity'),
+    addLiquidityEvent(timestamp=142, market_index=0, user_index=1, quote_amount=4255468411490, _event_name='add_liquidity'),
+    SettleLPEvent(timestamp=183, user_index=1, market_index=0, _event_name='settle_lp'),
+    OpenPositionEvent(timestamp=227, user_index=2, direction='long', quote_amount=79010000000, market_index=0, _event_name='open_position'),
 
-    OpenPositionEvent(timestamp=105, user_index=2, direction='long', quote_amount=43942000000, market_index=0, _event_name='open_position'),
-    removeLiquidityEvent(timestamp=10000000000105.0, market_index=0, user_index=1, lp_token_amount=7699547985991251968, _event_name='remove_liquidity'),
-    
-    # lp close
-    ClosePositionEvent(timestamp=10000000000106.0, user_index=1, market_index=0, _event_name='close_position'),
-    # user close
-    ClosePositionEvent(timestamp=10000000000107.0, user_index=2, market_index=0, _event_name='close_position'),
+    removeLiquidityEvent(timestamp=10000000000227.0, market_index=0, user_index=1, lp_token_amount=-1, _event_name='remove_liquidity'),
+    ClosePositionEvent(timestamp=10000000000228.0, user_index=1, market_index=0, _event_name='close_position'),
+    ClosePositionEvent(timestamp=10000000000229.0, user_index=2, market_index=0, _event_name='close_position'),
 ]
 
 init_total_collateral = 0
@@ -107,7 +106,6 @@ for e in events:
 print([e._event_name for e in _events])
 
 abs_difference, close_events, _chs, _ = collateral_difference(ch, init_total_collateral, verbose=True)
-# ch = _chs[-1]
 market = ch.markets[0]
 
 print(close_events)
@@ -128,7 +126,6 @@ for (_, user) in ch.users.items():
     market_fees += position.market_fee_payments
 
 total_payments = lp_fee_payments + market.amm.total_fee_minus_distributions
-print(total_payments, market_fees)
 print(abs(total_payments) - abs(market_fees))
 
 # %%

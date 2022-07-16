@@ -91,7 +91,7 @@ def swap_base_asset(
     base_amount, 
     swap_direction, 
     now,
-    use_spread=False
+    use_spread=False, 
 ):
     update_mark_twap(amm, now)
 
@@ -163,6 +163,7 @@ def calculate_quote_swap_output_with_spread(
     )
 
     # print('calculate_swap_output', quote_asset_reserve_amount, quote_asset_reserve_with_spread)
+    
     new_base_asset_reserve_with_spread, _ = calculate_swap_output(
         quote_asset_reserve_amount, 
         quote_asset_reserve_with_spread, 
@@ -171,7 +172,6 @@ def calculate_quote_swap_output_with_spread(
     )
 
     base_asset_amount_with_spread = base_asset_reserve_with_spread - new_base_asset_reserve_with_spread
-
 
     # second do the swap based on normal reserves to get updated reserves
     new_base_asset_reserve, new_quote_asset_reserve = calculate_swap_output(

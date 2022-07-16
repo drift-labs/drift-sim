@@ -19,11 +19,8 @@ from driftpy.math.amm import calculate_mark_price_amm, calculate_bid_price_amm, 
 # from driftpy.math.repeg import calculate_freepeg_cost
 
 from driftpy.math.user import *
-
 from driftpy.constants.numeric_constants import * 
 from programs.clearing_house.controller.amm import *
-
-from solana.publickey import PublicKey
 
 import json 
 import matplotlib.pyplot as plt 
@@ -125,7 +122,7 @@ class ClearingHouse:
         # record other metrics
         user_position.lp_shares = user_lp_token_amount
         user_position.last_cumulative_net_base_asset_amount_per_lp = market.amm.cumulative_net_base_asset_amount_per_lp
-        user_position.last_cumulative_funding_rate = market.amm.cumulative_funding_payment_per_lp
+        user_position.last_cumulative_funding_rate_lp = market.amm.cumulative_funding_payment_per_lp
         user_position.last_cumulative_fee_per_lp = market.amm.cumulative_fee_per_lp
 
         # update k
@@ -137,6 +134,7 @@ class ClearingHouse:
 
         # track new lp 
         market.amm.total_lp_shares += user_lp_token_amount
+        # print(user_lp_token_amount / market.amm.total_lp_shares)
 
         # TODO: margin system checking
         
@@ -179,7 +177,7 @@ class ClearingHouse:
         # give them portion of funding since deposit
         change_in_funding = (
             market.amm.cumulative_funding_payment_per_lp   
-            - lp_position.last_cumulative_funding_rate
+            - lp_position.last_cumulative_funding_rate_lp
         ) # in quote 
         change_in_funding *= -1 # consistent with settle_funding         
         funding_payment = change_in_funding * lp_token_amount / 1e13
@@ -205,13 +203,18 @@ class ClearingHouse:
                 True: SwapDirection.REMOVE,
                 False: SwapDirection.ADD,
             }[amm_net_position_change > 0]
-            
-            new_quote_asset_reserve, _ = calculate_swap_output(
-                abs(amm_net_position_change), 
-                market.amm.base_asset_reserve,
-                direction_to_close,
-                market.amm.sqrt_k
-            )
+
+            if market.amm.base_spread == 0: 
+                new_quote_asset_reserve, _ = calculate_swap_output(
+                    abs(amm_net_position_change), 
+                    market.amm.base_asset_reserve,
+                    direction_to_close,
+                    market.amm.sqrt_k
+                )
+            else: 
+                new_quote_asset_reserve = calculate_base_swap_output_with_spread(
+                    market.amm, abs(amm_net_position_change), direction_to_close
+                )[1]
 
             base_asset_amount = (
                 amm_net_position_change
@@ -272,22 +275,19 @@ class ClearingHouse:
         # print(f"lp{lp_position.user_index} funding payment:", lp_metrics.funding_payment)
         # print(f"lp{lp_position.user_index} fee payment:", lp_metrics.fee_payment)
 
+        # update market position 
         is_new_position = lp_position.base_asset_amount == 0 
         is_increase = lp_position.base_asset_amount > 0 and lp_metrics.base_asset_amount > 0 \
             or lp_position.base_asset_amount < 0 and lp_metrics.base_asset_amount < 0
 
-        # market position 
-        baa_change = abs(lp_metrics.base_asset_amount)
         if is_increase or is_new_position:
-            # print('increasing...')
             lp_position.base_asset_amount += lp_metrics.base_asset_amount
             lp_position.quote_asset_amount += lp_metrics.quote_asset_amount
-        # is reduce/close
-        elif baa_change > 0: 
-            quote_after_close = abs(lp_metrics.quote_asset_amount - lp_position.quote_asset_amount)
+        elif lp_metrics.base_asset_amount != 0: # is reduce/close
+            net_qaa = abs(lp_metrics.quote_asset_amount - lp_position.quote_asset_amount)
             net_baa = lp_metrics.base_asset_amount + lp_position.base_asset_amount 
             lp_position.base_asset_amount = net_baa
-            lp_position.quote_asset_amount = quote_after_close
+            lp_position.quote_asset_amount = net_qaa
 
         # payments 
         lp_payment = lp_metrics.fee_payment + lp_metrics.unsettled_pnl + lp_metrics.funding_payment
@@ -297,16 +297,13 @@ class ClearingHouse:
         lp_payment = max_collateral_change(user, lp_payment)
         user.collateral += lp_payment
        
-        # this increases it so its ok? 
         assert lp_metrics.unsettled_pnl <= 0, 'shouldnt happen'
         market.amm.upnl -= lp_metrics.unsettled_pnl
 
         # update stats 
-        lp_position.last_cumulative_funding_rate = market.amm.cumulative_funding_payment_per_lp
+        lp_position.last_cumulative_funding_rate_lp = market.amm.cumulative_funding_payment_per_lp
         lp_position.last_cumulative_fee_per_lp = market.amm.cumulative_fee_per_lp
         lp_position.last_cumulative_net_base_asset_amount_per_lp = market.amm.cumulative_net_base_asset_amount_per_lp
-
-        # print(f"new position :: lp{lp_position.user_index} (baa qaa):", lp_position.base_asset_amount, lp_position.quote_asset_amount / 1e6)
 
         return lp_metrics
 
@@ -333,29 +330,35 @@ class ClearingHouse:
 
         # settle them 
         lp_metrics = self.settle_lp_shares(
-            user, 
-            market, 
+            user,
+            market,
             lp_token_amount
         )
 
+        # # settle funding on any existing market positions
+        # self.settle_funding_rates(user_index)
+
         market_position: MarketPosition = user.positions[market_index]
 
-        baa = market_position.base_asset_amount
+        baa = market_position.base_asset_amount 
         qaa = market_position.quote_asset_amount
-        
-        # print('-- lp position -- ')
-        # print(f'baa qaa: {baa} {qaa/ 1e6}')
 
         market_position.base_asset_amount = 0 
         market_position.quote_asset_amount = 0 
 
+        market_baa = baa * lp_token_amount / lp_position.lp_shares
+        market_qaa = qaa * lp_token_amount / lp_position.lp_shares
+
         self.track_new_base_assset(
             market_position,
-            market, 
-            baa, 
-            qaa
+            market,
+            market_baa,
+            market_qaa, 
         )
-        
+       
+        if abs(baa) > 0: 
+            market_position.lp_has_market_position = True 
+
         market_position.lp_shares -= lp_token_amount
         market.amm.total_lp_shares -= lp_token_amount
 
@@ -432,7 +435,7 @@ class ClearingHouse:
                 * market_net_position 
                 / FUNDING_PRECISION
                 / AMM_TO_QUOTE_PRECISION_RATIO
-            )  
+            )
             
             funding_slice = market_funding_payment * 1e13 / market.amm.total_lp_shares
             market.amm.lp_funding_payment += -1 * funding_slice * market.amm.amm_lp_shares / 1e13 
@@ -527,49 +530,68 @@ class ClearingHouse:
         market: Market, 
         base_amount_acquired: int, 
         quote_amount: int, 
+        update_market_position: bool = True, 
     ):
-        is_reduce = market_position.base_asset_amount > 0 and base_amount_acquired < 0 \
-                or market_position.base_asset_amount < 0 and base_amount_acquired > 0
+        is_long_reduce = market_position.base_asset_amount > 0 and base_amount_acquired < 0
+        is_short_reduce = market_position.base_asset_amount < 0 and base_amount_acquired > 0
+        is_reduce = is_long_reduce or is_short_reduce
+        abs_acquired = abs(base_amount_acquired) 
+        abs_current_baa = abs(market_position.base_asset_amount)
+        is_flip = (is_long_reduce and abs_acquired > abs_current_baa) or (is_short_reduce and abs_acquired > abs_current_baa) 
         is_new_position = market_position.base_asset_amount == 0 and base_amount_acquired != 0
         is_close = market_position.base_asset_amount + base_amount_acquired == 0 and market_position.base_asset_amount != 0
+        
+        if base_amount_acquired == 0 and quote_amount == 0: 
+            return 
+
+        # the flippening
+        assert not is_flip, "trying to update a position flip" 
 
         if is_reduce or is_close:
             assert quote_amount < 0
 
         # if is_new_position: 
-        #     print('new pos (b q):', base_amount_acquired, quote_amount/1e6)
-        
+        #     print('---new pos')
+        #     print('(b q):', base_amount_acquired, quote_amount/1e6)
         # if is_close: 
-        #     print('closing pos (b q):', base_amount_acquired, quote_amount/1e6)
+        #     print('---closing pos')
+        #     print('(b q):', base_amount_acquired, quote_amount/1e6)
 
         # update market 
         if (is_new_position and base_amount_acquired > 0) or market_position.base_asset_amount > 0:
             market.base_asset_amount_long += base_amount_acquired
             market.amm.quote_asset_amount_long += quote_amount
-        else:
+        elif (is_new_position and base_amount_acquired < 0) or market_position.base_asset_amount < 0:
             market.base_asset_amount_short += base_amount_acquired 
             market.amm.quote_asset_amount_short += quote_amount
+        else: 
+            assert False, 'shouldnt be called...'
 
         market.amm.net_base_asset_amount += base_amount_acquired
-        # print('->net_Baa', market.amm.net_base_asset_amount)
 
-        # update position
-        if market_position.base_asset_amount == 0:
+        if market_position.lp_shares == 0: 
+            market.amm.cumulative_net_base_asset_amount_per_lp += base_amount_acquired / market.amm.total_lp_shares
+        
+        if not update_market_position: 
+            return
+
+        if is_new_position: 
             # update the funding rate if new position 
             market_position.last_cumulative_funding_rate = {
                 True: market.amm.cumulative_funding_rate_long,
                 False: market.amm.cumulative_funding_rate_short
             }[market_position.base_asset_amount > 0]
-            market.open_interest += 1 
+
+            if not market_position.lp_has_market_position:
+                market.open_interest += 1 
+                market_position.lp_has_market_position = True 
 
         if is_close:
             market.open_interest -= 1 
+            market_position.lp_has_market_position = False 
 
         market_position.base_asset_amount += base_amount_acquired
         market_position.quote_asset_amount += quote_amount
-
-        if market_position.lp_shares == 0: 
-            market.amm.cumulative_net_base_asset_amount_per_lp += base_amount_acquired / market.amm.total_lp_shares
 
     def repeg(self, market: Market, new_peg: int):
 
@@ -709,7 +731,9 @@ class ClearingHouse:
             market_position.quote_asset_amount,
             swap_direction
         )
-        # print(f'u{user.user_index} close pnl/col:', pnl, user.collateral, user.collateral + pnl)
+
+        # print('--- close pnl')
+        # print(f'u{user.user_index} close pnl/col:', pnl)
 
         # update collateral
         user.collateral = calculate_updated_collateral(
@@ -785,6 +809,10 @@ class ClearingHouse:
             user, 
             market_position,
         )
+
+        # clean out the dust 
+        market_position.base_asset_amount = 0 
+        market_position.quote_asset_amount = 0 
         
         # apply user fee
         exchange_fee = -abs(quote_amount * float(self.fee_structure.numerator) / float(self.fee_structure.denominator))        

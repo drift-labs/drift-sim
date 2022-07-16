@@ -73,20 +73,21 @@ def setup_ch(base_spread=0, strategies='', n_steps=100, n_users=2):
     return ch
 
 #%%
-seed = 85
+# seed = 85
+seed = np.random.randint(0, 1e3)
 np.random.seed(seed)
 print('seed', seed)
 ch = setup_ch(
     n_steps=100,
-    base_spread=100,
+    base_spread=0,
 )
 market: Market = ch.markets[0]
 
-# n_lps = 40
-# n_trades = 40
+n_lps = 10
+n_trades = 10
 
-n_lps = 2
-n_trades = 2
+# n_lps = 2
+# n_trades = 2
 
 sim = RandomSimulation(ch)
 agents = []
@@ -155,7 +156,7 @@ for x in tqdm(range(len(market.amm.oracle))):
             events.append(event_i)
             clearing_houses.append(copy.deepcopy(ch))
 
-            abs_difference = collateral_difference(ch, initial_collateral, verbose=False)[0]
+            (abs_difference, _) = collateral_difference(ch, initial_collateral, verbose=False)[0]
             differences.append(abs_difference)
     
         if abs_difference > 1:
@@ -189,6 +190,7 @@ print("abs difference:", abs_difference)
 print('net baa', clearing_houses[-1].markets[0].amm.net_base_asset_amount)
 print('---')
 
+# %%
 # %%
 lp_fee_payments = 0 
 market_fees = 0 

@@ -17,7 +17,7 @@ from programs.clearing_house.state import *
 from programs.clearing_house.lib import * 
 from programs.clearing_house.state import * 
 from sim.events import * 
-from sim.helpers import compute_total_collateral
+from sim.helpers import compute_total_collateral, close_all_users
 
 import numpy as np 
 import pandas as pd
@@ -60,7 +60,49 @@ class TestLP(unittest.TestCase):
     
     def setUp(self):
         default_set_up(self, n_users=2, default_collateral=10_000_000, bq_ar=100) 
-        
+
+    def test_funding(self): 
+        ch: ClearingHouse = self.clearing_house
+        market = ch.markets[0]
+
+        peg = market.amm.peg_multiplier / PEG_PRECISION
+        sqrt_k = market.amm.sqrt_k / 1e13
+        full_amm_position_quote = sqrt_k * peg * 2 * 1e6
+
+        ch = ch.deposit_user_collateral(1, full_amm_position_quote)
+        init_collateral = compute_total_collateral(ch)
+
+        ch.add_liquidity(
+            0, 1, full_amm_position_quote
+        )
+
+        # user goes long (should get paid)
+        ch.open_position(
+           PositionDirection.LONG, 
+           0, 
+           100 * QUOTE_PRECISION, 
+           0 
+        )
+        ch.change_time(5)
+
+        # update funding rates 
+        ch.update_funding_rate(0)
+        ch.settle_funding_rates(0)
+
+        # check to make sure they got the correct shares 
+        lp_share = ch.users[1].positions[0].lp_shares / ch.markets[0].amm.total_lp_shares
+        assert lp_share == 0.5
+
+        ch.remove_liquidity(
+            0, 1
+        )
+
+        ch.change_time(5)
+
+        ch = close_all_users(ch)[0]
+        end_collateral = compute_total_collateral(ch)
+        assert math.isclose(init_collateral, end_collateral, abs_tol=1e7) 
+
     def test_deposit_remove_liquidity(self):
         ch = self.clearing_house 
         user: User = ch.users[0]
@@ -708,7 +750,7 @@ class TestClearingHousePositions(unittest.TestCase):
         
         # position is closed
         self.assertGreater(market_position.base_asset_amount, 0)        
-        self.assertEqual(market_position.quote_asset_amount, current_base_quote_value)
+        self.assertAlmostEqual(market_position.quote_asset_amount, current_base_quote_value, delta=2)
         # collateral decreases to pay for fees
         self.assertLess(user.collateral, prev_collateral)
         # market get fees
@@ -811,7 +853,7 @@ class TestClearingHousePositions(unittest.TestCase):
         
         # position is closed
         self.assertLessEqual(market_position.base_asset_amount, 0)        
-        self.assertEqual(market_position.quote_asset_amount, current_base_quote_value)
+        self.assertAlmostEqual(market_position.quote_asset_amount, current_base_quote_value, delta=1)
         # collateral decreases to pay for fees
         self.assertLess(user.collateral, prev_collateral)
         # market get fees
