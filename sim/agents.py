@@ -26,11 +26,11 @@ class Agent:
         ''' define params of agent '''
         pass
 
-    def run(self, state_i: ClearingHouse) -> Event:
+    def run(self, state_i: ClearingHouse) -> [Event]:
         ''' returns an event '''
         pass
     
-    def setup(self, state_i: ClearingHouse) -> Event: 
+    def setup(self, state_i: ClearingHouse) -> [Event]: 
         ''' called once at the start of the simulation '''
         pass
     
@@ -39,7 +39,7 @@ def default_user_deposit(
     clearing_house: ClearingHouse,
     deposit_amount:int = 10_000_000 * QUOTE_PRECISION,
     username: str = "u",
-) -> Event:
+) -> [Event]:
     event = DepositCollateralEvent(
         user_index=user_index, 
         deposit_amount=deposit_amount, # $10M
@@ -67,23 +67,24 @@ class OpenClose(Agent):
         self.has_opened = False
         self.deposit_start = None
         
-    def setup(self, state_i: ClearingHouse) -> Event: 
+    def setup(self, state_i: ClearingHouse) -> [Event]: 
         event = default_user_deposit(
             self.user_index, 
             state_i, 
             username='openclose', 
             deposit_amount=self.quote_amount
         )
+        event = [event]
         return event
 
-    def run(self, state_i: ClearingHouse) -> Event:
+    def run(self, state_i: ClearingHouse) -> [Event]:
         now = state_i.time
         
         if (now == self.start_time) or (now > self.start_time and not self.has_opened): 
             self.deposit_start = now
             self.has_opened = True
             # print(f'u{self.user_index} op...')
-            return OpenPositionEvent(
+            event = OpenPositionEvent(
                 timestamp=now, 
                 direction=self.direction,
                 market_index=self.market_index, 
@@ -91,29 +92,64 @@ class OpenClose(Agent):
                 quote_amount=self.quote_amount
             )
 
-        if self.has_opened and self.duration > 0 and now - self.deposit_start == self.duration:
+        elif self.has_opened and self.duration > 0 and now - self.deposit_start == self.duration:
             # print(f'u{self.user_index} cp...')
-            return ClosePositionEvent(
+            event = ClosePositionEvent(
                 timestamp=now, 
                 market_index=self.market_index, 
                 user_index=self.user_index, 
             )
-        
-        return NullEvent(now)
+        else: 
+            event = NullEvent(now)
+
+        event = [event]
+        return event
+       
+
+# class RandomLP(Agent):
+#     def __init__(
+#         self, 
+#         deposit_amount: int = 0, 
+#         n_mints: int = 0, 
+#         n_burns: int = 0,
+#         user_index: int = 0,
+#         max_t: int = 0, # max time in the simulation
+#     ):
+#         self.deposit_amount = deposit_amount
+#         self.n_mints = n_mints
+#         self.n_burns = n_burns
+#         self.user_index = user_index
+#         self.max_t = max_t
+#
+#         self.mint_times = np.random.randint(0, self.max_t, size=(self.n_mints,))
+#         self.burn_times = np.random.randint(0, self.max_t, size=(self.n_burns,))
+#
+#     def setup(self, state_i: ClearingHouse) -> [Event]: 
+#         # deposit amount which will be used as LP 
+#         event = default_user_deposit(
+#             self.user_index, 
+#             state_i,
+#             deposit_amount=self.deposit_amount,
+#             username='LP',
+#         )
+#         event = [event]
+#         return event
+#
+#     def run(self, 
 
 class LP(Agent):
     def __init__(
         self, 
         lp_start_time: int = 0, 
         lp_duration: int = -1, 
-        deposit_amount: int = 100 * QUOTE_PRECISION, 
+        token_amount: int = 100 * 1e13, 
         user_index: int = 0,
         market_index: int = 0,
     ) -> None:
         self.lp_start_time = lp_start_time
         # -1 means perma lp 
         self.lp_duration = lp_duration
-        self.deposit_amount = deposit_amount
+        self.token_amount = token_amount
         
         self.user_index = user_index
         self.market_index = market_index 
@@ -121,41 +157,48 @@ class LP(Agent):
         self.has_deposited = False 
         self.deposit_start = None
         
-    def setup(self, state_i: ClearingHouse) -> Event: 
+    def setup(self, state_i: ClearingHouse) -> [Event]: 
         # deposit amount which will be used as LP 
-        event = default_user_deposit(
-            self.user_index, 
-            state_i,
-            deposit_amount=self.deposit_amount,
-            username='LP',
-        )
+        # event = default_user_deposit(
+        #     self.user_index, 
+        #     state_i,
+        #     deposit_amount=self.deposit_amount,
+        #     username='LP',
+        # )
+        
+        # TODO: update this to meet margin requirements
+        event = NullEvent(state_i.time)
+        event = [event]
         return event
     
-    def run(self, state_i: ClearingHouse) -> Event:
+    def run(self, state_i: ClearingHouse) -> [Event]:
         now = state_i.time
         
         if (now == self.lp_start_time) or (now > self.lp_start_time and not self.has_deposited): 
             self.deposit_start = now
             self.has_deposited = True 
             # print(f'u{self.user_index} al..')
-            return addLiquidityEvent(
+            event = addLiquidityEvent(
                 timestamp=now, 
                 market_index=self.market_index, 
                 user_index=self.user_index, 
-                quote_amount=self.deposit_amount
+                token_amount=self.token_amount
             )
 
-        if self.has_deposited and self.lp_duration > 0 and now - self.deposit_start == self.lp_duration:
+        elif self.has_deposited and self.lp_duration > 0 and now - self.deposit_start == self.lp_duration:
             user: User = state_i.users[self.user_index]
             # print(f'u{self.user_index} rl..')
-            return removeLiquidityEvent(
+            event = removeLiquidityEvent(
                 timestamp=now, 
                 market_index=self.market_index, 
                 user_index=self.user_index, 
+                lp_token_amount=self.token_amount
             ) # full burn 
-        
-        return NullEvent(now)
-        
+        else: 
+            event = NullEvent(now)
+
+        event = [event]
+        return event
 
 class Arb(Agent):
     ''' arbitrage a single market to oracle'''
@@ -172,11 +215,12 @@ class Arb(Agent):
         self.intensity = intensity
         self.lookahead = lookahead # default to looking at oracle at 0
         
-    def setup(self, state_i: ClearingHouse) -> Event: 
+    def setup(self, state_i: ClearingHouse) -> [Event]: 
         event = default_user_deposit(self.user_index, state_i, username='arb')
+        event = [event]
         return event
         
-    def run(self, state_i: ClearingHouse) -> Event:
+    def run(self, state_i: ClearingHouse) -> [Event]:
         market_index = self.market_index
         user_index = self.user_index
         intensity = self.intensity
@@ -252,6 +296,7 @@ class Arb(Agent):
             # print(direction, trade_size/1e6, 'LUNA-PERP @', entry_price, '(',target_price/1e10,')')
 
 
+        event = [event]
         # print(now, market.amm.peg_multiplier, calculate_mark_price_amm(market.amm), cur_mark, target_mark)
 
         return event
@@ -265,11 +310,12 @@ class Noise(Agent):
         self.lookahead = lookahead # default to looking at oracle at 0 
         self.size = size
         
-    def setup(self, state_i: ClearingHouse) -> Event: 
+    def setup(self, state_i: ClearingHouse) -> [Event]: 
         event = default_user_deposit(self.user_index, state_i, username='noise')
+        event = [event]
         return event
 
-    def run(self, state_i: ClearingHouse) -> Event:
+    def run(self, state_i: ClearingHouse) -> [Event]:
         market_index = self.market_index
         user_index = self.user_index
         intensity = self.intensity  
@@ -280,9 +326,13 @@ class Noise(Agent):
         x = 5
         every_x_minutes = 60 * x
         if (now % every_x_minutes) < every_x_minutes - 1:
-            return NullEvent(timestamp=now)                                                          
+            event = NullEvent(timestamp=now)
+            event = [event]
+
+            return event
 
         event = OpenPositionEvent(now, self.user_index, direction, trade_size, market_index)
+        event = [event]
         return event
 
 class SettleLP(Agent):
@@ -291,10 +341,12 @@ class SettleLP(Agent):
         self.market_index = market_index
         self.every_x_steps = every_x_steps
 
-    def setup(self, state: ClearingHouse) -> Event:
-        return NullEvent(state.time)
+    def setup(self, state: ClearingHouse) -> [Event]:
+        event = NullEvent(state.time)
+        event = [event]
+        return event
 
-    def run(self, state: ClearingHouse) -> Event: 
+    def run(self, state: ClearingHouse) -> [Event]: 
         event = NullEvent(state.time)
         if state.time % self.every_x_steps == 0: 
             if state.users[self.user_index].positions[self.market_index].lp_shares != 0:
@@ -307,6 +359,7 @@ class SettleLP(Agent):
             else: 
                 event = NullEvent(state.time)
 
+        event = [event]
         return event
 
 class ArbFunding(Agent):
@@ -318,11 +371,12 @@ class ArbFunding(Agent):
         self.market_index = market_index
         self.lookahead = lookahead # default to looking at oracle at 0
         
-    def setup(self, state_i: ClearingHouse) -> Event: 
+    def setup(self, state_i: ClearingHouse) -> [Event]: 
         event = default_user_deposit(self.user_index, state_i, username='arbfund',)
+        event = [event]
         return event
         
-    def run(self, state_i: ClearingHouse) -> Event:
+    def run(self, state_i: ClearingHouse) -> [Event]:
         market_index = self.market_index
         user_index = self.user_index
         intensity = self.intensity
@@ -334,7 +388,9 @@ class ArbFunding(Agent):
         oracle_price = oracle.get_price(now)
 
         if market.amm.funding_period - (now % 3600) > 100:
-            return NullEvent(timestamp=now)
+            event = NullEvent(timestamp=now)
+            event = [event]
+            return event
 
         bid, ask = calculate_bid_ask_price(market, oracle_price)
 
@@ -392,6 +448,7 @@ class ArbFunding(Agent):
             print(direction, trade_size/1e6, 'LUNA-PERP @', entry_price, '(',target_price/1e10,')', f"ts:{now}")
 
 
+        event = [event]
         # print(now, market.amm.peg_multiplier, calculate_mark_price_amm(market.amm), cur_mark, target_mark)
 
         return event

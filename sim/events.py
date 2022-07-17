@@ -30,10 +30,10 @@ class Event:
     
     def serialize_parameters(self):
         return json.loads(json.dumps(
-                self, 
-                default=lambda o: o.__dict__, 
-                sort_keys=True, 
-                indent=4
+            self, 
+            default=lambda o: o.__dict__, 
+            sort_keys=True, 
+            indent=4
         ))
         
     def serialize_to_row(self):
@@ -94,17 +94,18 @@ class DepositCollateralEvent(Event):
 class addLiquidityEvent(Event):
     market_index: int = 0 
     user_index: int = 0 
-    quote_amount: int = 0 
+    token_amount: int = 0 
 
     _event_name: str = "add_liquidity"
 
     def run(self, clearing_house: ClearingHouse, verbose=False) -> ClearingHouse:
         if verbose:
             print(f'u{self.user_index} {self._event_name}...')
+
         clearing_house = clearing_house.add_liquidity(
-            self.market_index,
-            self.user_index,
-            self.quote_amount
+            market_index=self.market_index,
+            user_index=self.user_index,
+            token_amount=self.token_amount
         )
         return clearing_house
 

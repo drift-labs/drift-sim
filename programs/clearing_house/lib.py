@@ -1,5 +1,7 @@
 #%%
-import sys 
+import sys
+
+from pandas.core import base 
 import driftpy
 import copy 
 
@@ -99,44 +101,44 @@ class ClearingHouse:
         self, 
         market_index: int, 
         user_index: int, 
-        quote_amount: int, # TODO: change to token_amount directly
+        token_amount: int, 
     ):
-        assert quote_amount > 0 
         
         user: User = self.users[user_index]
         market: Market = self.markets[market_index]
         user_position = user.positions[market_index]
 
-        assert user_position.base_asset_amount == 0, "Close position before lping"
-        assert user.collateral >= quote_amount, f"Not enough collateral to add liquidity: {user.collateral} {quote_amount}"
+        # assert user_position.base_asset_amount == 0, "Close position before lping"
+        # assert quote_amount > 0 
+        # assert user.collateral >= quote_amount, f"Not enough collateral to add liquidity: {user.collateral} {quote_amount}"
+        
+        # TODO: margin requirements ... 
         assert user_position.lp_shares == 0, "not impld yet"
         
         # compute lp token amount for a given quote amount
-        # TODO: remove 
-        user_lp_token_amount = int(
-            quote_amount * AMM_TO_QUOTE_PRECISION_RATIO 
-            / 2 
-            / (market.amm.peg_multiplier / PEG_PRECISION)
-        )
+        # user_lp_token_amount = int(
+        #     quote_amount * AMM_TO_QUOTE_PRECISION_RATIO 
+        #     / 2 
+        #     / (market.amm.peg_multiplier / PEG_PRECISION)
+        # )
         
         # record other metrics
-        user_position.lp_shares = user_lp_token_amount
+        user_position.lp_shares = token_amount
         user_position.last_cumulative_net_base_asset_amount_per_lp = market.amm.cumulative_net_base_asset_amount_per_lp
         user_position.last_cumulative_funding_rate_lp = market.amm.cumulative_funding_payment_per_lp
         user_position.last_cumulative_fee_per_lp = market.amm.cumulative_fee_per_lp
 
         # update k
-        new_sqrt_k = market.amm.sqrt_k + user_lp_token_amount
+        new_sqrt_k = market.amm.sqrt_k + token_amount
         bar, qar, sqrt_k = get_updated_k_result(market, new_sqrt_k)
         market.amm.base_asset_reserve = bar 
         market.amm.quote_asset_reserve = qar 
         market.amm.sqrt_k = sqrt_k
 
         # track new lp 
-        market.amm.total_lp_shares += user_lp_token_amount
-        # print(user_lp_token_amount / market.amm.total_lp_shares)
+        market.amm.total_lp_shares += token_amount
+        # print(token_amount / market.amm.total_lp_shares)
 
-        # TODO: margin system checking
         
         return self 
     
@@ -328,7 +330,7 @@ class ClearingHouse:
         # assert lp_token_amount == position.lp_shares, "can only burn full lp tokens"
 
         # settle them 
-        lp_metrics = self.settle_lp_shares(
+        self.settle_lp_shares(
             user,
             market,
             position.lp_shares # settle the full amount 
@@ -359,7 +361,7 @@ class ClearingHouse:
         is_close = position.base_asset_amount + base_amount_acquired == 0 and position.base_asset_amount != 0
 
         if is_new_position or is_increase:  
-            print("new position/increase")
+            # print("new position/increase")
             self.track_new_base_assset(
                 position,
                 market,
@@ -368,7 +370,7 @@ class ClearingHouse:
                 is_lp_update=True,
             )
         elif is_reduce: 
-            print("reduce")
+            # print("reduce")
             # compute pnl 
             baa_change = abs(abs_acquired - abs_current_baa)
             quote_closed = (
@@ -389,7 +391,7 @@ class ClearingHouse:
                 is_lp_update=True,
             )
         elif is_close:
-            print("close")
+            # print("close")
             # compute pnl 
             if position.base_asset_amount > 0: 
                 pnl = quote_amount - position.quote_asset_amount
@@ -407,7 +409,7 @@ class ClearingHouse:
                 is_lp_update=True,
             )
         elif is_flip: 
-            print('flipping...')
+            # print('flipping...')
 
             # close 
             quote_closed = quote_amount * abs_current_baa / abs_acquired
@@ -437,11 +439,13 @@ class ClearingHouse:
                 new_qaa, 
                 is_lp_update=True,
             )
-        elif base_amount_acquired == 0 and position.base_asset_amount == 0: 
+        elif base_amount_acquired == 0: 
+            assert quote_amount == 0, (base_amount_acquired, quote_amount)
             # do nothing
             pass 
         else: 
-            print(base_amount_acquired, position.base_asset_amount)
+            print("baa (acquir, curr):", base_amount_acquired, position.base_asset_amount)
+            print("qaa (acquir, curr):", quote_amount, position.quote_asset_amount)
             assert False, "shouldnt be called"
        
         position.lp_shares -= lp_token_amount
@@ -865,7 +869,7 @@ class ClearingHouse:
         user: User = self.users[user_index]
         position: MarketPosition = user.positions[market_index]
         
-        assert user.positions[market_index].lp_shares == 0, 'Cannot lp and close position'
+        # assert user.positions[market_index].lp_shares == 0, 'Cannot lp and close position'
         
         self.settle_funding_rates(user_index)
 

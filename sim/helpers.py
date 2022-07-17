@@ -172,13 +172,12 @@ class RandomSimulation():
         self.ch = ch 
         market = ch.markets[0]
         self.max_t = len(market.amm.oracle)
+        self.amm_tokens = market.amm.amm_lp_shares
 
-        peg = market.amm.peg_multiplier / PEG_PRECISION
-        sqrt_k = market.amm.sqrt_k / 1e13
-        self.full_amm_position_quote = sqrt_k * peg * 2 * 1e6
+    def generate_lp_settler(self, user_index, market_index, update_every=-1) -> Agent:
+        if update_every == -1:
+            update_every = np.random.randint(1, self.max_t // 2)
 
-    def generate_lp_settler(self, user_index, market_index) -> Agent:
-        update_every = np.random.randint(1, self.max_t // 2)
         return SettleLP(
             user_index, 
             market_index, 
@@ -188,14 +187,17 @@ class RandomSimulation():
     def generate_lp(self, user_index, market_index) -> Agent:
         start = np.random.randint(0, self.max_t)
         dur = np.random.randint(0, self.max_t // 2)
-        amount = np.random.randint(0, self.full_amm_position_quote)
-        print("lp deposit amount:", amount)
+
+        import random
+        token_amount = random.randint(0, self.amm_tokens)
+        # token_amount = np.random.randint(0, self.amm_tokens)
+
         return LP(
             lp_start_time=start,
             lp_duration=dur, 
-            deposit_amount=amount, 
+            token_amount=token_amount, 
             user_index=user_index, 
-            market_index=market_index
+            market_index=market_index, 
         )
 
     def generate_trade(self, user_index, market_index) -> Agent:

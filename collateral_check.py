@@ -73,8 +73,8 @@ def setup_ch(base_spread=0, strategies='', n_steps=100, n_users=2):
     return ch
 
 #%%
-# seed = 85
 seed = np.random.randint(0, 1e3)
+# seed = 416
 np.random.seed(seed)
 print('seed', seed)
 ch = setup_ch(
@@ -94,8 +94,13 @@ agents = []
 agents += [
     sim.generate_lp(i, 0) for i in range(n_lps)
 ]
+# let the lps settle 
 agents += [
     sim.generate_lp_settler(i, 0) for i in range(n_lps)
+]
+# let the lps trade
+agents += [
+    sim.generate_trade(i, 0) for i in range(n_lps)
 ]
 agents += [
     sim.generate_trade(i, 0) for i in range(n_lps, n_lps+n_trades)
@@ -110,14 +115,15 @@ differences = []
 
 # setup agents
 for agent in agents:        
-    event: Event = agent.setup(ch)
-    if event._event_name != 'null':
-        ch = event.run(ch, verbose=True)
-    
-    events.append(event)
-    clearing_houses.append(copy.deepcopy(ch))
-    differences.append(0)
-    
+    events_i: [Event] = agent.setup(ch)
+       
+    for event in events_i: 
+        if event._event_name != 'null':
+            ch = event.run(ch, verbose=False)
+        events.append(event)
+        clearing_houses.append(copy.deepcopy(ch))
+        differences.append(0)
+        
     ch.change_time(1)
 
 # record total collateral pre trades     
@@ -136,40 +142,45 @@ for x in tqdm(range(len(market.amm.oracle))):
         continue
     
     for i, agent in enumerate(agents):
-        event_i = agent.run(ch)
+        events_i = agent.run(ch)
 
-        # tmp soln 
-        # only settle once after another non-settle event (otherwise you get settle spam in the events)
-        if event_i._event_name == 'settle_lp':
-            if settle_tracker[event_i.user_index]:
-                continue
-            else: 
-                settle_tracker[event_i.user_index] = True    
-        elif event_i._event_name != 'null':
-            for k in settle_tracker.keys(): 
-                settle_tracker[k] = False
+
+        for event_i in events_i:
+            # tmp soln 
+            # only settle once after another non-settle event (otherwise you get settle spam in the events)
+            if event_i._event_name == 'settle_lp':
+                if settle_tracker[event_i.user_index]:
+                    continue
+                else: 
+                    settle_tracker[event_i.user_index] = True    
+            elif event_i._event_name != 'null':
+                for k in settle_tracker.keys(): 
+                    settle_tracker[k] = False
+            
+            if event_i._event_name != 'null':
+                ch = event_i.run(ch)
+                    
+                mark_prices.append(calculate_mark_price(market))    
+                events.append(event_i)
+                clearing_houses.append(copy.deepcopy(ch))
+
+                (abs_difference, _) = collateral_difference(ch, initial_collateral, verbose=False)[0]
+                differences.append(abs_difference)
         
-        if event_i._event_name != 'null':
-            ch = event_i.run(ch)
-                
-            mark_prices.append(calculate_mark_price(market))    
-            events.append(event_i)
-            clearing_houses.append(copy.deepcopy(ch))
+            if abs_difference > 1:
+                print('blahhh', abs_difference)
+                early_exit = True 
+                break 
 
-            (abs_difference, _) = collateral_difference(ch, initial_collateral, verbose=False)[0]
-            differences.append(abs_difference)
-    
-        if abs_difference > 1:
-            print('blahhh', abs_difference)
-            early_exit = True 
-            break 
+        if early_exit: 
+            break
                 
     if early_exit: 
         break     
     
     ch = ch.change_time(1)
 
-abs_difference, _events, _chs, _mark_prices = collateral_difference(ch, initial_collateral, verbose=True)    
+abs_difference, _events, _chs, _mark_prices = collateral_difference(ch, initial_collateral, verbose=False) 
 events += _events
 clearing_houses += _chs
 mark_prices += _mark_prices
