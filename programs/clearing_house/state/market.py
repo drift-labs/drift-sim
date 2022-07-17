@@ -43,6 +43,7 @@ class AMM:
     cumulative_funding_payment_per_lp: int = 0 
     cumulative_fee_per_lp: int = 0 
     cumulative_net_base_asset_amount_per_lp: int = 0 
+    _cumulative_net_base_asset_amount_per_lp: int = 0 
     total_lp_shares: int = 0
     amm_lp_shares: int = 0
 

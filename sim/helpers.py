@@ -178,7 +178,7 @@ class RandomSimulation():
         self.full_amm_position_quote = sqrt_k * peg * 2 * 1e6
 
     def generate_lp_settler(self, user_index, market_index) -> Agent:
-        update_every = np.random.randint(0, self.max_t // 2)
+        update_every = np.random.randint(1, self.max_t // 2)
         return SettleLP(
             user_index, 
             market_index, 
