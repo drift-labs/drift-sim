@@ -85,25 +85,36 @@ market: Market = ch.markets[0]
 
 n_lps = 10
 n_trades = 10
+n_random_lps = 1
 
 # n_lps = 2
 # n_trades = 2
 
 sim = RandomSimulation(ch)
 agents = []
+# these are classic add remove full lps
 agents += [
     sim.generate_lp(i, 0) for i in range(n_lps)
 ]
-# let the lps settle 
+# these are partial remove lps
 agents += [
-    sim.generate_lp_settler(i, 0) for i in range(n_lps)
+    sim.generate_random_lp(i, 0) for i in range(n_lps, n_lps + n_random_lps)
 ]
+
+# let the lps settle
+agents += [
+    sim.generate_lp_settler(i, 0) for i in range(n_lps + n_random_lps)
+]
+
 # let the lps trade
 agents += [
-    sim.generate_trade(i, 0) for i in range(n_lps)
+    sim.generate_trade(i, 0) for i in range(n_lps + n_random_lps)
 ]
+
+# normal traders open/close 
+# TODO: random traders -- partial open close 
 agents += [
-    sim.generate_trade(i, 0) for i in range(n_lps, n_lps+n_trades)
+    sim.generate_trade(i, 0) for i in range(n_lps+n_random_lps, n_lps+n_random_lps+n_trades)
 ]
 
 print('#agents:', len(agents))
@@ -144,7 +155,6 @@ for x in tqdm(range(len(market.amm.oracle))):
     for i, agent in enumerate(agents):
         events_i = agent.run(ch)
 
-
         for event_i in events_i:
             # tmp soln 
             # only settle once after another non-settle event (otherwise you get settle spam in the events)
@@ -172,9 +182,10 @@ for x in tqdm(range(len(market.amm.oracle))):
                 early_exit = True 
                 break 
 
+
         if early_exit: 
             break
-                
+
     if early_exit: 
         break     
     
@@ -195,13 +206,12 @@ _ = [print(f"{e},") for e in events if e._event_name != 'null']
 
 print('---')
 _ = [print("\t", e._event_name) for e in events if e._event_name != 'null']
+
+# %%
 print('---')
 print(f"seed = {seed}")
 print("abs difference:", abs_difference)
-print('net baa', clearing_houses[-1].markets[0].amm.net_base_asset_amount)
-print('---')
 
-# %%
 # %%
 lp_fee_payments = 0 
 market_fees = 0 
@@ -212,8 +222,7 @@ for (_, user) in ch.users.items():
     market_fees += position.market_fee_payments
 
 total_payments = lp_fee_payments + market.amm.total_fee_minus_distributions
-print(total_payments, market_fees)
-print(abs(total_payments) - abs(market_fees))
+print("fee diff:", abs(total_payments) - abs(market_fees))
 
 # %%
 lp_funding_payments = 0 
@@ -224,8 +233,10 @@ for (_, user) in ch.users.items():
     lp_funding_payments += position.lp_funding_payments
     market_funding += position.market_funding_payments
 total_payments = market.amm.lp_funding_payment + lp_funding_payments
-market_funding + total_payments
+print("funding diff", market_funding + total_payments)
 
+print('net baa', clearing_houses[-1].markets[0].amm.net_base_asset_amount)
+print('---')
 #%%
 #%%
 #%%

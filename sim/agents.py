@@ -106,36 +106,75 @@ class OpenClose(Agent):
         return event
        
 
-# class RandomLP(Agent):
-#     def __init__(
-#         self, 
-#         deposit_amount: int = 0, 
-#         n_mints: int = 0, 
-#         n_burns: int = 0,
-#         user_index: int = 0,
-#         max_t: int = 0, # max time in the simulation
-#     ):
-#         self.deposit_amount = deposit_amount
-#         self.n_mints = n_mints
-#         self.n_burns = n_burns
-#         self.user_index = user_index
-#         self.max_t = max_t
-#
-#         self.mint_times = np.random.randint(0, self.max_t, size=(self.n_mints,))
-#         self.burn_times = np.random.randint(0, self.max_t, size=(self.n_burns,))
-#
-#     def setup(self, state_i: ClearingHouse) -> [Event]: 
-#         # deposit amount which will be used as LP 
-#         event = default_user_deposit(
-#             self.user_index, 
-#             state_i,
-#             deposit_amount=self.deposit_amount,
-#             username='LP',
-#         )
-#         event = [event]
-#         return event
-#
-#     def run(self, 
+class RandomLP(Agent):
+    def __init__(
+        self,
+        token_amount: int = 0,
+        n_mints: int = 0,
+        n_burns: int = 0,
+        user_index: int = 0,
+        market_index: int = 0,
+        max_t: int = 0, # max time in the simulation
+    ):
+        self.n_mints = n_mints
+        self.n_burns = n_burns
+        self.user_index = user_index
+        self.max_t = max_t
+
+        self.user_index = user_index
+        self.market_index = market_index
+
+        import random
+        self.mint_times = np.random.randint(0, self.max_t, size=(self.n_mints,))
+        self.mint_amounts = [random.randint(0, token_amount) for _ in range(len(self.mint_times))]
+        self.mint_index = 0 
+
+        self.burn_times = np.random.randint(0, self.max_t, size=(self.n_burns,))
+        self.burn_amounts = [random.randint(0, token_amount) for _ in range(len(self.mint_times))]
+        self.burn_index = 0
+
+    def setup(self, state_i: ClearingHouse) -> [Event]:
+        # deposit amount which will be used as LP
+        event = default_user_deposit(
+            self.user_index,
+            state_i,
+            username='rando_LP',
+        )
+        event = [event]
+        return event
+
+    def run(self, state_i: ClearingHouse) -> [Event]:
+        now = state_i.time 
+        events = []
+
+        if state_i.time in self.mint_times:
+            if self.mint_index != len(self.mint_amounts) - 1:
+                event = addLiquidityEvent(
+                    timestamp=now, 
+                    market_index=self.market_index, 
+                    user_index=self.user_index, 
+                    token_amount=self.mint_amounts[self.mint_index]
+                )
+                self.mint_index += 1 
+                events.append(event)
+
+        if state_i.time in self.burn_times: 
+            if self.burn_index != len(self.burn_amounts) - 1:
+                lp_shares = state_i.users[self.user_index].positions[self.market_index].lp_shares
+                burn_amount = self.burn_amounts[self.burn_index]
+                burn_amount = min(lp_shares, burn_amount) 
+
+                event = removeLiquidityEvent(
+                    timestamp=now, 
+                    market_index=self.market_index, 
+                    user_index=self.user_index, 
+                    lp_token_amount=burn_amount
+                ) 
+                self.burn_index += 1 
+                events.append(event)
+
+        return events
+
 
 class LP(Agent):
     def __init__(
@@ -159,15 +198,15 @@ class LP(Agent):
         
     def setup(self, state_i: ClearingHouse) -> [Event]: 
         # deposit amount which will be used as LP 
-        # event = default_user_deposit(
-        #     self.user_index, 
-        #     state_i,
-        #     deposit_amount=self.deposit_amount,
-        #     username='LP',
-        # )
+        event = default_user_deposit(
+            self.user_index,
+            state_i,
+            username='LP',
+        )
         
-        # TODO: update this to meet margin requirements
-        event = NullEvent(state_i.time)
+        # # TODO: update this to meet margin requirements
+        # event = NullEvent(state_i.time)
+        
         event = [event]
         return event
     

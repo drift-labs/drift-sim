@@ -112,8 +112,8 @@ class ClearingHouse:
         # assert quote_amount > 0 
         # assert user.collateral >= quote_amount, f"Not enough collateral to add liquidity: {user.collateral} {quote_amount}"
         
-        # TODO: margin requirements ... 
-        assert user_position.lp_shares == 0, "not impld yet"
+        # # TODO: margin requirements ... 
+        # assert user_position.lp_shares == 0, "not impld yet"
         
         # compute lp token amount for a given quote amount
         # user_lp_token_amount = int(
@@ -122,8 +122,11 @@ class ClearingHouse:
         #     / (market.amm.peg_multiplier / PEG_PRECISION)
         # )
         
+        if user_position.lp_shares > 0:
+            self.settle_lp_shares(user, market, user_position.lp_shares)
+        
         # record other metrics
-        user_position.lp_shares = token_amount
+        user_position.lp_shares += token_amount
         user_position.last_cumulative_net_base_asset_amount_per_lp = market.amm.cumulative_net_base_asset_amount_per_lp
         user_position.last_cumulative_funding_rate_lp = market.amm.cumulative_funding_payment_per_lp
         user_position.last_cumulative_fee_per_lp = market.amm.cumulative_fee_per_lp
@@ -323,6 +326,9 @@ class ClearingHouse:
 
         if lp_token_amount == -1:
             lp_token_amount = position.lp_shares
+
+        if position.lp_shares == 0: 
+            return self
         
         assert position.lp_shares >= 0, "need lp tokens to remove"
         assert lp_token_amount <= position.lp_shares, f"trying to remove too much liquidity: {lp_token_amount} > {position.lp_shares}"

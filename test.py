@@ -65,10 +65,7 @@ class TestLP(unittest.TestCase):
         ch: ClearingHouse = self.clearing_house
         market = ch.markets[0]
 
-        peg = market.amm.peg_multiplier / PEG_PRECISION
-        sqrt_k = market.amm.sqrt_k / 1e13
-        full_amm_position_quote = sqrt_k * peg * 2 * 1e6
-
+        full_amm_position_quote = market.amm.amm_lp_shares
         ch = ch.deposit_user_collateral(1, full_amm_position_quote)
         init_collateral = compute_total_collateral(ch)
 
@@ -194,6 +191,10 @@ class TestLP(unittest.TestCase):
     
     def _test_lp(self, lp_percent, trade_size, trade_direction, user_close_first):
 
+        print('---')
+        print(lp_percent, trade_size, trade_direction, user_close_first)
+        print('---')
+
         ch: ClearingHouse = self.clearing_house
         market: Market = ch.markets[0]
         
@@ -203,9 +204,7 @@ class TestLP(unittest.TestCase):
         lp: User = ch.users[lp_index]
         user: User = ch.users[user_index]
         
-        peg = market.amm.peg_multiplier / PEG_PRECISION
-        sqrt_k = market.amm.sqrt_k / 1e13
-        full_amm_position_quote = sqrt_k * peg * 2 * 1e6
+        full_amm_position_quote = market.amm.amm_lp_shares 
         percent_amm_position_quote = int(full_amm_position_quote * lp_percent)
 
         # setup users        
@@ -222,12 +221,20 @@ class TestLP(unittest.TestCase):
 
         ch = ch.add_liquidity(
             0, lp_index, percent_amm_position_quote
-        ).open_position(
+        )
+        ch = ch.open_position(
             trade_direction, user_index, trade_size * QUOTE_PRECISION, 0
-        ).remove_liquidity(
-            0, lp_index, lp.positions[0].lp_shares
         )
 
+        lp_ratio = lp.positions[0].lp_shares / market.amm.total_lp_shares
+        print('lp ratio', lp_ratio)
+
+        ch = ch.remove_liquidity(
+            0, lp_index, lp.positions[0].lp_shares
+        )
+        print("baa diff", lp.positions[0].base_asset_amount + user.positions[0].base_asset_amount * lp_ratio)
+        print("qaa diff", lp.positions[0].quote_asset_amount - user.positions[0].quote_asset_amount * lp_ratio)
+        
         if user_close_first:
             ch = ch.close_position(
                 user_index, 0    
@@ -240,11 +247,35 @@ class TestLP(unittest.TestCase):
             ).close_position(
                 user_index, 0    
             )
-        
+
+        close_all_users(ch)
+
+        ch = self.clearing_house
+        lp_fee_payments = 0 
+        market_fees = 0 
+        market: Market = ch.markets[0]
+        for (_, user) in ch.users.items(): 
+            position: MarketPosition = user.positions[0]
+            lp_fee_payments += position.lp_fee_payments
+            market_fees += position.market_fee_payments
+        total_payments = lp_fee_payments + market.amm.total_fee_minus_distributions
+        print("fee diff", abs(total_payments) - abs(market_fees))
+
+        # %%
+        lp_funding_payments = 0 
+        market_funding = 0 
+        market: Market = ch.markets[0]
+        for (_, user) in ch.users.items(): 
+            position: MarketPosition = user.positions[0]
+            lp_funding_payments += position.lp_funding_payments
+            market_funding += position.market_funding_payments
+        total_payments = market.amm.lp_funding_payment + lp_funding_payments
+        print("funding diff:", market_funding + total_payments)
+
         final_collateral = compute_total_collateral(ch)
         abs_difference = abs(init_collateral - final_collateral)
-
-        self.assertLessEqual(abs_difference, 1e-3)
+        print('abs diff:', abs_difference)
+        self.assertLessEqual(abs_difference, 1)
         
 
 class TestTWAPs(unittest.TestCase):
