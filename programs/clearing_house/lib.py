@@ -263,7 +263,7 @@ class ClearingHouse:
         )
 
         return lp_metrics
-        
+
     ## converts the current virtual lp position into a real position 
     ## without burning lp tokens 
     def settle_lp_shares(
@@ -288,6 +288,7 @@ class ClearingHouse:
         if is_increase or is_new_position:
             position.lp_base_asset_amount += lp_metrics.base_asset_amount
             position.lp_quote_asset_amount += lp_metrics.quote_asset_amount
+
         elif lp_metrics.base_asset_amount != 0: # is reduce/close
             net_qaa = abs(lp_metrics.quote_asset_amount - position.lp_quote_asset_amount)
             net_baa = lp_metrics.base_asset_amount + position.lp_base_asset_amount 
@@ -881,6 +882,13 @@ class ClearingHouse:
         # assert user.positions[market_index].lp_shares == 0, 'Cannot lp and close position'
         
         self.settle_funding_rates(user_index)
+
+        if position.lp_shares > 0:
+            lp_shares = position.lp_shares
+            # remove liq
+            self.remove_liquidity(market_index, user_index)
+            # add liq 
+            self.add_liquidity(market_index, user_index, lp_shares)
 
         # do nothing 
         if position.base_asset_amount == 0:
