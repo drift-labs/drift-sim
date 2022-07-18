@@ -885,9 +885,7 @@ class ClearingHouse:
 
         if position.lp_shares > 0:
             lp_shares = position.lp_shares
-            # remove liq
             self.remove_liquidity(market_index, user_index)
-            # add liq 
             self.add_liquidity(market_index, user_index, lp_shares)
 
         # do nothing 
