@@ -58,6 +58,8 @@ def setup_ch(base_spread=0, strategies='', n_steps=100, n_users=2):
         peg_multiplier=int(oracle.get_price(0)*1e3),
         base_spread=base_spread,
         strategies=strategies,
+        minimum_base_asset_trade_size=100, 
+        minimum_quote_asset_trade_size=100,
     )
     market = Market(amm)
     fee_structure = FeeStructure(numerator=1, denominator=100)
@@ -74,7 +76,7 @@ def setup_ch(base_spread=0, strategies='', n_steps=100, n_users=2):
 
 #%%
 seed = np.random.randint(0, 1e3)
-# seed = 416
+# seed = 490
 np.random.seed(seed)
 print('seed', seed)
 ch = setup_ch(
@@ -83,9 +85,9 @@ ch = setup_ch(
 )
 market: Market = ch.markets[0]
 
-n_lps = 10
-n_trades = 10
-n_random_lps = 1
+n_lps = 20
+n_trades = 20
+n_random_lps = 10
 
 # n_lps = 2
 # n_trades = 2
@@ -110,13 +112,14 @@ agents += [
 agents += [
     sim.generate_trade(i, 0) for i in range(n_lps + n_random_lps)
 ]
-
 # normal traders open/close 
-# TODO: random traders -- partial open close 
 agents += [
     sim.generate_trade(i, 0) for i in range(n_lps+n_random_lps, n_lps+n_random_lps+n_trades)
 ]
-
+# random open close == more open close trades of a single trader
+agents += [
+    sim.generate_trade(i, 0) for i in range(n_lps+n_random_lps, n_lps+n_random_lps+n_trades)
+]
 print('#agents:', len(agents))
 
 mark_prices = []

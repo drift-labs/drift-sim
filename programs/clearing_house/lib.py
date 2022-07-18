@@ -291,6 +291,7 @@ class ClearingHouse:
         elif lp_metrics.base_asset_amount != 0: # is reduce/close
             net_qaa = abs(lp_metrics.quote_asset_amount - position.lp_quote_asset_amount)
             net_baa = lp_metrics.base_asset_amount + position.lp_base_asset_amount 
+
             position.lp_base_asset_amount = net_baa
             position.lp_quote_asset_amount = net_qaa
 
@@ -446,8 +447,10 @@ class ClearingHouse:
                 is_lp_update=True,
             )
         elif base_amount_acquired == 0: 
-            assert quote_amount == 0, (base_amount_acquired, quote_amount)
+            # assert quote_amount == 0, (base_amount_acquired, quote_amount)
             # do nothing
+            # somtimes theres dust positions from rounding errors
+            user.collateral += quote_amount
             pass 
         else: 
             print("baa (acquir, curr):", base_amount_acquired, position.base_asset_amount)
