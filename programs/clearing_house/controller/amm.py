@@ -39,7 +39,6 @@ def swap_quote_asset(
 ):
     update_mark_twap(amm, now)
 
-
     oracle_price = amm.oracle.get_price(now)
 
     if use_spread:
@@ -54,15 +53,10 @@ def swap_quote_asset(
         base_asset_acquired) =  _swap_quote_asset(amm, base_amount, swap_direction)
         quote_asset_amount_surplus = 0
 
-    # print('updating:', new_base_asset_amount, new_quote_asset_amount, 'w/', base_asset_acquired)
-
     # update market
     amm.quote_asset_reserve = new_quote_asset_amount
     amm.base_asset_reserve = new_base_asset_amount
-    # amm.sqrt_k = int((
-    #     amm.base_asset_reserve * amm.quote_asset_reserve
-    # ) ** .5)
-    
+
     return base_asset_acquired, quote_asset_amount_surplus
 
 def _swap_quote_asset(

@@ -124,12 +124,13 @@ class ClearingHouse:
         
         if user_position.lp_shares > 0:
             self.settle_lp_shares(user, market, user_position.lp_shares)
-        
-        # record other metrics
+        else: 
+            user_position.last_cumulative_net_base_asset_amount_per_lp = market.amm.cumulative_net_base_asset_amount_per_lp
+            user_position.last_cumulative_funding_rate_lp = market.amm.cumulative_funding_payment_per_lp
+            user_position.last_cumulative_fee_per_lp = market.amm.cumulative_fee_per_lp
+
+        # increment token amount
         user_position.lp_shares += token_amount
-        user_position.last_cumulative_net_base_asset_amount_per_lp = market.amm.cumulative_net_base_asset_amount_per_lp
-        user_position.last_cumulative_funding_rate_lp = market.amm.cumulative_funding_payment_per_lp
-        user_position.last_cumulative_fee_per_lp = market.amm.cumulative_fee_per_lp
 
         # update k
         new_sqrt_k = market.amm.sqrt_k + token_amount
@@ -140,8 +141,6 @@ class ClearingHouse:
 
         # track new lp 
         market.amm.total_lp_shares += token_amount
-        # print(token_amount / market.amm.total_lp_shares)
-
         
         return self 
     
@@ -649,13 +648,6 @@ class ClearingHouse:
         if is_reduce or is_close:
             assert quote_amount < 0
 
-        # if is_new_position: 
-        #     print('---new pos')
-        #     print('(b q):', base_amount_acquired, quote_amount/1e6)
-        # if is_close: 
-        #     print('---closing pos')
-        #     print('(b q):', base_amount_acquired, quote_amount/1e6)
-
         # update market 
         if (is_new_position and base_amount_acquired > 0) or position.base_asset_amount > 0:
             market.base_asset_amount_long += base_amount_acquired
@@ -669,7 +661,9 @@ class ClearingHouse:
         market.amm.net_base_asset_amount += base_amount_acquired
 
         if not is_lp_update: 
+            # need to update this like a normal position
             market.amm.cumulative_net_base_asset_amount_per_lp += base_amount_acquired / market.amm.total_lp_shares
+            market.amm.cumulative_net_quote_asset_amount_per_lp += quote_amount / market.amm.total_lp_shares
 
         if is_new_position: 
             # update the funding rate if new position 
@@ -897,6 +891,7 @@ class ClearingHouse:
             user, 
             position,
         )
+        print('quote surplus (close)', quote_asset_amount_surplus)
 
         # apply user fee
         exchange_fee = -abs(quote_amount * float(self.fee_structure.numerator) / float(self.fee_structure.denominator))        
@@ -986,7 +981,8 @@ class ClearingHouse:
         quote_asset_amount_surplus = self.update_position_with_quote_asset_amount(
             quote_amount, direction, user, position, market
         )
-        position.total_baa += position.base_asset_amount
+        print("quote surplus:", quote_asset_amount_surplus)
+
             
         # TODO: 
         # risk increasing ? ... 
