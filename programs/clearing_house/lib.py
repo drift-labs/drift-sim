@@ -514,17 +514,12 @@ class ClearingHouse:
                     
             adjustment = 1 ## 24 slots of funding period time till full payback -- hardcode for now
             funding_rate = int(clamped_price_spread * FUNDING_PAYMENT_PRECISION / adjustment)
-            # print(funding_rate)
             
             market.amm.cumulative_funding_rate_long += funding_rate
             market.amm.cumulative_funding_rate_short += funding_rate
                         
             market.amm.last_funding_rate = funding_rate
             market.amm.last_funding_rate_ts = now
-            
-            # track lp funding 
-            # TODO: double check compute lp funding 
-            # print("taker nbaa:", market.amm.taker_net_baa)
             
             market_net_position = -market.amm.net_base_asset_amount # AMM_RSERVE_PRE
             market_funding_rate = funding_rate # FUNDING_PAYMENT_PRECISION 
@@ -538,10 +533,6 @@ class ClearingHouse:
             funding_slice = market_funding_payment * 1e13 / market.amm.total_lp_shares
             market.amm.lp_funding_payment += -1 * funding_slice * market.amm.amm_lp_shares / 1e13 
             market.amm.cumulative_funding_payment_per_lp += funding_slice
-            
-            # print('-- funding update --')
-            # print('amm funding payment:', -1 * funding_slice * market.amm.amm_lp_shares / 1e13)
-            # print('other lp funding:', -1 * funding_slice * (market.amm.total_lp_shares - market.amm.amm_lp_shares) / 1e13)
 
         return self
         
