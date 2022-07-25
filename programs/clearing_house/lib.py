@@ -513,7 +513,7 @@ class ClearingHouse:
             clamped_price_spread = np.clip(price_spread, -max_price_spread, max_price_spread)
                     
             adjustment = 1 ## 24 slots of funding period time till full payback -- hardcode for now
-            funding_rate = int(clamped_price_spread * FUNDING_PRECISION / adjustment)
+            funding_rate = int(clamped_price_spread * FUNDING_PAYMENT_PRECISION / adjustment)
             # print(funding_rate)
             
             market.amm.cumulative_funding_rate_long += funding_rate
@@ -527,11 +527,11 @@ class ClearingHouse:
             # print("taker nbaa:", market.amm.taker_net_baa)
             
             market_net_position = -market.amm.net_base_asset_amount # AMM_RSERVE_PRE
-            market_funding_rate = funding_rate # FUNDING_PRECISION 
+            market_funding_rate = funding_rate # FUNDING_PAYMENT_PRECISION 
             market_funding_payment = (
                 market_funding_rate 
                 * market_net_position 
-                / FUNDING_PRECISION
+                / FUNDING_PAYMENT_PRECISION
                 / AMM_TO_QUOTE_PRECISION_RATIO
             )
             
@@ -570,7 +570,7 @@ class ClearingHouse:
                 funding_payment = (
                     funding_delta 
                     * position.base_asset_amount
-                    / FUNDING_PRECISION
+                    / FUNDING_PAYMENT_PRECISION 
                     / AMM_TO_QUOTE_PRECISION_RATIO
                 )
                 
