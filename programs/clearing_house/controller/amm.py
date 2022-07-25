@@ -39,7 +39,6 @@ def swap_quote_asset(
 ):
     update_mark_twap(amm, now)
 
-
     oracle_price = amm.oracle.get_price(now)
 
     if use_spread:
@@ -54,15 +53,10 @@ def swap_quote_asset(
         base_asset_acquired) =  _swap_quote_asset(amm, base_amount, swap_direction)
         quote_asset_amount_surplus = 0
 
-    # print('updating:', new_base_asset_amount, new_quote_asset_amount, 'w/', base_asset_acquired)
-
     # update market
     amm.quote_asset_reserve = new_quote_asset_amount
     amm.base_asset_reserve = new_base_asset_amount
-    # amm.sqrt_k = int((
-    #     amm.base_asset_reserve * amm.quote_asset_reserve
-    # ) ** .5)
-    
+
     return base_asset_acquired, quote_asset_amount_surplus
 
 def _swap_quote_asset(
@@ -91,7 +85,7 @@ def swap_base_asset(
     base_amount, 
     swap_direction, 
     now,
-    use_spread=False
+    use_spread=False, 
 ):
     update_mark_twap(amm, now)
 
@@ -109,9 +103,6 @@ def swap_base_asset(
     # update market
     amm.quote_asset_reserve = new_quote_asset_amount
     amm.base_asset_reserve = new_base_asset_amount
-    # amm.sqrt_k = int((
-    #     amm.base_asset_reserve * amm.quote_asset_reserve
-    # ) ** .5)
 
     return quote_asset_acquired, quote_asset_amount_surplus
 
@@ -130,8 +121,6 @@ def _swap_base_asset(
         swap_direction,
     )
     
-    # quote_reserve_change = abs(new_quote_asset_amount - initial_quote_asset_reserve)
-    
     # remove = go long by removing base asset from pool 
     quote_reserve_change = {
         SwapDirection.ADD: initial_quote_asset_reserve - new_quote_asset_amount,
@@ -147,8 +136,6 @@ def _swap_base_asset(
     
     if swap_direction == driftpy.math.amm.SwapDirection.REMOVE:
         quote_amount_acquired += 1
-    
-
     
     return new_base_asset_amount, new_quote_asset_amount, quote_amount_acquired
 
@@ -170,6 +157,7 @@ def calculate_quote_swap_output_with_spread(
     )
 
     # print('calculate_swap_output', quote_asset_reserve_amount, quote_asset_reserve_with_spread)
+    
     new_base_asset_reserve_with_spread, _ = calculate_swap_output(
         quote_asset_reserve_amount, 
         quote_asset_reserve_with_spread, 
@@ -178,7 +166,6 @@ def calculate_quote_swap_output_with_spread(
     )
 
     base_asset_amount_with_spread = base_asset_reserve_with_spread - new_base_asset_reserve_with_spread
-
 
     # second do the swap based on normal reserves to get updated reserves
     new_base_asset_reserve, new_quote_asset_reserve = calculate_swap_output(

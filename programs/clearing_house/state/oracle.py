@@ -21,7 +21,7 @@ class Oracle:
             self.timestamps = timestamps
             
     def __len__(self):
-        return len(self.timestamps)
+        return int(max(self.timestamps))
     
     def get_timestamp_range(self):
         return int(min(self.timestamps)), int(max(self.timestamps))
@@ -45,7 +45,7 @@ class Oracle:
 
     def to_csv(self, path):
         assert('oracle_prices.csv' in path)
-        #SIM_NAME+"/oracle_prices.csv"
+        
         oracle_df = pd.DataFrame({'timestamp': self.timestamps, 'price': self.prices})
         oracle_df.to_csv(path, index=False)
 
@@ -56,4 +56,3 @@ class Oracle:
         # save to file -- easier to cross reference with per-timestamp prices  
         oracle_df = pd.DataFrame({'timestamp': all_timestamps, 'price': all_prices})
         oracle_df.to_csv(os.path.dirname(path)+"/all_oracle_prices.csv", index=False)
- 

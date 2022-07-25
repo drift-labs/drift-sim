@@ -1,4 +1,5 @@
 from multiprocessing import Event
+from typing import Set
 from driftpy.math.amm import calculate_amm_reserves_after_swap, get_swap_direction
 from driftpy.math.amm import calculate_swap_output, calculate_terminal_price, calculate_mark_price_amm
 from driftpy.math.trade import calculate_trade_slippage, calculate_target_price_trade, calculate_trade_acquired_amounts
@@ -13,9 +14,10 @@ import copy
 import pandas as pd
 import numpy as np
 
-from programs.clearing_house.state import Oracle, User
+from programs.clearing_house.state import Oracle, User, user
 from programs.clearing_house.lib import ClearingHouse
 from sim.events import *
+from programs.clearing_house.state import User 
 
 ''' Agents ABC '''
 
@@ -24,40 +26,240 @@ class Agent:
         ''' define params of agent '''
         pass
 
-    def run(self, state_i: ClearingHouse) -> Event:
+    def run(self, state_i: ClearingHouse) -> [Event]:
         ''' returns an event '''
         pass
     
-    def setup(self, state_i: ClearingHouse) -> Event: 
+    def setup(self, state_i: ClearingHouse) -> [Event]: 
         ''' called once at the start of the simulation '''
         pass
     
 def default_user_deposit(
     user_index: int, 
     clearing_house: ClearingHouse,
-    deposit_amount:int = 10_000_000,
-) -> Event:
+    deposit_amount:int = 10_000_000 * QUOTE_PRECISION,
+    username: str = "u",
+) -> [Event]:
     event = DepositCollateralEvent(
         user_index=user_index, 
-        deposit_amount=deposit_amount * QUOTE_PRECISION, # $10M
+        deposit_amount=deposit_amount, # $10M
         timestamp=clearing_house.time, 
+        username=username
     )
     return event
 
+class OpenClose(Agent):
+    def __init__(
+        self, 
+        start_time: int = 0, 
+        duration: int = -1, 
+        quote_amount: int = 100 * QUOTE_PRECISION, 
+        direction: str = 'long',
+        user_index: int = 0,
+        market_index: int = 0,
+    ):
+        self.start_time = start_time
+        self.duration = duration
+        self.direction = direction
+        self.quote_amount = quote_amount
+        self.user_index = user_index
+        self.market_index = market_index
+        self.has_opened = False
+        self.deposit_start = None
+        
+    def setup(self, state_i: ClearingHouse) -> [Event]: 
+        event = default_user_deposit(
+            self.user_index, 
+            state_i, 
+            username='openclose', 
+            deposit_amount=self.quote_amount
+        )
+        event = [event]
+        return event
+
+    def run(self, state_i: ClearingHouse) -> [Event]:
+        now = state_i.time
+        
+        if (now == self.start_time) or (now > self.start_time and not self.has_opened): 
+            self.deposit_start = now
+            self.has_opened = True
+            # print(f'u{self.user_index} op...')
+            event = OpenPositionEvent(
+                timestamp=now, 
+                direction=self.direction,
+                market_index=self.market_index, 
+                user_index=self.user_index, 
+                quote_amount=self.quote_amount
+            )
+
+        elif self.has_opened and self.duration > 0 and now - self.deposit_start == self.duration:
+            # print(f'u{self.user_index} cp...')
+            event = ClosePositionEvent(
+                timestamp=now, 
+                market_index=self.market_index, 
+                user_index=self.user_index, 
+            )
+        else: 
+            event = NullEvent(now)
+
+        event = [event]
+        return event
+       
+
+class RandomLP(Agent):
+    def __init__(
+        self,
+        token_amount: int = 0,
+        n_mints: int = 0,
+        n_burns: int = 0,
+        user_index: int = 0,
+        market_index: int = 0,
+        max_t: int = 0, # max time in the simulation
+    ):
+        self.n_mints = n_mints
+        self.n_burns = n_burns
+        self.user_index = user_index
+        self.max_t = max_t
+
+        self.user_index = user_index
+        self.market_index = market_index
+
+        import random
+        self.mint_times = np.random.randint(0, self.max_t, size=(self.n_mints,))
+        self.mint_amounts = [random.randint(0, token_amount) for _ in range(len(self.mint_times))]
+        self.mint_index = 0 
+
+        self.burn_times = np.random.randint(0, self.max_t, size=(self.n_burns,))
+        self.burn_amounts = [random.randint(0, token_amount) for _ in range(len(self.mint_times))]
+        self.burn_index = 0
+
+    def setup(self, state_i: ClearingHouse) -> [Event]:
+        # deposit amount which will be used as LP
+        event = default_user_deposit(
+            self.user_index,
+            state_i,
+            username='rando_LP',
+        )
+        event = [event]
+        return event
+
+    def run(self, state_i: ClearingHouse) -> [Event]:
+        now = state_i.time 
+        events = []
+
+        if state_i.time in self.mint_times:
+            if self.mint_index != len(self.mint_amounts) - 1:
+                event = addLiquidityEvent(
+                    timestamp=now, 
+                    market_index=self.market_index, 
+                    user_index=self.user_index, 
+                    token_amount=self.mint_amounts[self.mint_index]
+                )
+                self.mint_index += 1 
+                events.append(event)
+
+        if state_i.time in self.burn_times: 
+            if self.burn_index != len(self.burn_amounts) - 1:
+                lp_shares = state_i.users[self.user_index].positions[self.market_index].lp_shares
+                burn_amount = self.burn_amounts[self.burn_index]
+                burn_amount = min(lp_shares, burn_amount) 
+
+                event = removeLiquidityEvent(
+                    timestamp=now, 
+                    market_index=self.market_index, 
+                    user_index=self.user_index, 
+                    lp_token_amount=burn_amount
+                ) 
+                self.burn_index += 1 
+                events.append(event)
+
+        return events
+
+
+class LP(Agent):
+    def __init__(
+        self, 
+        lp_start_time: int = 0, 
+        lp_duration: int = -1, 
+        token_amount: int = 100 * 1e13, 
+        user_index: int = 0,
+        market_index: int = 0,
+    ) -> None:
+        self.lp_start_time = lp_start_time
+        # -1 means perma lp 
+        self.lp_duration = lp_duration
+        self.token_amount = token_amount
+        
+        self.user_index = user_index
+        self.market_index = market_index 
+        
+        self.has_deposited = False 
+        self.deposit_start = None
+        
+    def setup(self, state_i: ClearingHouse) -> [Event]: 
+        # deposit amount which will be used as LP 
+        event = default_user_deposit(
+            self.user_index,
+            state_i,
+            username='LP',
+        )
+        
+        # # TODO: update this to meet margin requirements
+        # event = NullEvent(state_i.time)
+        
+        event = [event]
+        return event
+    
+    def run(self, state_i: ClearingHouse) -> [Event]:
+        now = state_i.time
+        
+        if (now == self.lp_start_time) or (now > self.lp_start_time and not self.has_deposited): 
+            self.deposit_start = now
+            self.has_deposited = True 
+            # print(f'u{self.user_index} al..')
+            event = addLiquidityEvent(
+                timestamp=now, 
+                market_index=self.market_index, 
+                user_index=self.user_index, 
+                token_amount=self.token_amount
+            )
+
+        elif self.has_deposited and self.lp_duration > 0 and now - self.deposit_start == self.lp_duration:
+            user: User = state_i.users[self.user_index]
+            # print(f'u{self.user_index} rl..')
+            event = removeLiquidityEvent(
+                timestamp=now, 
+                market_index=self.market_index, 
+                user_index=self.user_index, 
+                lp_token_amount=self.token_amount
+            ) # full burn 
+        else: 
+            event = NullEvent(now)
+
+        event = [event]
+        return event
+
 class Arb(Agent):
     ''' arbitrage a single market to oracle'''
-    def __init__(self, intensity: float, market_index: int, user_index: int, lookahead:int = 0):
+    def __init__(
+        self, 
+        intensity: float, 
+        market_index: int, 
+        user_index: int, 
+        lookahead:int = 0
+    ):
         # assert(intensity > 0 and intensity <= 1)
         self.user_index = user_index
-        self.intensity = intensity
         self.market_index = market_index
+        self.intensity = intensity
         self.lookahead = lookahead # default to looking at oracle at 0
         
-    def setup(self, state_i: ClearingHouse) -> Event: 
-        event = default_user_deposit(self.user_index, state_i)
+    def setup(self, state_i: ClearingHouse) -> [Event]: 
+        event = default_user_deposit(self.user_index, state_i, username='arb')
+        event = [event]
         return event
         
-    def run(self, state_i: ClearingHouse) -> Event:
+    def run(self, state_i: ClearingHouse) -> [Event]:
         market_index = self.market_index
         user_index = self.user_index
         intensity = self.intensity
@@ -88,7 +290,6 @@ class Arb(Agent):
         else:
             target_mark = cur_mark
         
-
         unit = AssetType.QUOTE
 
         direction, trade_size, entry_price, target_price = \
@@ -101,8 +302,9 @@ class Arb(Agent):
             )
         
         trade_size = int(abs(trade_size)) # whole numbers only 
-        if trade_size:
-            print('NOW: ', now)
+        # if trade_size:
+        #     print('NOW: ', now)
+        #     print("direction, trade_size, entry_price, target_price:", direction, trade_size, entry_price, target_price)
         quote_asset_reserve = (
             trade_size 
             * AMM_TIMES_PEG_TO_QUOTE_PRECISION_RATIO 
@@ -129,10 +331,11 @@ class Arb(Agent):
         if trade_size == 0:
             event = NullEvent(timestamp=now)
         else: 
-            event = OpenPositionEvent(self.user_index, direction, int(trade_size), now, market_index)
-            print(direction, trade_size/1e6, 'LUNA-PERP @', entry_price, '(',target_price/1e10,')')
+            event = OpenPositionEvent(now, self.user_index, direction, int(trade_size), market_index)
+            # print(direction, trade_size/1e6, 'LUNA-PERP @', entry_price, '(',target_price/1e10,')')
 
 
+        event = [event]
         # print(now, market.amm.peg_multiplier, calculate_mark_price_amm(market.amm), cur_mark, target_mark)
 
         return event
@@ -146,11 +349,12 @@ class Noise(Agent):
         self.lookahead = lookahead # default to looking at oracle at 0 
         self.size = size
         
-    def setup(self, state_i: ClearingHouse) -> Event: 
-        event = default_user_deposit(self.user_index, state_i)
+    def setup(self, state_i: ClearingHouse) -> [Event]: 
+        event = default_user_deposit(self.user_index, state_i, username='noise')
+        event = [event]
         return event
 
-    def run(self, state_i: ClearingHouse) -> Event:
+    def run(self, state_i: ClearingHouse) -> [Event]:
         market_index = self.market_index
         user_index = self.user_index
         intensity = self.intensity  
@@ -161,9 +365,40 @@ class Noise(Agent):
         x = 5
         every_x_minutes = 60 * x
         if (now % every_x_minutes) < every_x_minutes - 1:
-            return NullEvent(timestamp=now)                                                          
+            event = NullEvent(timestamp=now)
+            event = [event]
 
-        event = OpenPositionEvent(self.user_index, direction, trade_size, now, market_index)
+            return event
+
+        event = OpenPositionEvent(now, self.user_index, direction, trade_size, market_index)
+        event = [event]
+        return event
+
+class SettleLP(Agent):
+    def __init__(self, user_index: int, market_index: int, every_x_steps: int = 1) -> None:
+        self.user_index = user_index
+        self.market_index = market_index
+        self.every_x_steps = every_x_steps
+
+    def setup(self, state: ClearingHouse) -> [Event]:
+        event = NullEvent(state.time)
+        event = [event]
+        return event
+
+    def run(self, state: ClearingHouse) -> [Event]: 
+        event = NullEvent(state.time)
+        if state.time % self.every_x_steps == 0: 
+            if state.users[self.user_index].positions[self.market_index].lp_shares != 0:
+                # only settle if/when they are an lp 
+                event = SettleLPEvent(
+                    timestamp=state.time, 
+                    user_index=self.user_index, 
+                    market_index=self.market_index,
+                )
+            else: 
+                event = NullEvent(state.time)
+
+        event = [event]
         return event
 
 class ArbFunding(Agent):
@@ -175,11 +410,12 @@ class ArbFunding(Agent):
         self.market_index = market_index
         self.lookahead = lookahead # default to looking at oracle at 0
         
-    def setup(self, state_i: ClearingHouse) -> Event: 
-        event = default_user_deposit(self.user_index, state_i)
+    def setup(self, state_i: ClearingHouse) -> [Event]: 
+        event = default_user_deposit(self.user_index, state_i, username='arbfund',)
+        event = [event]
         return event
         
-    def run(self, state_i: ClearingHouse) -> Event:
+    def run(self, state_i: ClearingHouse) -> [Event]:
         market_index = self.market_index
         user_index = self.user_index
         intensity = self.intensity
@@ -191,7 +427,9 @@ class ArbFunding(Agent):
         oracle_price = oracle.get_price(now)
 
         if market.amm.funding_period - (now % 3600) > 100:
-            return NullEvent(timestamp=now)
+            event = NullEvent(timestamp=now)
+            event = [event]
+            return event
 
         bid, ask = calculate_bid_ask_price(market, oracle_price)
 
@@ -217,6 +455,7 @@ class ArbFunding(Agent):
         trade_size = min(10*1e6, int(abs(trade_size))) # whole numbers only 
         if trade_size:
             print('NOW: ', now)
+            
         quote_asset_reserve = (
             trade_size 
             * AMM_TIMES_PEG_TO_QUOTE_PRECISION_RATIO 
@@ -227,6 +466,7 @@ class ArbFunding(Agent):
         # convert to reserve amount 
         # trade size too small = no trade 
         if quote_asset_reserve < market.amm.minimum_quote_asset_trade_size: 
+            print('agent: trade size not large enough...')
             trade_size = 0 
         
         if direction == PositionDirection.LONG:
@@ -243,10 +483,11 @@ class ArbFunding(Agent):
         if trade_size == 0:
             event = NullEvent(timestamp=now)
         else: 
-            event = OpenPositionEvent(self.user_index, direction, int(trade_size), now, market_index)
-            print(direction, trade_size/1e6, 'LUNA-PERP @', entry_price, '(',target_price/1e10,')')
+            event = OpenPositionEvent(now, self.user_index, direction, int(trade_size), market_index)
+            print(direction, trade_size/1e6, 'LUNA-PERP @', entry_price, '(',target_price/1e10,')', f"ts:{now}")
 
 
+        event = [event]
         # print(now, market.amm.peg_multiplier, calculate_mark_price_amm(market.amm), cur_mark, target_mark)
 
         return event

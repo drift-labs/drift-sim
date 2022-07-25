@@ -21,16 +21,19 @@ import numpy as np
 import pandas as pd
 from dataclasses import dataclass, field
 
-
 from programs.clearing_house.state import Oracle, User
 from programs.clearing_house.lib import ClearingHouse
+
+@dataclass
 class Event:     
+    timestamp: int 
+    
     def serialize_parameters(self):
         return json.loads(json.dumps(
-                self, 
-                default=lambda o: o.__dict__, 
-                sort_keys=True, 
-                indent=4
+            self, 
+            default=lambda o: o.__dict__, 
+            sort_keys=True, 
+            indent=4
         ))
         
     def serialize_to_row(self):
@@ -64,64 +67,124 @@ class Event:
     
 @dataclass
 class NullEvent(Event):     
-    timestamp: int 
     _event_name: str = "null"
     
-    def run(self, clearing_house: ClearingHouse) -> ClearingHouse:
+    def run(self, clearing_house: ClearingHouse, verbose=False) -> ClearingHouse:
         return clearing_house
     
 @dataclass
 class DepositCollateralEvent(Event): 
     user_index: int 
     deposit_amount: int
-    timestamp: int
+    username: str = "u"
     
     _event_name: str = "deposit_collateral"
     
-    def run(self, clearing_house: ClearingHouse) -> ClearingHouse:
+    def run(self, clearing_house: ClearingHouse, verbose=False) -> ClearingHouse:
+        if verbose:
+            print(f'u{self.user_index} deposit...')
         clearing_house = clearing_house.deposit_user_collateral(
             self.user_index, 
-            self.deposit_amount
+            self.deposit_amount, 
+            name=self.username
         )    
         return clearing_house
+    
+@dataclass 
+class addLiquidityEvent(Event):
+    market_index: int = 0 
+    user_index: int = 0 
+    token_amount: int = 0 
+
+    _event_name: str = "add_liquidity"
+
+    def run(self, clearing_house: ClearingHouse, verbose=False) -> ClearingHouse:
+        if verbose:
+            print(f'u{self.user_index} {self._event_name}...')
+
+        clearing_house = clearing_house.add_liquidity(
+            market_index=self.market_index,
+            user_index=self.user_index,
+            token_amount=self.token_amount
+        )
+        return clearing_house
+
+
+@dataclass
+class removeLiquidityEvent(Event):
+    market_index: int = 0 
+    user_index: int = 0 
+    lp_token_amount: int = -1
+
+    _event_name: str = "remove_liquidity"
+    
+    def run(self, clearing_house: ClearingHouse, verbose=False) -> ClearingHouse:
+        if verbose:
+            print(f'u{self.user_index} {self._event_name}...')
+        
+        clearing_house = clearing_house.remove_liquidity(
+            self.market_index, 
+            self.user_index, 
+            self.lp_token_amount
+        )    
+        return clearing_house
+    
     
 @dataclass
 class OpenPositionEvent(Event): 
     user_index: int 
     direction: str 
     quote_amount: int 
-    timestamp: int 
     market_index: int
     
     _event_name: str = "open_position"
     
-    def run(self, clearing_house: ClearingHouse) -> ClearingHouse:
+    def run(self, clearing_house: ClearingHouse, verbose=False) -> ClearingHouse:
+        if verbose:
+            print(f'u{self.user_index} {self._event_name} {self.direction} {self.quote_amount}...')
         direction = {
             "long": PositionDirection.LONG,
             "short": PositionDirection.SHORT,
         }[self.direction]
         
-        clearing_house_tp1 = clearing_house.open_position(
+        clearing_house = clearing_house.open_position(
             direction, 
             self.user_index, 
             self.quote_amount, 
             self.market_index
         )
         
-        return clearing_house_tp1
+        return clearing_house
                 
 @dataclass
 class ClosePositionEvent(Event): 
     user_index: int 
-    timestamp: int 
     market_index: int
-    
     _event_name: str = "close_position"
     
-    def run(self, clearing_house: ClearingHouse) -> ClearingHouse:        
+    def run(self, clearing_house: ClearingHouse, verbose=False) -> ClearingHouse:
+        if verbose:
+            print(f'u{self.user_index} {self._event_name}...')
         clearing_house = clearing_house.close_position(
             self.user_index, 
             self.market_index
+        )
+        
+        return clearing_house
+         
+@dataclass
+class SettleLPEvent(Event): 
+    user_index: int 
+    market_index: int
+    _event_name: str = "settle_lp"
+    
+    def run(self, clearing_house: ClearingHouse, verbose=False) -> ClearingHouse:
+        if verbose:
+            print(f'u{self.user_index} {self._event_name}...')
+            
+        clearing_house = clearing_house.settle_lp(
+            self.market_index,
+            self.user_index, 
         )
         
         return clearing_house
