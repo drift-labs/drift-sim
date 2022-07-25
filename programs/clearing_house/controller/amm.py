@@ -70,7 +70,7 @@ def _swap_quote_asset(
     """
     amm, input_asset_type: AssetType, swap_amount, swap_direction: SwapDirection
     """
-    new_quote_asset_amount, new_base_asset_amount = driftpy.math.positions.calculate_amm_reserves_after_swap(
+    new_quote_asset_amount, new_base_asset_amount = driftpy.math.amm.calculate_amm_reserves_after_swap(
         amm, 
         driftpy.math.amm.AssetType.QUOTE,
         quote_amount, 

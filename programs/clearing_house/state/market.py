@@ -1,31 +1,27 @@
-from dataclasses import dataclass, field
-from programs.clearing_house.state.oracle import *
-from dataclasses import dataclass, field
-#%%
 import sys 
 import driftpy
 import copy 
 
-from driftpy.math.amm import *
-from driftpy.math.repeg import calculate_repeg_cost
-from driftpy.math.funding import calculate_long_short_funding
-from driftpy.math.trade import calculate_trade_slippage, calculate_target_price_trade, calculate_trade_acquired_amounts
-from driftpy.math.positions import calculate_base_asset_value, calculate_position_pnl, calculate_position_funding_pnl
-from driftpy.types import PositionDirection, AssetType, MarketPosition, SwapDirection
-from driftpy.math.market import calculate_mark_price, calculate_bid_price, calculate_ask_price
-from driftpy.math.user import *
+from dataclasses import dataclass, field
 
 from driftpy.constants.numeric_constants import * 
+from driftpy.types import PositionDirection, AssetType, MarketPosition, SwapDirection
+from driftpy.math.amm import ( 
+    calculate_price, 
+    calculate_bid_price_amm,
+    calculate_ask_price_amm,
+)
+
 from programs.clearing_house.controller.amm import calculate_quote_swap_output_with_spread,calculate_base_swap_output_with_spread
 from programs.clearing_house.math.amm import update_mark_price_std, update_intensity
+from programs.clearing_house.state.oracle import *
 
 from solana.publickey import PublicKey
 
 import json 
-import matplotlib.pyplot as plt 
 import numpy as np 
 import pandas as pd
-from dataclasses import dataclass, field
+import matplotlib.pyplot as plt 
 
 @dataclass
 class AMM:

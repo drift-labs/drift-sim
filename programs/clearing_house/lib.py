@@ -1,41 +1,30 @@
 #%%
 import sys
-
-from pandas.core import base 
-import driftpy
 import copy 
+import json 
+import numpy as np 
+import pandas as pd
+from dataclasses import dataclass, field
+import matplotlib.pyplot as plt 
 
+import driftpy
 from driftpy.math.amm import (
     calculate_swap_output, 
     calculate_amm_reserves_after_swap, 
     get_swap_direction, 
     calculate_price,
 )
-from driftpy.math.repeg import calculate_repeg_cost, calculate_budgeted_repeg
 from driftpy.math.trade import calculate_trade_slippage, calculate_target_price_trade, calculate_trade_acquired_amounts
 from driftpy.math.positions import calculate_base_asset_value, calculate_position_pnl, calculate_position_funding_pnl
-from driftpy.types import PositionDirection, AssetType, MarketPosition, SwapDirection
-from driftpy.math.market import calculate_mark_price, calculate_bid_price, calculate_ask_price,     calculate_freepeg_cost
-
+from driftpy.math.market import calculate_mark_price, calculate_bid_price, calculate_ask_price, calculate_freepeg_cost
 from driftpy.math.amm import calculate_mark_price_amm, calculate_bid_price_amm, calculate_ask_price_amm, calculate_peg_multiplier
-# from driftpy.math.repeg import calculate_freepeg_cost
+from driftpy.types import PositionDirection, AssetType, MarketPosition, SwapDirection
 
-from driftpy.math.user import *
 from driftpy.constants.numeric_constants import * 
-from programs.clearing_house.controller.amm import *
 
-import json 
-import matplotlib.pyplot as plt 
-import numpy as np 
-import pandas as pd
-from dataclasses import dataclass, field
-
-from programs.clearing_house.math.pnl import *
-from programs.clearing_house.math.amm import *
+from programs.clearing_house.controller import *
+from programs.clearing_house.math import *
 from programs.clearing_house.state import *
-from programs.clearing_house.state.user import User, MarketPosition, LPMetrics
-
-MARGIN_PRECISION = 10_000 # expo = -4
 
 def max_collateral_change(user, delta):
     if user.collateral + delta < 0: 
@@ -48,7 +37,7 @@ def get_updated_k_result(
     market: Market, 
     new_sqrt_k: int, 
 ): 
-    sqrt_percision = 1e13 
+    sqrt_percision = AMM_RESERVE_PRECISION 
     sqrt_k_ratio = new_sqrt_k * sqrt_percision / market.amm.sqrt_k
 
     bar = market.amm.base_asset_reserve * sqrt_k_ratio / sqrt_percision
