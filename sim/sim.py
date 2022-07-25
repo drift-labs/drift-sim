@@ -255,6 +255,21 @@ class DriftSim:
                     print(clearing_house)
             
             clearing_house = clearing_house.change_time(1)
+            
+        # close out all the users 
+        for market_index in range(len(clearing_house.markets)):
+            for user_index in clearing_house.users:
+                close_event = ClosePositionEvent(
+                    user_index=user_index,
+                    timestamp=clearing_house.time,
+                    market_index=market_index,
+                )
+                clearing_house = close_event.run(clearing_house)
+                
+                simulation_results['events'].append(close_event)
+                simulation_results['clearing_houses'].append(copy.deepcopy(clearing_house))
+                
+                clearing_house = clearing_house.change_time(1)
         
         self.simulation_results = simulation_results # save sim run results 
         return simulation_results
