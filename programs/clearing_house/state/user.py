@@ -1,43 +1,15 @@
-from dataclasses import dataclass, field
-#%%
-import sys 
-import driftpy
 import copy 
+from dataclasses import dataclass, field
 
-from driftpy.math.amm import (
-    calculate_swap_output, 
-    calculate_amm_reserves_after_swap, 
-    get_swap_direction, 
-    calculate_price
-)
-from driftpy.math.trade import calculate_trade_slippage, calculate_target_price_trade, calculate_trade_acquired_amounts
-from driftpy.math.positions import calculate_base_asset_value, calculate_position_pnl, calculate_position_funding_pnl
-from driftpy.types import PositionDirection, AssetType, MarketPosition, SwapDirection
-from driftpy.math.market import calculate_mark_price, calculate_bid_price, calculate_ask_price
-from driftpy.math.amm import calculate_mark_price_amm, calculate_bid_price_amm, calculate_ask_price_amm
-
+from driftpy.types import MarketPosition 
+from driftpy.math.positions import calculate_position_pnl, calculate_position_funding_pnl
+from driftpy.math.market import calculate_mark_price
 from driftpy.math.user import *
-
 from driftpy.constants.numeric_constants import * 
 
-from solana.publickey import PublicKey
-
-import json 
-import matplotlib.pyplot as plt 
-import numpy as np 
-import pandas as pd
-from dataclasses import dataclass, field
-
 from programs.clearing_house.state import *
+from programs.clearing_house.helpers import add_prefix
 
-@dataclass
-class LPMetrics:
-    fee_payment: int = 0
-    funding_payment: int = 0 
-    unsettled_pnl: int = 0 
-    base_asset_amount: int = 0 
-    quote_asset_amount: int = 0 
-    
 @dataclass
 class MarketPosition: 
     user_index: int
@@ -115,9 +87,4 @@ class User:
         data["total_collateral"] = data["collateral"] + total_pnl
         
         return data
-
-# todo: dont duplicate this code 
-def add_prefix(data: dict, prefix: str):
-    for key in list(data.keys()): 
-        data[f"{prefix}_{key}"] = data.pop(key)
 

@@ -1,13 +1,27 @@
-
 from driftpy.types import PositionDirection, SwapDirection 
 from programs.clearing_house.math.quote_asset import *
 from programs.clearing_house.math.stats import calculate_rolling_average
 from driftpy.math.amm import calculate_mark_price_amm, calculate_bid_price_amm, calculate_ask_price_amm
 
-from programs.clearing_house.state.market import SimulationAMM 
+from driftpy.constants.numeric_constants import *
+from programs.clearing_house.state.market import SimulationAMM, SimulationMarket
 
 ONE_HOUR = 60*60
 ONE_MIN = 60
+
+def get_updated_k_result(
+    market: SimulationMarket, 
+    new_sqrt_k: int, 
+): 
+    sqrt_percision = AMM_RESERVE_PRECISION 
+    sqrt_k_ratio = new_sqrt_k * sqrt_percision / market.amm.sqrt_k
+
+    bar = market.amm.base_asset_reserve * sqrt_k_ratio / sqrt_percision
+    sqrt_k = new_sqrt_k
+    invariant = sqrt_k * sqrt_k
+    qar = invariant / bar 
+
+    return bar, qar, sqrt_k
 
 def calculate_quote_asset_amount_swapped(quote_asset_reserve_before:int, 
 quote_asset_reserve_after:int, 
