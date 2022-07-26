@@ -1,11 +1,10 @@
 
-from driftpy.math.trade import calculate_trade_slippage, calculate_target_price_trade, calculate_trade_acquired_amounts
-from driftpy.math.positions import calculate_base_asset_value, calculate_position_pnl
-from driftpy.types import PositionDirection, AssetType, MarketPosition, SwapDirection, User, AMM
-from driftpy.math.market import calculate_mark_price
+from driftpy.types import PositionDirection, SwapDirection 
 from programs.clearing_house.math.quote_asset import *
 from programs.clearing_house.math.stats import calculate_rolling_average
 from driftpy.math.amm import calculate_mark_price_amm, calculate_bid_price_amm, calculate_ask_price_amm
+
+from programs.clearing_house.state.market import SimulationAMM 
 
 ONE_HOUR = 60*60
 ONE_MIN = 60
@@ -29,7 +28,7 @@ peg_multiplier: int
     return quote_asset_amount
 
 def update_mark_price_std(
-    amm: AMM,
+    amm: SimulationAMM,
     now: int,
     price_change: int,
 ):
@@ -43,7 +42,7 @@ def update_mark_price_std(
     amm.mark_std = new_mark_price_std
 
 def update_intensity(
-    amm: AMM,
+    amm: SimulationAMM,
     now: int,
     quote_asset_amount: int,
     direction: PositionDirection
@@ -89,7 +88,7 @@ def calculate_new_twap(
     return new_twap 
 
 def update_oracle_twap(
-    amm: AMM, 
+    amm: SimulationAMM, 
     now: int          
 ):    
     new_oracle_twap = calculate_new_twap(
@@ -107,7 +106,7 @@ def update_oracle_twap(
     return new_oracle_twap
 
 def update_mark_twap(
-    amm: AMM, 
+    amm: SimulationAMM, 
     now: int          
 ):
     mark_price = calculate_mark_price_amm(amm)

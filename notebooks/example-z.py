@@ -75,7 +75,7 @@ pd.DataFrame(oracle.prices).plot()
 # %%
 def setup_ch(oracle: Oracle):
     start_price = oracle.get_price(0)
-    amm = AMM(
+    amm = SimulationAMM(
         oracle=oracle, 
         base_asset_reserve=1e13, 
         quote_asset_reserve=1e13,
@@ -83,7 +83,7 @@ def setup_ch(oracle: Oracle):
         peg_multiplier=int(start_price*1e3),
         base_spread=0,
     )
-    market = Market(amm)
+    market = SimulationMarket(amm)
     fee_structure = FeeStructure(numerator=1, denominator=100)
     clearing_house = ClearingHouse([market], fee_structure)
     return clearing_house    

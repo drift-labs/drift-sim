@@ -56,17 +56,17 @@ prices = [2] * 20
 timestamps = np.arange(len(prices))
 oracle = Oracle(prices=prices, timestamps=timestamps)
 
-amm = AMM(
+amm = SimulationAMM(
     oracle=oracle, 
     base_asset_reserve=10 * 1e11,
     quote_asset_reserve=10 * 1e11,
     funding_period=2,
     # funding goes to the longs
     peg_multiplier=int((oracle.get_price(0)-1) *1e3), 
-    minimum_base_asset_trade_size=100, 
+    base_asset_amount_step_size=100, 
     minimum_quote_asset_trade_size=100
 )
-market = Market(amm)
+market = SimulationMarket(amm)
 fee_structure = FeeStructure(numerator=1, denominator=100)
 ch = ClearingHouse([market], fee_structure)
 

@@ -45,7 +45,7 @@ def setup_ch(base_spread=0, strategies='', n_steps=100):
     prices, timestamps = random_walk_oracle(1, n_steps=n_steps)
     oracle = Oracle(prices=prices, timestamps=timestamps)
     
-    amm = AMM(
+    amm = SimulationAMM(
         oracle=oracle, 
         base_asset_reserve=1_000_000 * 1e13,
         quote_asset_reserve=1_000_000 * 1e13,
@@ -54,7 +54,7 @@ def setup_ch(base_spread=0, strategies='', n_steps=100):
         base_spread=base_spread,
         strategies=strategies
     )
-    market = Market(amm)
+    market = SimulationMarket(amm)
     fee_structure = FeeStructure(numerator=1, denominator=100)
     ch = ClearingHouse([market], fee_structure)
 
@@ -119,7 +119,7 @@ print('---')
 # %%
 lp_fee_payments = 0 
 market_fees = 0 
-market: Market = ch.markets[0]
+market: SimulationMarket = ch.markets[0]
 for (_, user) in ch.users.items(): 
     position: MarketPosition = user.positions[0]
     lp_fee_payments += position.lp_fee_payments
@@ -131,7 +131,7 @@ print(abs(total_payments) - abs(market_fees))
 # %%
 lp_funding_payments = 0 
 market_funding = 0 
-market: Market = ch.markets[0]
+market: SimulationMarket = ch.markets[0]
 for (_, user) in ch.users.items(): 
     position: MarketPosition = user.positions[0]
     lp_funding_payments += position.lp_funding_payments

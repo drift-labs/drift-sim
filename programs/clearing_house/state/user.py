@@ -19,8 +19,6 @@ from driftpy.math.amm import calculate_mark_price_amm, calculate_bid_price_amm, 
 from driftpy.math.user import *
 
 from driftpy.constants.numeric_constants import * 
-from programs.clearing_house.controller.amm import calculate_quote_swap_output_with_spread,calculate_base_swap_output_with_spread
-from programs.clearing_house.math.amm import update_mark_price_std, update_intensity
 
 from solana.publickey import PublicKey
 
