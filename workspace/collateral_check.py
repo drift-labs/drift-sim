@@ -50,7 +50,7 @@ def setup_ch(base_spread=0, strategies='', n_steps=100, n_users=2):
     prices, timestamps = random_walk_oracle(1, n_steps=n_steps)
     oracle = Oracle(prices=prices, timestamps=timestamps)
     
-    amm = AMM(
+    amm = SimulationAMM(
         oracle=oracle, 
         base_asset_reserve=1_000_000 * 1e13,
         quote_asset_reserve=1_000_000 * 1e13,
@@ -58,10 +58,10 @@ def setup_ch(base_spread=0, strategies='', n_steps=100, n_users=2):
         peg_multiplier=int(oracle.get_price(0)*1e3),
         base_spread=base_spread,
         strategies=strategies,
-        # minimum_base_asset_trade_size=0,
+        # base_asset_amount_step_size=0,
         # minimum_quote_asset_trade_size=0,
     )
-    market = Market(amm)
+    market = SimulationMarket(amm)
     fee_structure = FeeStructure(numerator=1, denominator=100)
     ch = ClearingHouse([market], fee_structure)
 
@@ -84,12 +84,12 @@ random.seed(seed)
 print('seed', seed)
 ch = setup_ch(
     n_steps=100,
-    base_spread=0,
+    base_spread=100,
 )
-market: Market = ch.markets[0]
+market: SimulationMarket = ch.markets[0]
 
-n_lps = 1
-n_trades = 1
+n_lps = 20
+n_trades = 20
 
 sim = RandomSimulation(ch)
 agents = []
@@ -98,28 +98,28 @@ agents = []
 agents += [
     sim.generate_lp(i, 0) for i in range(n_lps)
 ]
-# # these are classic add remove full lps -- laid on top add/remove will be full or partial
-# agents += [
-#     sim.generate_lp(i, 0) for i in range(n_lps)
-# ]
+# these are classic add remove full lps -- laid on top add/remove will be full or partial
+agents += [
+    sim.generate_lp(i, 0) for i in range(n_lps)
+]
 
-# # let the lps settle
-# agents += [
-#     sim.generate_lp_settler(i, 0) for i in range(n_lps)
-# ]
+# let the lps settle
+agents += [
+    sim.generate_lp_settler(i, 0) for i in range(n_lps)
+]
 # let the lps trade
-# agents += [
-#     sim.generate_trade(i, 0) for i in range(n_lps)
-# ]
+agents += [
+    sim.generate_trade(i, 0) for i in range(n_lps)
+]
 
 # normal traders open/close 
 agents += [
     sim.generate_trade(i, 0) for i in range(n_lps, n_lps+n_trades)
 ]
-# # random open close == more open close trades of a single trader
-# agents += [
-#     sim.generate_trade(i, 0) for i in range(n_lps, n_lps+n_trades)
-# ]
+# random open close == more open close trades of a single trader
+agents += [
+    sim.generate_trade(i, 0) for i in range(n_lps, n_lps+n_trades)
+]
 print('#agents:', len(agents))
 
 mark_prices = []
@@ -217,7 +217,7 @@ print("abs difference:", abs_difference)
 # %%
 lp_fee_payments = 0 
 market_fees = 0 
-market: Market = ch.markets[0]
+market: SimulationMarket = ch.markets[0]
 for (_, user) in ch.users.items(): 
     position: MarketPosition = user.positions[0]
     lp_fee_payments += position.lp_fee_payments
@@ -229,7 +229,7 @@ print("fee diff:", abs(total_payments) - abs(market_fees))
 # %%
 lp_funding_payments = 0 
 market_funding = 0 
-market: Market = ch.markets[0]
+market: SimulationMarket = ch.markets[0]
 for (_, user) in ch.users.items(): 
     position: MarketPosition = user.positions[0]
     lp_funding_payments += position.lp_funding_payments

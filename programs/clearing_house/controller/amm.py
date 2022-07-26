@@ -28,6 +28,7 @@ from dataclasses import dataclass, field
 
 from programs.clearing_house.math.quote_asset import asset_to_reserve_amount, reserve_to_asset_amount
 from programs.clearing_house.math.amm import calculate_quote_asset_amount_swapped, update_mark_twap
+from programs.clearing_house.state.market import SimulationAMM
 
 
 def swap_quote_asset(
@@ -70,7 +71,7 @@ def _swap_quote_asset(
     """
     amm, input_asset_type: AssetType, swap_amount, swap_direction: SwapDirection
     """
-    new_quote_asset_amount, new_base_asset_amount = driftpy.math.positions.calculate_amm_reserves_after_swap(
+    new_quote_asset_amount, new_base_asset_amount = driftpy.math.amm.calculate_amm_reserves_after_swap(
         amm, 
         driftpy.math.amm.AssetType.QUOTE,
         quote_amount, 
@@ -107,7 +108,7 @@ def swap_base_asset(
     return quote_asset_acquired, quote_asset_amount_surplus
 
 def _swap_base_asset(
-    amm: AMM, 
+    amm: SimulationAMM, 
     base_amount, 
     swap_direction, 
 ):
@@ -141,7 +142,7 @@ def _swap_base_asset(
 
 
 def calculate_quote_swap_output_with_spread(
-    amm: AMM,
+    amm: SimulationAMM,
     quote_asset_amount: int,
     direction: SwapDirection,
     oracle_price=None
@@ -195,7 +196,7 @@ def calculate_quote_swap_output_with_spread(
         quote_asset_amount_surplus]
 
 def calculate_base_swap_output_with_spread(
-    amm: AMM,
+    amm: SimulationAMM,
     base_asset_swap_amount: int,
     direction: SwapDirection,
  ):
@@ -279,7 +280,7 @@ def calculate_quote_asset_amount_surplus(
     return quote_asset_amount_surplus
 
 
-def move_to_price(amm: AMM, target_price: int):
+def move_to_price(amm: SimulationAMM, target_price: int):
 
     k = amm.sqrt_k*amm.sqrt_k
 

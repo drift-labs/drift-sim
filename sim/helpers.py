@@ -104,7 +104,7 @@ def close_all_users(clearing_house, verbose=False):
 
     # close out all the users 
     for market_index in range(len(clearing_house.markets)):
-        market: Market = clearing_house.markets[market_index]
+        market: SimulationMarket = clearing_house.markets[market_index]
         clearing_house.update_funding_rate(market_index)
         
         for user_index in clearing_house.users:
@@ -159,7 +159,7 @@ def compute_total_collateral(ch):
         total_collateral += user.collateral
     
     for market_index in range(len(ch.markets)):
-        market: Market = ch.markets[market_index]
+        market: SimulationMarket = ch.markets[market_index]
         total_collateral += market.amm.total_fee_minus_distributions 
         total_collateral += market.amm.upnl
         total_collateral += market.amm.lp_funding_payment

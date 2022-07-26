@@ -1,41 +1,30 @@
 #%%
 import sys
-
-from pandas.core import base 
-import driftpy
 import copy 
+import json 
+import numpy as np 
+import pandas as pd
+from dataclasses import dataclass, field
+import matplotlib.pyplot as plt 
 
+import driftpy
 from driftpy.math.amm import (
     calculate_swap_output, 
     calculate_amm_reserves_after_swap, 
     get_swap_direction, 
     calculate_price,
 )
-from driftpy.math.repeg import calculate_repeg_cost, calculate_budgeted_repeg
 from driftpy.math.trade import calculate_trade_slippage, calculate_target_price_trade, calculate_trade_acquired_amounts
 from driftpy.math.positions import calculate_base_asset_value, calculate_position_pnl, calculate_position_funding_pnl
-from driftpy.types import PositionDirection, AssetType, MarketPosition, SwapDirection
-from driftpy.math.market import calculate_mark_price, calculate_bid_price, calculate_ask_price,     calculate_freepeg_cost
-
+from driftpy.math.market import calculate_mark_price, calculate_bid_price, calculate_ask_price, calculate_freepeg_cost
 from driftpy.math.amm import calculate_mark_price_amm, calculate_bid_price_amm, calculate_ask_price_amm, calculate_peg_multiplier
-# from driftpy.math.repeg import calculate_freepeg_cost
+from driftpy.types import PositionDirection, AssetType, MarketPosition, SwapDirection
 
-from driftpy.math.user import *
 from driftpy.constants.numeric_constants import * 
-from programs.clearing_house.controller.amm import *
 
-import json 
-import matplotlib.pyplot as plt 
-import numpy as np 
-import pandas as pd
-from dataclasses import dataclass, field
-
-from programs.clearing_house.math.pnl import *
-from programs.clearing_house.math.amm import *
+from programs.clearing_house.controller import *
+from programs.clearing_house.math import *
 from programs.clearing_house.state import *
-from programs.clearing_house.state.user import User, MarketPosition, LPMetrics
-
-MARGIN_PRECISION = 10_000 # expo = -4
 
 def max_collateral_change(user, delta):
     if user.collateral + delta < 0: 
@@ -45,10 +34,10 @@ def max_collateral_change(user, delta):
     return delta
 
 def get_updated_k_result(
-    market: Market, 
+    market: SimulationMarket, 
     new_sqrt_k: int, 
 ): 
-    sqrt_percision = 1e13 
+    sqrt_percision = AMM_RESERVE_PRECISION 
     sqrt_k_ratio = new_sqrt_k * sqrt_percision / market.amm.sqrt_k
 
     bar = market.amm.base_asset_reserve * sqrt_k_ratio / sqrt_percision
@@ -105,7 +94,7 @@ class ClearingHouse:
     ):
         
         user: User = self.users[user_index]
-        market: Market = self.markets[market_index]
+        market: SimulationMarket = self.markets[market_index]
         user_position = user.positions[market_index]
 
         # assert user_position.base_asset_amount == 0, "Close position before lping"
@@ -150,7 +139,7 @@ class ClearingHouse:
         user_index: int, 
     ):
         user: User = self.users[user_index]
-        market: Market = self.markets[market_index]
+        market: SimulationMarket = self.markets[market_index]
         position: MarketPosition = user.positions[market_index]
 
         if position.lp_shares <= 0:
@@ -169,7 +158,7 @@ class ClearingHouse:
         self, 
         position: MarketPosition, 
         lp_shares_to_settle: int, 
-        market: Market
+        market: SimulationMarket
     ) -> LPMetrics: 
         lp_token_amount = lp_shares_to_settle
 
@@ -241,7 +230,7 @@ class ClearingHouse:
             ) * market.amm.peg_multiplier / AMM_TIMES_PEG_TO_QUOTE_PRECISION_RATIO
             quote_asset_amount = abs(quote_asset_amount)
            
-            min_baa = market.amm.minimum_base_asset_trade_size
+            min_baa = market.amm.base_asset_amount_step_size
             min_qaa = market.amm.minimum_quote_asset_trade_size
 
             if abs(base_asset_amount) > min_baa and quote_asset_amount > min_qaa: 
@@ -268,7 +257,7 @@ class ClearingHouse:
     def settle_lp_shares(
         self, 
         user: User, 
-        market: Market, 
+        market: SimulationMarket, 
         lp_token_amount: int, 
     ):
         position = user.positions[market.market_index]
@@ -322,7 +311,7 @@ class ClearingHouse:
         lp_token_amount: int = -1, 
     ):
         user: User = self.users[user_index]
-        market: Market = self.markets[market_index]
+        market: SimulationMarket = self.markets[market_index]
         position: MarketPosition = user.positions[market_index]
 
         if lp_token_amount == -1:
@@ -514,17 +503,12 @@ class ClearingHouse:
                     
             adjustment = 1 ## 24 slots of funding period time till full payback -- hardcode for now
             funding_rate = int(clamped_price_spread * FUNDING_PAYMENT_PRECISION / adjustment)
-            # print(funding_rate)
             
             market.amm.cumulative_funding_rate_long += funding_rate
             market.amm.cumulative_funding_rate_short += funding_rate
                         
             market.amm.last_funding_rate = funding_rate
             market.amm.last_funding_rate_ts = now
-            
-            # track lp funding 
-            # TODO: double check compute lp funding 
-            # print("taker nbaa:", market.amm.taker_net_baa)
             
             market_net_position = -market.amm.net_base_asset_amount # AMM_RSERVE_PRE
             market_funding_rate = funding_rate # FUNDING_PAYMENT_PRECISION 
@@ -538,10 +522,6 @@ class ClearingHouse:
             funding_slice = market_funding_payment * 1e13 / market.amm.total_lp_shares
             market.amm.lp_funding_payment += -1 * funding_slice * market.amm.amm_lp_shares / 1e13 
             market.amm.cumulative_funding_payment_per_lp += funding_slice
-            
-            # print('-- funding update --')
-            # print('amm funding payment:', -1 * funding_slice * market.amm.amm_lp_shares / 1e13)
-            # print('other lp funding:', -1 * funding_slice * (market.amm.total_lp_shares - market.amm.amm_lp_shares) / 1e13)
 
         return self
         
@@ -553,7 +533,7 @@ class ClearingHouse:
         user: User = self.users[user_index]
         total_funding_payment = 0 
         for i in range(len(self.markets)): 
-            market: Market = self.markets[i]
+            market: SimulationMarket = self.markets[i]
             position: MarketPosition = user.positions[i]
             
             if position.base_asset_amount == 0: 
@@ -599,7 +579,7 @@ class ClearingHouse:
         quote_amount: float, 
         direction: PositionDirection, 
         position: MarketPosition, 
-        market: Market
+        market: SimulationMarket
     ):         
         # do swap 
         swap_direction = {
@@ -625,7 +605,7 @@ class ClearingHouse:
     def track_new_base_assset(
         self, 
         position: MarketPosition, 
-        market: Market, 
+        market: SimulationMarket, 
         base_amount_acquired: int, 
         quote_amount: int, 
         is_lp_update: bool = False, 
@@ -679,7 +659,7 @@ class ClearingHouse:
         position.base_asset_amount += base_amount_acquired
         position.quote_asset_amount += quote_amount
 
-    def repeg(self, market: Market, new_peg: int):
+    def repeg(self, market: SimulationMarket, new_peg: int):
 
         cost, mark_delta = calculate_repeg_cost(market, new_peg)
         # print('repeg cost:', cost)
@@ -698,7 +678,7 @@ class ClearingHouse:
         quote_amount: float, 
         user: User, 
         position: MarketPosition, 
-        market: Market
+        market: SimulationMarket
     ):         
         swap_direction = {
             PositionDirection.LONG: SwapDirection.ADD,
@@ -841,7 +821,7 @@ class ClearingHouse:
         unrealized_pnl = 0 
         
         for i in range(len(self.markets)): 
-            market: Market = self.markets[i]
+            market: SimulationMarket = self.markets[i]
             position: MarketPosition = user.positions[i]
             
             unrealized_pnl = driftpy.math.positions.calculate_position_pnl(
@@ -891,7 +871,8 @@ class ClearingHouse:
             user, 
             position,
         )
-        print('quote surplus (close)', quote_asset_amount_surplus)
+        market.amm.total_fee_minus_distributions += quote_asset_amount_surplus
+        # print('quote surplus (close)', quote_asset_amount_surplus)
 
         # apply user fee
         exchange_fee = -abs(quote_amount * float(self.fee_structure.numerator) / float(self.fee_structure.denominator))        
@@ -981,8 +962,8 @@ class ClearingHouse:
         quote_asset_amount_surplus = self.update_position_with_quote_asset_amount(
             quote_amount, direction, user, position, market
         )
-        print("quote surplus:", quote_asset_amount_surplus)
-
+        # print("quote surplus:", quote_asset_amount_surplus)
+        market.amm.total_fee_minus_distributions += quote_asset_amount_surplus
             
         # TODO: 
         # risk increasing ? ... 

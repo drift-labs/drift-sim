@@ -172,8 +172,8 @@ class DriftSim:
                 peg_multiplier=int(oracle.prices[0]*1e3),
                 base_spread = 1e3
             )
-            amm = AMM(**amm_params)
-            market = Market(amm)
+            amm = SimulationAMM(**amm_params)
+            market = SimulationMarket(amm)
 
             fee_structure = FeeStructure(numerator=1, denominator=1000)
             clearing_house = ClearingHouse([market], fee_structure)

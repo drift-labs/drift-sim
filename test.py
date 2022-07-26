@@ -10,6 +10,9 @@ from driftpy.math.market import *
 
 from driftpy.types import *
 from driftpy.constants.numeric_constants import *
+from driftpy.math.amm import (
+    calculate_price, 
+)
 
 from programs.clearing_house.math.pnl import *
 from programs.clearing_house.math.amm import *
@@ -35,14 +38,16 @@ def default_set_up(self, n_users=1, default_collateral=1000, bq_ar=1e6):
     self.oracle = Oracle(prices=self.prices, timestamps=self.timestamps)
 
     # mark price = 1$ 
-    self.amm = AMM(
+    self.amm = SimulationAMM(
         oracle=self.oracle, 
         base_asset_reserve=int(bq_ar) * AMM_RESERVE_PRECISION, 
         quote_asset_reserve=int(bq_ar) * AMM_RESERVE_PRECISION,
         peg_multiplier=1 * PEG_PRECISION, 
         funding_period=self.funding_period
     )
-    self.market = Market(self.amm)
+    init_amm(self.amm)
+
+    self.market = SimulationMarket(amm=self.amm, market_index=0)
     self.fee_structure = FeeStructure(numerator=1, denominator=100)
     self.clearing_house = ClearingHouse([self.market], self.fee_structure)        
 
@@ -125,7 +130,7 @@ class TestLP(unittest.TestCase):
     def test_fee_profit_lp(self):
         ch = self.clearing_house 
         user: User = ch.users[0]
-        market: Market = ch.markets[0]
+        market: SimulationMarket = ch.markets[0]
 
         deposit_amount = 1e6 * QUOTE_PRECISION
         ch = ch.add_liquidity(0, 0, deposit_amount)
@@ -196,7 +201,7 @@ class TestLP(unittest.TestCase):
         print('---')
 
         ch: ClearingHouse = self.clearing_house
-        market: Market = ch.markets[0]
+        market: SimulationMarket = ch.markets[0]
         
         lp_index = 0
         user_index = 1 
@@ -253,7 +258,7 @@ class TestLP(unittest.TestCase):
         ch = self.clearing_house
         lp_fee_payments = 0 
         market_fees = 0 
-        market: Market = ch.markets[0]
+        market: SimulationMarket = ch.markets[0]
         for (_, user) in ch.users.items(): 
             position: MarketPosition = user.positions[0]
             lp_fee_payments += position.lp_fee_payments
@@ -264,7 +269,7 @@ class TestLP(unittest.TestCase):
         # %%
         lp_funding_payments = 0 
         market_funding = 0 
-        market: Market = ch.markets[0]
+        market: SimulationMarket = ch.markets[0]
         for (_, user) in ch.users.items(): 
             position: MarketPosition = user.positions[0]
             lp_funding_payments += position.lp_funding_payments
@@ -332,7 +337,7 @@ class TestClearingHouseFundingTimestamp(unittest.TestCase):
         ch = self.clearing_house
         
         user = ch.users[0]
-        market: Market = ch.markets[0]
+        market: SimulationMarket = ch.markets[0]
         
         prev_funding_ts = market.amm.last_funding_rate_ts
         
@@ -445,14 +450,14 @@ class TestClearingHouseNegativeFunding(unittest.TestCase):
         self.oracle = Oracle(prices=self.prices, timestamps=self.timestamps)
 
         # mark price = 1$ 
-        self.amm = AMM(
+        self.amm = SimulationAMM(
             oracle=self.oracle, 
             base_asset_reserve=1_000_000 * AMM_RESERVE_PRECISION, 
             quote_asset_reserve=1_000_000 * AMM_RESERVE_PRECISION,
             peg_multiplier=1 * PEG_PRECISION, 
             funding_period=self.funding_period
         )
-        self.market = Market(self.amm)
+        self.market = SimulationMarket(amm=self.amm, market_index=0)
         self.fee_structure = FeeStructure(numerator=1, denominator=100)
         self.clearing_house = ClearingHouse([self.market], self.fee_structure)
 
@@ -567,14 +572,14 @@ class TestClearingHousePositions(unittest.TestCase):
         self.default_collateral = 100 * QUOTE_PRECISION
 
         # initial price = 1$ 
-        self.amm = AMM(
+        self.amm = SimulationAMM(
             oracle=self.oracle, 
             base_asset_reserve=1_000_000 * AMM_RESERVE_PRECISION, 
             quote_asset_reserve=1_000_000 * AMM_RESERVE_PRECISION,
             peg_multiplier=1 * PEG_PRECISION, 
             funding_period=60
         )
-        self.market = Market(self.amm)
+        self.market = SimulationMarket(amm=self.amm, market_index=0)
         self.fee_structure = FeeStructure(numerator=1, denominator=100)
         self.clearing_house = ClearingHouse([self.market], self.fee_structure)
         
@@ -923,7 +928,7 @@ class TestCollateral(unittest.TestCase):
         """
         ch = self.clearing_house
         user0: User = ch.users[0]
-        market: Market = ch.markets[0]
+        market: SimulationMarket = ch.markets[0]
 
         init_collateral = user0.collateral
         ch = ch.open_position(
@@ -946,7 +951,7 @@ class TestCollateral(unittest.TestCase):
         ch = self.clearing_house
         user0: User = ch.users[0]
         user1: User = ch.users[1]
-        market: Market = ch.markets[0]
+        market: SimulationMarket = ch.markets[0]
 
         total_collateral = user0.collateral + user1.collateral
 
@@ -976,7 +981,7 @@ class TestCollateral(unittest.TestCase):
 
         user0: User = ch.users[0]
         user1: User = ch.users[1]
-        market: Market = ch.markets[0]
+        market: SimulationMarket = ch.markets[0]
         total_collateral = user0.collateral + user1.collateral
 
         ch.open_position(

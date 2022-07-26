@@ -42,14 +42,14 @@ def setup():
     prices, timestamps = random_walk_oracle(1)
     oracle = Oracle(prices=prices, timestamps=timestamps)
 
-    amm = AMM(
+    amm = SimulationAMM(
         oracle=oracle, 
         base_asset_reserve=100_000 * AMM_RESERVE_PRECISION, 
         quote_asset_reserve=100_000 * AMM_RESERVE_PRECISION,
         funding_period=60, 
         peg_multiplier=1 * PEG_PRECISION
     )
-    market = Market(amm)
+    market = SimulationMarket(amm)
     fee_structure = FeeStructure(numerator=1, denominator=100)
     clearing_house = ClearingHouse([market], fee_structure)
 
