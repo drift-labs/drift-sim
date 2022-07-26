@@ -18,7 +18,6 @@ from programs.clearing_house.math.pnl import *
 from programs.clearing_house.math.amm import *
 from programs.clearing_house.state import *
 from programs.clearing_house.lib import * 
-from programs.clearing_house.state import * 
 from sim.events import * 
 from sim.helpers import compute_total_collateral, close_all_users
 
