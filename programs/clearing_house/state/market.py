@@ -14,6 +14,8 @@ from programs.clearing_house.state.oracle import *
 
 from dataclasses import dataclass
 
+from driftpy.types import AMM, Market
+
 @dataclass
 class SimulationAMM(AMM):
     oracle: Oracle # override
