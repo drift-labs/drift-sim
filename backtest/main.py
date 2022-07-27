@@ -48,12 +48,8 @@ async def setup(init_market: SimulationMarket):
 
     # init state + bank + market 
     clearing_house = Admin(program)
-    try:
-        await clearing_house.initialize(usdc_mint.public_key, True)
-        await clearing_house.initialize_bank(usdc_mint.public_key)
-    except Exception:
-        print('initiz failed')
-        pass
+    await clearing_house.initialize(usdc_mint.public_key, True)
+    await clearing_house.initialize_bank(usdc_mint.public_key)
 
     amm = init_market.amm
     init_price = round(amm.peg_multiplier / np.log10(PEG_PRECISION), 3)
@@ -66,6 +62,10 @@ async def setup(init_market: SimulationMarket):
         int(amm.peg_multiplier), 
         OracleSource.Pyth(), 
     )
+
+    # update durations
+    await clearing_house.update_auction_duration(0, 0)
+    await clearing_house.update_lp_cooldown_time(0, 0)
 
     return usdc_mint
 
@@ -87,18 +87,22 @@ from sim.events import *
 from driftpy.clearing_house import ClearingHouse as SDKClearingHouse
 from driftpy.accounts import get_market_account
 from driftpy.math.amm import calculate_mark_price_amm
+from driftpy.accounts import get_user_account
 
 user_chs = {}
 user_token_amount = {}
 
+init_total_collateral = 0 
+
 for i in range(len(events)):
     event = events.iloc[i]
+    
     if event.event_name == DepositCollateralEvent._event_name:
         event = Event.deserialize_from_row(DepositCollateralEvent, event)
         assert event.user_index not in user_chs, 'trying to re-init'
         print(f'{event.user_index} init user...')
 
-        user = await _setup_user(provider)
+        user = await _setup_user(provider) # TODO this airdrop takes a lot of time
         user_clearing_house = SDKClearingHouse(program, user)
 
         usdc_kp = await _user_usdc_account(
@@ -111,12 +115,14 @@ for i in range(len(events)):
         await user_clearing_house.deposit(event.deposit_amount, 0, usdc_kp.public_key)
         
         user_chs[event.user_index] = user_clearing_house
+        init_total_collateral += event.deposit_amount
 
     elif event.event_name == OpenPositionEvent._event_name: 
         event = Event.deserialize_from_row(OpenPositionEvent, event)
         print(f'{event.user_index} opening position...')
         assert event.user_index in user_chs, 'user doesnt exist'
 
+        # tmp 
         market = await get_market_account(program, 0)
         mark_price = calculate_price(
             market.amm.base_asset_reserve,
@@ -138,7 +144,7 @@ for i in range(len(events)):
         assert event.user_index in user_chs, 'user doesnt exist'
 
         ch: SDKClearingHouse = user_chs[event.user_index]
-        ch.close_position(event.market_index)
+        await ch.close_position(event.market_index)
 
     elif event.event_name == addLiquidityEvent._event_name:
         event = Event.deserialize_from_row(addLiquidityEvent, event)
@@ -167,4 +173,27 @@ for i in range(len(events)):
             event.market_index
         )
 
+#%%
+
+end_total_collateral = 0 
+for (i, ch) in user_chs.items():
+    user = await get_user_account(
+        program, 
+        ch.authority, 
+    )
+    balance = user.bank_balances[0].balance
+    upnl = user.positions[0].unsettled_pnl
+    end_total_collateral += balance + upnl
+    print(i, balance + upnl)
+
+market = await get_market_account(program, 0)
+print('market:', market.amm.total_fee_minus_distributions)
+end_total_collateral += market.amm.total_fee_minus_distributions
+
+end_total_collateral - init_total_collateral, (end_total_collateral, init_total_collateral)
+
+#%%
+#%%
+#%%
+#%%
 #%%
