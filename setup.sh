@@ -1,3 +1,1 @@
-git submodule update --init && 
-cd protocol-v1 && 
-bash setup.sh 
+git submodule update --init --recursive

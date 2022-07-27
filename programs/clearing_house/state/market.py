@@ -1,7 +1,8 @@
 import sys 
 import copy 
-import driftpy
+from dataclasses import dataclass
 
+import driftpy
 from driftpy.constants.numeric_constants import * 
 from driftpy.math.amm import ( 
     calculate_price, 
@@ -11,10 +12,6 @@ from driftpy.math.amm import (
 from driftpy.types import AMM, Market
 
 from programs.clearing_house.state.oracle import *
-
-from dataclasses import dataclass
-
-from driftpy.types import AMM, Market
 
 @dataclass
 class SimulationAMM(AMM):
@@ -35,7 +32,54 @@ class SimulationAMM(AMM):
         for a in args: 
             setattr(self, a, args[a])
 
-        init_amm(self)
+        self.init_amm()
+
+    def init_amm(self):
+        now = 0
+
+        assert self.base_asset_reserve == self.quote_asset_reserve
+        self.sqrt_k = self.base_asset_reserve
+
+        # oracle
+        if self.oracle is None:
+            oracle_price = 1
+            print('Warning: oracle not set...')
+        else:
+            oracle_price = self.oracle.get_price(now)
+
+        self.last_oracle_price = oracle_price
+        self.last_oracle_normalised_price = oracle_price
+        self.last_oracle_price_twap = oracle_price
+        self.last_oracle_price_twap_ts = now 
+        
+        # market price 
+        mark_price = calculate_price(
+            self.base_asset_reserve, 
+            self.quote_asset_reserve, 
+            self.peg_multiplier
+        )
+        
+        self.bid_price_before = calculate_bid_price_amm(self, oracle_price)
+        self.ask_price_before = calculate_ask_price_amm(self, oracle_price)
+        self.last_ask_price_twap = mark_price
+        self.last_bid_price_twap = mark_price
+        self.last_mark_price_twap = mark_price
+        self.last_mark_price_twap_ts = now 
+
+        # reserves
+        self.terminal_quote_asset_reserve = self.quote_asset_reserve
+        self.bid_base_asset_reserve = self.base_asset_reserve
+        self.bid_quote_asset_reserve = self.quote_asset_reserve
+        self.ask_base_asset_reserve = self.base_asset_reserve
+        self.ask_quote_asset_reserve = self.quote_asset_reserve
+        
+        self.total_lp_shares = self.sqrt_k
+        self.amm_lp_shares = self.total_lp_shares # amm has it all at once
+        
+        self.cumulative_funding_rate_long = 0 
+        self.cumulative_funding_rate_short = 0 
+        self.last_funding_rate_ts = now
+        self.mark_std = 0
 
 @dataclass
 class SimulationMarket(Market): 
@@ -50,6 +94,7 @@ class SimulationMarket(Market):
 
         for a in args: 
             setattr(self, a, args[a])
+
 
     def to_json(self, now):
         # current prices 
@@ -97,42 +142,3 @@ class SimulationMarket(Market):
             data[key] /= 1e6
         
         return data 
-       
-def init_amm(amm: SimulationAMM):
-    now = 0
-    
-    oracle_price = amm.oracle.get_price(now)
-    amm.last_oracle_price = oracle_price
-    amm.last_oracle_normalised_price = oracle_price
-
-    amm.last_oracle_price_twap = oracle_price
-    amm.last_oracle_price_twap_ts = now 
-    
-    mark_price = calculate_price(
-        amm.base_asset_reserve, 
-        amm.quote_asset_reserve, 
-        amm.peg_multiplier
-    )
-    
-    if amm.base_asset_reserve != amm.quote_asset_reserve:
-        amm.sqrt_k = int((
-            amm.base_asset_reserve/1e13 * amm.quote_asset_reserve/1e13
-        ) ** .5) * 1e13
-    else:
-        amm.sqrt_k = amm.base_asset_reserve
-    
-    amm.total_lp_shares = amm.sqrt_k
-    amm.amm_lp_shares = amm.total_lp_shares # amm has it all at once
-    
-    amm.bid_price_before = calculate_bid_price_amm(amm, oracle_price)
-    amm.ask_price_before = calculate_ask_price_amm(amm, oracle_price)
-    amm.last_ask_price_twap = mark_price
-    amm.last_bid_price_twap = mark_price
-    amm.last_mark_price_twap = mark_price
-    amm.last_mark_price_twap_ts = now 
-    
-    amm.cumulative_funding_rate_long = 0 
-    amm.cumulative_funding_rate_short = 0 
-    amm.last_funding_rate_ts = now
-    amm.mark_std = 0
-    amm.terminal_quote_asset_reserve = amm.quote_asset_reserve

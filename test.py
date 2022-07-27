@@ -9,7 +9,7 @@ from driftpy.math.amm import *
 from driftpy.math.market import *
 
 from driftpy.types import *
-from driftpy.constants.numeric_constants import *
+from driftpy.constants import *
 from driftpy.math.amm import (
     calculate_price, 
 )
@@ -44,7 +44,6 @@ def default_set_up(self, n_users=1, default_collateral=1000, bq_ar=1e6):
         peg_multiplier=1 * PEG_PRECISION, 
         funding_period=self.funding_period
     )
-    init_amm(self.amm)
 
     self.market = SimulationMarket(amm=self.amm, market_index=0)
     self.fee_structure = FeeStructure(numerator=1, denominator=100)
