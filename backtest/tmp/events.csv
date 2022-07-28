@@ -1,0 +1,7 @@
+event_name,timestamp,parameters
+deposit_collateral,0.0,"{""deposit_amount"": 10000000000000, ""user_index"": 0, ""username"": ""LP""}"
+deposit_collateral,1.0,"{""deposit_amount"": 64017000000, ""user_index"": 1, ""username"": ""openclose""}"
+open_position,328.0,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 64017000000, ""user_index"": 1}"
+add_liquidity,427.0,"{""market_index"": 0, ""token_amount"": 9731547700085214769, ""user_index"": 0}"
+remove_liquidity,10000000000449.0,"{""lp_token_amount"": -1, ""market_index"": 0, ""user_index"": 0}"
+close_position,10000000000450.0,"{""market_index"": 0, ""user_index"": 1}"

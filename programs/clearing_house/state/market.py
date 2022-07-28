@@ -9,6 +9,15 @@ from driftpy.math.amm import (
     calculate_bid_price_amm,
     calculate_ask_price_amm,
 )
+from driftpy.math.market import (
+    calculate_mark_price, 
+    calculate_ask_price, 
+    calculate_bid_price,
+    calculate_peg_multiplier, 
+)
+from driftpy.math.repeg import calculate_repeg_cost
+from driftpy.math.funding import calculate_long_short_funding
+
 from driftpy.types import AMM, Market
 
 from programs.clearing_house.state.oracle import *
@@ -95,7 +104,6 @@ class SimulationMarket(Market):
         for a in args: 
             setattr(self, a, args[a])
 
-
     def to_json(self, now):
         # current prices 
         mark_price = calculate_mark_price(self)
@@ -111,6 +119,7 @@ class SimulationMarket(Market):
         amm_dict['base_asset_reserve'] = f'{b1:.0f}'
         amm_dict['quote_asset_reserve'] = f'{q1:.0f}'
 
+        self.base_asset_amount = self.amm.net_base_asset_amount
         mark_price = calculate_mark_price(self, oracle_price)
         bid_price = calculate_bid_price(self, oracle_price)
         ask_price = calculate_ask_price(self, oracle_price)
@@ -137,8 +146,9 @@ class SimulationMarket(Market):
             repeg_to_oracle_cost=repeg_to_oracle_cost
         ) | market_dict | amm_dict
         
-        # rescale 
+        # rescale
         for key in ['total_fee', 'total_mm_fees', 'total_exchange_fees', 'total_fee_minus_distributions']:
-            data[key] /= 1e6
+            if key in data:
+                data[key] /= 1e6
         
         return data 
