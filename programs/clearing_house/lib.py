@@ -140,8 +140,6 @@ class ClearingHouse:
         
         assert position.lp_shares >= 0, "need lp tokens to remove"
         assert lp_token_amount <= position.lp_shares, f"trying to remove too much liquidity: {lp_token_amount} > {position.lp_shares}"
-        # # tmp
-        # assert lp_token_amount == position.lp_shares, "can only burn full lp tokens"
 
         # settle them 
         settle_lp_shares(
