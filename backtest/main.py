@@ -148,12 +148,6 @@ for i in tqdm(range(len(events))):
             user_clearing_house.usdc_ata.public_key, 
         )
 
-        # user_clearing_house, _ = await event.run_sdk(
-        #     provider, 
-        #     program, 
-        #     usdc_mint, 
-        #     users[event.user_index][0]
-        # )
         init_total_collateral += event.deposit_amount
 
     elif event.event_name == OpenPositionEvent._event_name: 
