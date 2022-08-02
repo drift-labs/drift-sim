@@ -67,9 +67,11 @@ async def setup_new_user(
     provider: Provider,
     program: Program, 
     usdc_mint: Keypair,
+    user_keypair: Keypair, 
     deposit_amount = 1_000_000_000 * QUOTE_PRECISION
 ):
-    user_keypair = await _setup_user(provider) 
+    # user_keypair, tx_sig = await _setup_user(provider) 
+    
     user_clearing_house = SDKClearingHouse(program, user_keypair)
     usdc_kp = await _user_usdc_account(
         usdc_mint, 

@@ -34,8 +34,10 @@ from programs.clearing_house.state.market import SimulationAMM, SimulationMarket
 from helpers import setup_bank, setup_market, setup_new_user, view_logs
 
 #%%
-events = pd.read_csv("./sim-results/tmp/events.csv")
-clearing_houses = pd.read_csv("./sim-results/tmp/chs.csv")
+folder_name = 'tmp4'
+# folder_name = 'tmp'
+events = pd.read_csv(f"./{folder_name}/events.csv")
+clearing_houses = pd.read_csv(f"./{folder_name}/chs.csv")
 events
 
 #%%
@@ -72,27 +74,38 @@ oracle = await setup_market(
 )
 
 #%%
+from tqdm import tqdm
+
+# fast init for users - airdrop takes a bit to finalize
+user_indexs = np.unique([json.loads(e['parameters'])['user_index'] for _, e in events.iterrows() if 'user_index' in json.loads(e['parameters'])])
+users = {}
+for user_index in tqdm(user_indexs):
+    user, tx_sig = await _setup_user(provider)
+    users[user_index] = (user, tx_sig)
+for i, (user, tx_sig) in tqdm(users.items()):
+    await provider.connection.confirm_transaction(tx_sig, sleep_seconds=0.1)
+
 user_chs = {}
 user_token_amount = {}
 user_baa_amount = {}
 
 init_total_collateral = 0 
 
-for i in range(len(events)):
+for i in tqdm(range(len(events))):
     event = events.iloc[i]
     
     if event.event_name == DepositCollateralEvent._event_name:
         event = Event.deserialize_from_row(DepositCollateralEvent, event)
         assert event.user_index not in user_chs, 'trying to re-init'
+        assert event.user_index in users, "user not setup"
         print(f'=> {event.user_index} init user...')
 
-        user_clearing_house, _ = await setup_new_user(
+        user_clearing_house, _ = await event.run_sdk(
             provider, 
             program, 
             usdc_mint, 
-            deposit_amount=event.deposit_amount
+            users[event.user_index][0]
         )
-        
         user_chs[event.user_index] = user_clearing_house
         init_total_collateral += event.deposit_amount
 
@@ -101,32 +114,16 @@ for i in range(len(events)):
         print(f'=> {event.user_index} opening position...')
         assert event.user_index in user_chs, 'user doesnt exist'
 
-        # tmp -- sim is quote open position v2 is base only
-        market = await get_market_account(program, 0)
-        mark_price = calculate_price(
-            market.amm.base_asset_reserve,
-            market.amm.quote_asset_reserve,
-            market.amm.peg_multiplier,
-        )
-        baa = int(event.quote_amount * AMM_RESERVE_PRECISION / QUOTE_PRECISION / mark_price)
-
         assert event.user_index not in user_baa_amount
-        user_baa_amount[event.user_index] = baa
 
         ch: SDKClearingHouse = user_chs[event.user_index]
-        direction = PositionDirection.LONG() if event.direction == 'long' else PositionDirection.SHORT()
-        await adjust_oracle_pretrade(
-            baa, 
-            direction, 
-            market, 
-            oracle, 
-            oracle_program
+        await event.run_sdk(ch, oracle_program, adjust_oracle_pre_trade=True)
+        
+        user = await get_user_account(
+            program, 
+            ch.authority, 
         )
-        await ch.open_position(
-            direction,
-            baa, 
-            event.market_index
-        )
+        user_baa_amount[event.user_index] = user.positions[0].base_asset_amount
 
     elif event.event_name == ClosePositionEvent._event_name: 
         event = Event.deserialize_from_row(ClosePositionEvent, event)
@@ -134,20 +131,8 @@ for i in range(len(events)):
         assert event.user_index in user_chs, 'user doesnt exist'
 
         ch: SDKClearingHouse = user_chs[event.user_index]
-        baa = user_baa_amount[event.user_index] 
-        direction = PositionDirection.LONG() if baa < 0 else PositionDirection.SHORT()
-        market = await get_market_account(
-            program, 
-            0
-        )
-        await adjust_oracle_pretrade(
-            baa, 
-            direction, 
-            market, 
-            oracle, 
-            oracle_program
-        )
-        await ch.close_position(event.market_index)
+        baa = user_baa_amount.pop(event.user_index)
+        await event.run_sdk(ch, oracle_program, adjust_oracle_pre_trade=True)
 
     elif event.event_name == addLiquidityEvent._event_name: 
         event = Event.deserialize_from_row(addLiquidityEvent, event)
@@ -156,31 +141,30 @@ for i in range(len(events)):
 
         ch: SDKClearingHouse = user_chs[event.user_index]
         user_token_amount[event.user_index] = event.token_amount
-        await ch.add_liquidity(
-            event.token_amount, 
-            event.market_index
-        )
+        await event.run_sdk(ch)
 
     elif event.event_name == removeLiquidityEvent._event_name:
         event = Event.deserialize_from_row(removeLiquidityEvent, event)
         print(f'=> {event.user_index} removing liquidity...')
         assert event.user_index in user_chs, 'user doesnt exist'
 
-        burn_amount = event.lp_token_amount
-        if burn_amount == -1: 
-            burn_amount = user_token_amount[event.user_index]
+        if event.lp_token_amount == -1: # full burn 
+            event.lp_token_amount = user_token_amount.pop(event.user_index)
 
         ch: SDKClearingHouse = user_chs[event.user_index]
-        await ch.remove_liquidity(
-            burn_amount, 
-            event.market_index
-        )
+        await event.run_sdk(ch)
 
         user = await get_user_account(
             program, 
             ch.authority, 
         )
         user_baa_amount[event.user_index] = user.positions[0].base_asset_amount
+
+    elif event.event_name == SettleLPEvent._event_name: 
+        event = Event.deserialize_from_row(SettleLPEvent, event)
+        print(f'=> {event.user_index} settle lp...')
+        ch: SDKClearingHouse = user_chs[event.user_index]
+        await event.run_sdk(ch, ch.authority)
     else: 
         raise NotImplementedError
 
@@ -202,7 +186,6 @@ market = await get_market_account(program, 0)
 end_total_collateral += market.amm.total_fee_minus_distributions
 
 print('market:', market.amm.total_fee_minus_distributions)
-
 print(
     "=> difference in $, difference, end/init collateral",
     (end_total_collateral - init_total_collateral) / 1e6, 

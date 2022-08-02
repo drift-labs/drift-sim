@@ -61,7 +61,7 @@ def setup_ch(base_spread=0, strategies='', n_steps=100, n_users=2):
         # base_asset_amount_step_size=0,
         # minimum_quote_asset_trade_size=0,
     )
-    market = SimulationMarket(amm)
+    market = SimulationMarket(amm=amm, market_index=0)
     fee_structure = FeeStructure(numerator=1, denominator=100)
     ch = ClearingHouse([market], fee_structure)
 
@@ -84,12 +84,12 @@ random.seed(seed)
 print('seed', seed)
 ch = setup_ch(
     n_steps=100,
-    base_spread=100,
+    base_spread=0,
 )
 market: SimulationMarket = ch.markets[0]
 
-n_lps = 20
-n_trades = 20
+n_lps = 10
+n_trades = 10
 
 sim = RandomSimulation(ch)
 agents = []
@@ -98,28 +98,29 @@ agents = []
 agents += [
     sim.generate_lp(i, 0) for i in range(n_lps)
 ]
-# these are classic add remove full lps -- laid on top add/remove will be full or partial
-agents += [
-    sim.generate_lp(i, 0) for i in range(n_lps)
-]
+# # these are classic add remove full lps -- laid on top add/remove will be full or partial
+# agents += [
+#     sim.generate_lp(i, 0) for i in range(n_lps)
+# ]
 
 # let the lps settle
 agents += [
     sim.generate_lp_settler(i, 0) for i in range(n_lps)
 ]
-# let the lps trade
-agents += [
-    sim.generate_trade(i, 0) for i in range(n_lps)
-]
+
+# # let the lps trade
+# agents += [
+#     sim.generate_trade(i, 0) for i in range(n_lps)
+# ]
 
 # normal traders open/close 
 agents += [
     sim.generate_trade(i, 0) for i in range(n_lps, n_lps+n_trades)
 ]
-# random open close == more open close trades of a single trader
-agents += [
-    sim.generate_trade(i, 0) for i in range(n_lps, n_lps+n_trades)
-]
+# # random open close == more open close trades of a single trader
+# agents += [
+#     sim.generate_trade(i, 0) for i in range(n_lps, n_lps+n_trades)
+# ]
 print('#agents:', len(agents))
 
 mark_prices = []
@@ -204,8 +205,8 @@ if len(clearing_houses) > 0:
 
 differences.append(abs_difference)
 
-# if abs_difference > 1: 
-_ = [print(f"{e},") for e in events if e._event_name != 'null']
+# # if abs_difference > 1: 
+# _ = [print(f"{e},") for e in events if e._event_name != 'null']
 
 print('---')
 _ = [print("\t", e._event_name) for e in events if e._event_name != 'null']
@@ -244,10 +245,12 @@ print('---')
 import pathlib 
 import pandas as pd 
 
-path = pathlib.Path('sim-results/tmp')
+path = pathlib.Path('sim-results/tmp4')
 path.mkdir(exist_ok=True, parents=True)
+print(str(path.absolute()))
 
-json_events = [e.serialize_to_row() for e in events]
+#%%
+json_events = [e.serialize_to_row() for e in events if e.event_name != 'null']
 df = pd.DataFrame(json_events)
 df.to_csv(path/'events.csv', index=False)
 
