@@ -19,7 +19,7 @@ from driftpy.math.user import *
 from driftpy.types import *
 from driftpy.constants.numeric_constants import *
 
-from driftpy.setup.helpers import _usdc_mint, _user_usdc_account, mock_oracle, _setup_user, set_price_feed, adjust_oracle_pretrade
+from driftpy.setup.helpers import _create_usdc_mint, mock_oracle, _airdrop_user, set_price_feed, adjust_oracle_pretrade
 from driftpy.clearing_house import ClearingHouse
 from driftpy.admin import Admin
 from driftpy.types import OracleSource
@@ -32,7 +32,7 @@ from driftpy.accounts import get_user_account
 
 from anchorpy import Provider, Program, create_workspace
 from programs.clearing_house.state.market import SimulationAMM, SimulationMarket
-from helpers import setup_bank, setup_market, setup_new_user, view_logs
+from helpers import setup_bank, setup_market, view_logs
 
 #%%
 # run `anchor localnet` in v2 dir first 

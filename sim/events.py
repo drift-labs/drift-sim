@@ -24,7 +24,7 @@ from dataclasses import dataclass, field
 
 from programs.clearing_house.state import Oracle, User
 from programs.clearing_house.lib import ClearingHouse
-from backtest.helpers import setup_new_user, adjust_oracle_pretrade
+from backtest.helpers import adjust_oracle_pretrade
 from driftpy.math.amm import calculate_price
 from driftpy.constants.numeric_constants import AMM_RESERVE_PRECISION, QUOTE_PRECISION
 
@@ -106,14 +106,22 @@ class DepositCollateralEvent(Event):
         )    
         return clearing_house
 
-    async def run_sdk(self, provider, program, usdc_mint, user_kp) -> ClearingHouse:
-        return await setup_new_user(
-            provider, 
-            program, 
-            usdc_mint, 
-            user_kp,
-            self.deposit_amount,
-        )
+    async def run_sdk(self, provider, program, usdc_mint, user_keypair, is_initialized) -> ClearingHouse:
+        # if not initialized .. initialize ... // mint + deposit ix 
+        user_clearing_house = SDKClearingHouse(program, user_keypair)
+
+        if not is_initialized:
+            await user_clearing_house.intialize_user()
+
+        await user_clearing_house.deposit(self.deposit_amount, 0, user_keypair.public_key)
+        
+        # return await setup_new_user(
+        #     provider, 
+        #     program, 
+        #     usdc_mint, 
+        #     user_kp,
+        #     self.deposit_amount,
+        # )
     
 @dataclass 
 class addLiquidityEvent(Event):
@@ -160,6 +168,18 @@ class removeLiquidityEvent(Event):
         return clearing_house
     
     async def run_sdk(self, clearing_house) -> ClearingHouse:
+        if self.lp_token_amount == -1: 
+            user = await get_user_account(clearing_house.program, clearing_house.authority)
+            position = None 
+            for _position in user.positions: 
+                if _position.market_index == self.market_index: 
+                    position = _position
+                    break 
+            assert position is not None, "user not in market"
+
+            self.lp_token_amount = position.lp_shares
+            assert self.lp_token_amount > 0, 'trying to burn full zero tokens'
+
         await clearing_house.remove_liquidity(
             self.lp_token_amount, 
             self.market_index
@@ -284,9 +304,9 @@ class SettleLPEvent(Event):
         
         return clearing_house
 
-    async def run_sdk(self, clearing_house, settlee_pk):
+    async def run_sdk(self, clearing_house):
         return await clearing_house.settle_lp(
-            settlee_pk, 
+            clearing_house.authority, 
             self.market_index
         )
          

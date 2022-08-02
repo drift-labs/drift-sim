@@ -13,7 +13,7 @@ from driftpy.math.user import *
 from driftpy.types import *
 from driftpy.constants.numeric_constants import *
 
-from driftpy.setup.helpers import _usdc_mint, _user_usdc_account, mock_oracle, _setup_user, set_price_feed, adjust_oracle_pretrade
+from driftpy.setup.helpers import _create_usdc_mint, mock_oracle, _airdrop_user, set_price_feed, adjust_oracle_pretrade
 from driftpy.admin import Admin
 from driftpy.types import OracleSource
 
@@ -54,7 +54,7 @@ async def setup_bank(
     program: Program,
 ):
     # init usdc mint
-    usdc_mint = await _usdc_mint(program.provider)
+    usdc_mint = await _create_usdc_mint(program.provider)
 
     # init state + bank + market 
     clearing_house = Admin(program)
@@ -63,21 +63,21 @@ async def setup_bank(
 
     return clearing_house, usdc_mint
 
-async def setup_new_user(
+async def initialize_and_deposit_new_user(
     provider: Provider,
     program: Program, 
     usdc_mint: Keypair,
     user_keypair: Keypair, 
     deposit_amount = 1_000_000_000 * QUOTE_PRECISION
 ):
-    # user_keypair, tx_sig = await _setup_user(provider) 
+    user_keypair, tx_sig = await _airdrop_user(provider) 
     
     user_clearing_house = SDKClearingHouse(program, user_keypair)
     usdc_kp = await _user_usdc_account(
         usdc_mint, 
         provider, 
         deposit_amount, 
-        owner=user_keypair.public_key
+        user_keypair.public_key
     )
     await user_clearing_house.intialize_user()
     await user_clearing_house.deposit(deposit_amount, 0, usdc_kp.public_key)

@@ -18,7 +18,7 @@ from driftpy.math.user import *
 from driftpy.types import *
 from driftpy.constants.numeric_constants import *
 
-from driftpy.setup.helpers import _usdc_mint, _user_usdc_account, mock_oracle, _setup_user, set_price_feed, adjust_oracle_pretrade
+from driftpy.setup.helpers import _create_usdc_mint, mock_oracle, _airdrop_user, set_price_feed, adjust_oracle_pretrade, _mint_usdc_tx, _create_user_usdc_ata_tx
 from driftpy.clearing_house import ClearingHouse
 from driftpy.admin import Admin
 from driftpy.types import OracleSource
@@ -31,13 +31,14 @@ from driftpy.accounts import get_user_account
 
 from anchorpy import Provider, Program, create_workspace
 from programs.clearing_house.state.market import SimulationAMM, SimulationMarket
-from helpers import setup_bank, setup_market, setup_new_user, view_logs
+from helpers import setup_bank, setup_market, view_logs
 
 #%%
-folder_name = 'tmp4'
-# folder_name = 'tmp'
+folder_name = 'tmp5'
+# folder_name = 'tmp4'
 events = pd.read_csv(f"./{folder_name}/events.csv")
 clearing_houses = pd.read_csv(f"./{folder_name}/chs.csv")
+print(events['event_name'].unique())
 events
 
 #%%
@@ -80,15 +81,14 @@ from tqdm import tqdm
 user_indexs = np.unique([json.loads(e['parameters'])['user_index'] for _, e in events.iterrows() if 'user_index' in json.loads(e['parameters'])])
 users = {}
 for user_index in tqdm(user_indexs):
-    user, tx_sig = await _setup_user(provider)
+    user, tx_sig = await _airdrop_user(provider)
     users[user_index] = (user, tx_sig)
+
 for i, (user, tx_sig) in tqdm(users.items()):
     await provider.connection.confirm_transaction(tx_sig, sleep_seconds=0.1)
 
+#%%
 user_chs = {}
-user_token_amount = {}
-user_baa_amount = {}
-
 init_total_collateral = 0 
 
 for i in tqdm(range(len(events))):
@@ -96,17 +96,64 @@ for i in tqdm(range(len(events))):
     
     if event.event_name == DepositCollateralEvent._event_name:
         event = Event.deserialize_from_row(DepositCollateralEvent, event)
-        assert event.user_index not in user_chs, 'trying to re-init'
         assert event.user_index in users, "user not setup"
-        print(f'=> {event.user_index} init user...')
 
-        user_clearing_house, _ = await event.run_sdk(
-            provider, 
-            program, 
+        user_index = event.user_index
+        user_kp = users[user_index][0]
+
+        # rough draft
+        instructions = []
+        if user_index not in user_chs: 
+            print(f'=> {event.user_index} init user...')
+            # initialize user 
+            user_clearing_house = SDKClearingHouse(program, user_kp)
+            await user_clearing_house.intialize_user()
+
+            from driftpy.setup.helpers import _create_user_usdc_ata_tx
+            from solana.keypair import Keypair
+
+            usdc_ata_kp = Keypair()
+            usdc_ata_tx = await _create_user_usdc_ata_tx(
+                usdc_ata_kp, 
+                provider, 
+                usdc_mint, 
+                user_clearing_house.authority
+            )
+            user_clearing_house.usdc_ata = usdc_ata_kp
+            instructions += usdc_ata_tx.instructions
+
+            user_chs[user_index] = user_clearing_house
+
+        print(f'=> {event.user_index} depositing...')
+        user_clearing_house: SDKClearingHouse = user_chs[user_index]
+
+        # add fundings 
+        mint_tx = _mint_usdc_tx(
             usdc_mint, 
-            users[event.user_index][0]
+            provider, 
+            event.deposit_amount, 
+            user_clearing_house.usdc_ata
         )
-        user_chs[event.user_index] = user_clearing_house
+        instructions += mint_tx.instructions
+
+        from solana.transaction import Transaction
+        tx = Transaction()
+        [tx.add(ix) for ix in instructions]
+        await provider.send(tx, [provider.wallet.payer, user_clearing_house.usdc_ata])
+
+        # deposit 
+        await user_clearing_house.deposit(
+            event.deposit_amount, 
+            0, 
+            user_clearing_house.usdc_ata.public_key, 
+        )
+
+        # user_clearing_house, _ = await event.run_sdk(
+        #     provider, 
+        #     program, 
+        #     usdc_mint, 
+        #     users[event.user_index][0]
+        # )
         init_total_collateral += event.deposit_amount
 
     elif event.event_name == OpenPositionEvent._event_name: 
@@ -114,16 +161,8 @@ for i in tqdm(range(len(events))):
         print(f'=> {event.user_index} opening position...')
         assert event.user_index in user_chs, 'user doesnt exist'
 
-        assert event.user_index not in user_baa_amount
-
         ch: SDKClearingHouse = user_chs[event.user_index]
         await event.run_sdk(ch, oracle_program, adjust_oracle_pre_trade=True)
-        
-        user = await get_user_account(
-            program, 
-            ch.authority, 
-        )
-        user_baa_amount[event.user_index] = user.positions[0].base_asset_amount
 
     elif event.event_name == ClosePositionEvent._event_name: 
         event = Event.deserialize_from_row(ClosePositionEvent, event)
@@ -131,7 +170,6 @@ for i in tqdm(range(len(events))):
         assert event.user_index in user_chs, 'user doesnt exist'
 
         ch: SDKClearingHouse = user_chs[event.user_index]
-        baa = user_baa_amount.pop(event.user_index)
         await event.run_sdk(ch, oracle_program, adjust_oracle_pre_trade=True)
 
     elif event.event_name == addLiquidityEvent._event_name: 
@@ -140,7 +178,6 @@ for i in tqdm(range(len(events))):
         assert event.user_index in user_chs, 'user doesnt exist'
 
         ch: SDKClearingHouse = user_chs[event.user_index]
-        user_token_amount[event.user_index] = event.token_amount
         await event.run_sdk(ch)
 
     elif event.event_name == removeLiquidityEvent._event_name:
@@ -148,23 +185,15 @@ for i in tqdm(range(len(events))):
         print(f'=> {event.user_index} removing liquidity...')
         assert event.user_index in user_chs, 'user doesnt exist'
 
-        if event.lp_token_amount == -1: # full burn 
-            event.lp_token_amount = user_token_amount.pop(event.user_index)
-
         ch: SDKClearingHouse = user_chs[event.user_index]
         await event.run_sdk(ch)
-
-        user = await get_user_account(
-            program, 
-            ch.authority, 
-        )
-        user_baa_amount[event.user_index] = user.positions[0].base_asset_amount
 
     elif event.event_name == SettleLPEvent._event_name: 
         event = Event.deserialize_from_row(SettleLPEvent, event)
         print(f'=> {event.user_index} settle lp...')
         ch: SDKClearingHouse = user_chs[event.user_index]
-        await event.run_sdk(ch, ch.authority)
+        await event.run_sdk(ch)
+
     else: 
         raise NotImplementedError
 

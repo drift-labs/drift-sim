@@ -98,29 +98,29 @@ agents = []
 agents += [
     sim.generate_lp(i, 0) for i in range(n_lps)
 ]
-# # these are classic add remove full lps -- laid on top add/remove will be full or partial
-# agents += [
-#     sim.generate_lp(i, 0) for i in range(n_lps)
-# ]
+# these are classic add remove full lps -- laid on top add/remove will be full or partial
+agents += [
+    sim.generate_lp(i, 0) for i in range(n_lps)
+]
 
 # let the lps settle
 agents += [
     sim.generate_lp_settler(i, 0) for i in range(n_lps)
 ]
 
-# # let the lps trade
-# agents += [
-#     sim.generate_trade(i, 0) for i in range(n_lps)
-# ]
+# let the lps trade
+agents += [
+    sim.generate_trade(i, 0) for i in range(n_lps)
+]
 
 # normal traders open/close 
 agents += [
     sim.generate_trade(i, 0) for i in range(n_lps, n_lps+n_trades)
 ]
-# # random open close == more open close trades of a single trader
-# agents += [
-#     sim.generate_trade(i, 0) for i in range(n_lps, n_lps+n_trades)
-# ]
+# random open close == more open close trades of a single trader
+agents += [
+    sim.generate_trade(i, 0) for i in range(n_lps, n_lps+n_trades)
+]
 print('#agents:', len(agents))
 
 mark_prices = []
@@ -130,7 +130,7 @@ differences = []
 
 # setup agents
 for agent in agents:        
-    events_i: [Event] = agent.setup(ch)
+    events_i: list[Event] = agent.setup(ch)
        
     for event in events_i: 
         if event._event_name != 'null':
@@ -236,8 +236,8 @@ for (_, user) in ch.users.items():
     lp_funding_payments += position.lp_funding_payments
     market_funding += position.market_funding_payments
 total_payments = market.amm.lp_funding_payment + lp_funding_payments
-print("funding diff", market_funding + total_payments)
 
+print("funding diff", market_funding + total_payments)
 print('net baa', clearing_houses[-1].markets[0].amm.net_base_asset_amount)
 print('---')
 
@@ -245,12 +245,12 @@ print('---')
 import pathlib 
 import pandas as pd 
 
-path = pathlib.Path('sim-results/tmp4')
+path = pathlib.Path('sim-results/tmp5')
 path.mkdir(exist_ok=True, parents=True)
 print(str(path.absolute()))
 
 #%%
-json_events = [e.serialize_to_row() for e in events if e.event_name != 'null']
+json_events = [e.serialize_to_row() for e in events if e._event_name != 'null']
 df = pd.DataFrame(json_events)
 df.to_csv(path/'events.csv', index=False)
 
