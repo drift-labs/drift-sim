@@ -63,27 +63,6 @@ async def setup_bank(
 
     return clearing_house, usdc_mint
 
-async def initialize_and_deposit_new_user(
-    provider: Provider,
-    program: Program, 
-    usdc_mint: Keypair,
-    user_keypair: Keypair, 
-    deposit_amount = 1_000_000_000 * QUOTE_PRECISION
-):
-    user_keypair, tx_sig = await _airdrop_user(provider) 
-    
-    user_clearing_house = SDKClearingHouse(program, user_keypair)
-    usdc_kp = await _user_usdc_account(
-        usdc_mint, 
-        provider, 
-        deposit_amount, 
-        user_keypair.public_key
-    )
-    await user_clearing_house.intialize_user()
-    await user_clearing_house.deposit(deposit_amount, 0, usdc_kp.public_key)
-
-    return user_clearing_house, deposit_amount
-
 async def view_logs(
     sig,
     provider: Provider

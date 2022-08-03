@@ -32,10 +32,16 @@ from driftpy.accounts import get_user_account
 from anchorpy import Provider, Program, create_workspace
 from programs.clearing_house.state.market import SimulationAMM, SimulationMarket
 from helpers import setup_bank, setup_market, view_logs
+from tqdm import tqdm
+from driftpy.setup.helpers import _create_user_usdc_ata_tx
+from solana.keypair import Keypair
 
 #%%
 folder_name = 'tmp5'
 # folder_name = 'tmp4'
+path = '../driftpy/protocol-v2'
+path = '../../protocol-v2'
+
 events = pd.read_csv(f"./{folder_name}/events.csv")
 clearing_houses = pd.read_csv(f"./{folder_name}/chs.csv")
 print(events['event_name'].unique())
@@ -44,9 +50,6 @@ events
 #%%
 # setup clearing house + bank + market 
 # note first run `anchor localnet` in v2 dir
-
-path = '../driftpy/protocol-v2'
-path = '/Users/brennan/Documents/drift/protocol-v2'
 workspace = create_workspace(path)
 program: Program = workspace["clearing_house"]
 oracle_program: Program = workspace["pyth"]
@@ -75,9 +78,8 @@ oracle = await setup_market(
 )
 
 #%%
-from tqdm import tqdm
-
 # fast init for users - airdrop takes a bit to finalize
+print('airdropping sol to users...')
 user_indexs = np.unique([json.loads(e['parameters'])['user_index'] for _, e in events.iterrows() if 'user_index' in json.loads(e['parameters'])])
 users = {}
 for user_index in tqdm(user_indexs):
@@ -108,9 +110,6 @@ for i in tqdm(range(len(events))):
             # initialize user 
             user_clearing_house = SDKClearingHouse(program, user_kp)
             await user_clearing_house.intialize_user()
-
-            from driftpy.setup.helpers import _create_user_usdc_ata_tx
-            from solana.keypair import Keypair
 
             usdc_ata_kp = Keypair()
             usdc_ata_tx = await _create_user_usdc_ata_tx(
@@ -148,6 +147,7 @@ for i in tqdm(range(len(events))):
             user_clearing_house.usdc_ata.public_key, 
         )
 
+        # track collateral 
         init_total_collateral += event.deposit_amount
 
     elif event.event_name == OpenPositionEvent._event_name: 
