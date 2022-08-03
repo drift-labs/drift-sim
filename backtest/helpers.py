@@ -47,6 +47,11 @@ async def setup_market(
     await clearing_house.update_lp_cooldown_time(0, 0)
     await clearing_house.update_max_base_asset_amount_ratio(1, 0)
     await clearing_house.update_market_base_asset_amount_step_size(1, 0)
+    
+    # add a spread 
+    if amm.base_spread > 0:
+        print('setting spread..')
+        await clearing_house.update_market_base_spread(amm.base_spread, 0)
 
     return oracle
 

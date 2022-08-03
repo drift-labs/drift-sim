@@ -37,10 +37,10 @@ from driftpy.setup.helpers import _create_user_usdc_ata_tx
 from solana.keypair import Keypair
 
 #%%
-folder_name = 'tmp5'
-# folder_name = 'tmp4'
+# folder_name = 'tmp5'
+folder_name = 'tmp2'
 path = '../driftpy/protocol-v2'
-path = '../../protocol-v2'
+path = '../../../protocol-v2'
 
 events = pd.read_csv(f"./{folder_name}/events.csv")
 clearing_houses = pd.read_csv(f"./{folder_name}/chs.csv")
@@ -69,6 +69,7 @@ init_market = SimulationMarket(
         quote_asset_reserve=init_reserves, 
         funding_period = 60 * 60, # 1 hour dont worry about funding updates for now 
         peg_multiplier=int(init_state.m0_peg_multiplier),
+        base_spread=2500,
     )
 )
 oracle = await setup_market(
