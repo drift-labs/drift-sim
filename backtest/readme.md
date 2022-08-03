@@ -11,3 +11,6 @@
         - then run the jupter notebook `main.ipynb` or the vscode cells in `main.py`
             - note: need to run in cells bc we use await/async calls 
             - TODO: reorganize to allow it to work with python calls (`python main.py --path ... --folder_name ...` without requiring `anchor localnet` to be run)
+
+# generating sim events 
+- run `workspace/collateral_check.py`

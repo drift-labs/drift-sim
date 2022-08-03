@@ -38,7 +38,7 @@ from solana.keypair import Keypair
 
 #%%
 # folder_name = 'tmp5'
-folder_name = 'tmp2'
+folder_name = 'tmp5'
 path = '../driftpy/protocol-v2'
 path = '../../../protocol-v2'
 
@@ -67,7 +67,7 @@ init_market = SimulationMarket(
         oracle=None,
         base_asset_reserve=init_reserves, 
         quote_asset_reserve=init_reserves, 
-        funding_period = 60 * 60, # 1 hour dont worry about funding updates for now 
+        funding_period = 1, 
         peg_multiplier=int(init_state.m0_peg_multiplier),
         base_spread=2500,
     )
