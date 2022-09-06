@@ -40,7 +40,6 @@ from solana.keypair import Keypair
 # folder_name = 'tmp5'
 folder_name = 'tmp5'
 path = '../driftpy/protocol-v2'
-path = '../../../protocol-v2'
 
 events = pd.read_csv(f"./{folder_name}/events.csv")
 clearing_houses = pd.read_csv(f"./{folder_name}/chs.csv")

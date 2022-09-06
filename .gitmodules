@@ -2,6 +2,3 @@
 	path = driftpy
 	url = https://github.com/drift-labs/driftpy.git
 	branch = bigz/drift-sim
-[submodule "protocol-v2"]
-	path = protocol-v2
-	url = https://github.com/drift-labs/protocol-v2.git
