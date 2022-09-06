@@ -188,10 +188,14 @@ for i in tqdm(range(len(events))):
         print(f'=> {event.user_index} settle lp...')
         ch: SDKClearingHouse = user_chs[event.user_index]
         await event.run_sdk(ch)
+    
+    elif event.event_name == NullEvent._event_name: 
+        pass
 
     else: 
         raise NotImplementedError
 
+#%%
 end_total_collateral = 0 
 for (i, ch) in user_chs.items():
     user = await get_user_account(
@@ -204,12 +208,13 @@ for (i, ch) in user_chs.items():
     total_user_collateral = balance + upnl
 
     end_total_collateral += total_user_collateral
-    print(i, total_user_collateral)
+    print(i, total_user_collateral, upnl)
 
 market = await get_market_account(program, 0)
-end_total_collateral += market.amm.total_fee_minus_distributions
+market_collateral = market.amm.total_fee_minus_distributions
+end_total_collateral += market_collateral 
 
-print('market:', market.amm.total_fee_minus_distributions)
+print('market:', market_collateral)
 print(
     "=> difference in $, difference, end/init collateral",
     (end_total_collateral - init_total_collateral) / 1e6, 
