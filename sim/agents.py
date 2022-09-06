@@ -1,12 +1,12 @@
-from multiprocessing import Event
 from typing import Set
 from driftpy.math.amm import calculate_amm_reserves_after_swap, get_swap_direction
 from driftpy.math.amm import calculate_swap_output, calculate_terminal_price, calculate_mark_price_amm
 from driftpy.math.trade import calculate_trade_slippage, calculate_target_price_trade, calculate_trade_acquired_amounts
 from driftpy.math.positions import calculate_base_asset_value, calculate_position_pnl
-from driftpy.types import PositionDirection, AssetType, MarketPosition
+from driftpy.types import PositionDirection, MarketPosition
 from driftpy.math.market import calculate_mark_price, calculate_bid_ask_price
 from driftpy.constants.numeric_constants import AMM_TIMES_PEG_TO_QUOTE_PRECISION_RATIO, MARK_PRICE_PRECISION, PEG_PRECISION, QUOTE_PRECISION
+from driftpy._types import AssetType
 
 from solana.publickey import PublicKey
 import copy
