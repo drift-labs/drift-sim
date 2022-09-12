@@ -18,7 +18,7 @@ from driftpy.math.market import (
 from driftpy.math.repeg import calculate_repeg_cost
 from driftpy.math.funding import calculate_long_short_funding
 
-from driftpy.types import AMM, Market
+from driftpy._types import AMM, Market
 
 from programs.clearing_house.state.oracle import *
 
@@ -27,15 +27,15 @@ class SimulationAMM(AMM):
     oracle: Oracle # override
     strategies: str = ""
 
-    upnl: int = 0
-    lp_funding_payment: int = 0
-    cumulative_net_quote_asset_amount_per_lp: int = 0
-
     def __init__(self, **args):
         super_args = {}
         for a in args.copy(): 
             if a in AMM.__dataclass_fields__: 
                 super_args[a] = args.pop(a)
+        for a in AMM.__dataclass_fields__.keys():
+            if a not in super_args:
+                super_args[a] = 0 # default
+                
         super().__init__(**super_args)
 
         for a in args: 

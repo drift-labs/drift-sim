@@ -178,7 +178,10 @@ class removeLiquidityEvent(Event):
             assert position is not None, "user not in market"
 
             self.lp_token_amount = position.lp_shares
-            assert self.lp_token_amount > 0, 'trying to burn full zero tokens'
+            if position.lp_shares == 0:
+                return clearing_house
+
+            # assert self.lp_token_amount > 0, 'trying to burn full zero tokens'
 
         await clearing_house.remove_liquidity(
             self.lp_token_amount, 

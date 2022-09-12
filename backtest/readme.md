@@ -1,16 +1,6 @@
-- `main.py`: main backtest file 
-    - parameters to set: 
-        - `folder_name`: path to the events/clearing house.csv files which you want to back test against
-            - eg, tmp, tmp2, ... 
-            - note: tmp1-5 simulation events increase in terms of complexity where tmp5 is the most complex
-        - `path`: path to the v2 protocol which you want to backtest against 
-            - make sure you run `anchor build` in that repo 
-    - before running: 
-        - set the parameters in the file
-        - start a local validator in the v2 directory (run `anchor localnet` in the v2 dir)
-        - then run the jupter notebook `main.ipynb` or the vscode cells in `main.py`
-            - note: need to run in cells bc we use await/async calls 
-            - TODO: reorganize to allow it to work with python calls (`python main.py --path ... --folder_name ...` without requiring `anchor localnet` to be run)
+`main.py`: main backtest file 
+
+example command (ran from within backtest/): `python main.py --events tmp2 --protocol ../driftpy/protocol-v2 `
 
 # generating sim events 
 - run `workspace/collateral_check.py`
