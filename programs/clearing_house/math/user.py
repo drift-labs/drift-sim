@@ -1,5 +1,5 @@
 
-from driftpy.types import PositionDirection, MarketPosition, SwapDirection, User, AMM
+from driftpy.types import User
 from programs.clearing_house.math.stats import calculate_rolling_average
 
 THRITY_DAYS = 60*60*24*30

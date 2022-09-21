@@ -1,7 +1,6 @@
 import copy 
 from dataclasses import dataclass, field
 
-from driftpy.types import MarketPosition 
 from driftpy.math.positions import calculate_position_pnl, calculate_position_funding_pnl
 from driftpy.math.market import calculate_mark_price
 from driftpy.math.user import *

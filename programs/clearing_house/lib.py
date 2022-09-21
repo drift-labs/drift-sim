@@ -10,7 +10,7 @@ from driftpy.math.amm import (
 )
 from driftpy.math.market import calculate_mark_price, calculate_freepeg_cost
 from driftpy.math.amm import calculate_peg_multiplier
-from driftpy.types import PositionDirection, MarketPosition, SwapDirection
+from driftpy.types import PositionDirection, PerpPosition, SwapDirection
 from driftpy.constants.numeric_constants import * 
 
 from programs.clearing_house.math.amm import *
@@ -47,7 +47,7 @@ class ClearingHouse:
     ):
         # initialize user if not already 
         if user_index not in self.users: 
-            positions = [MarketPosition(user_index) for _ in range(len(self.markets))]
+            positions = [PerpPosition(user_index) for _ in range(len(self.markets))]
             self.users[user_index] = User(
                 user_index=user_index,
                 collateral=0, 
@@ -106,7 +106,7 @@ class ClearingHouse:
     ):
         user: User = self.users[user_index]
         market: SimulationMarket = self.markets[market_index]
-        position: MarketPosition = user.positions[market_index]
+        position: PerpPosition = user.positions[market_index]
 
         if position.lp_shares <= 0:
             print("warning: trying to settle user who is not an lp")
@@ -130,7 +130,7 @@ class ClearingHouse:
     ):
         user: User = self.users[user_index]
         market: SimulationMarket = self.markets[market_index]
-        position: MarketPosition = user.positions[market_index]
+        position: PerpPosition = user.positions[market_index]
 
         if lp_token_amount == -1:
             lp_token_amount = position.lp_shares
@@ -152,7 +152,7 @@ class ClearingHouse:
         settle_funding_rates(user, self.markets, self.time)
 
         # give them the market position of the portion 
-        position: MarketPosition = user.positions[market_index]
+        position: PerpPosition = user.positions[market_index]
         base_amount_acquired = position.lp_base_asset_amount * lp_token_amount / position.lp_shares
         quote_amount = position.lp_quote_asset_amount * lp_token_amount / position.lp_shares
 
@@ -340,7 +340,7 @@ class ClearingHouse:
         self, 
         quote_amount: float, 
         direction: PositionDirection, 
-        position: MarketPosition, 
+        position: PerpPosition, 
         market: SimulationMarket
     ):         
         # do swap 
@@ -379,7 +379,7 @@ class ClearingHouse:
         direction: PositionDirection, 
         quote_amount: float, 
         user: User, 
-        position: MarketPosition, 
+        position: PerpPosition, 
         market: SimulationMarket
     ):         
         swap_direction = {
@@ -524,7 +524,7 @@ class ClearingHouse:
         
         for i in range(len(self.markets)): 
             market: SimulationMarket = self.markets[i]
-            position: MarketPosition = user.positions[i]
+            position: PerpPosition = user.positions[i]
             
             unrealized_pnl = driftpy.math.positions.calculate_position_pnl(
                 market, position
@@ -553,7 +553,7 @@ class ClearingHouse:
     ):
         market = self.markets[market_index]
         user: User = self.users[user_index]
-        position: MarketPosition = user.positions[market_index]
+        position: PerpPosition = user.positions[market_index]
         
         settle_funding_rates(user, self.markets, self.time)
 
@@ -616,7 +616,7 @@ class ClearingHouse:
         now = self.time
         
         user: User = self.users[user_index]
-        position: MarketPosition = user.positions[market_index]
+        position: PerpPosition = user.positions[market_index]
         market = self.markets[market_index]
         oracle_price = market.amm.oracle.get_price(now)
         # assert user.positions[market_index].lp_shares == 0, 'Cannot lp and open position'
@@ -653,7 +653,7 @@ class ClearingHouse:
         update_mark_price_std(market.amm, self.time, abs(mark_price_before-mark_price_before_2))
 
         user: User = self.users[user_index]
-        position: MarketPosition = user.positions[market_index]
+        position: PerpPosition = user.positions[market_index]
                         
         # settle funding rates
         settle_funding_rates(user, self.markets, self.time)

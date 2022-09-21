@@ -71,10 +71,6 @@ class LocalValidator:
 async def main(protocol_path, experiments_folder):
     # protocol_path = "../driftpy/protocol-v2/"#
     # experiments_folder = 'tmp2'
-
-    val = LocalValidator(protocol_path)
-    val.start()
-
     events = pd.read_csv(f"./{experiments_folder}/events.csv")
     clearing_houses = pd.read_csv(f"./{experiments_folder}/chs.csv")
 
@@ -100,7 +96,7 @@ async def main(protocol_path, experiments_folder):
     )
 
     # update durations
-    await clearing_house.update_auction_duration(0, 0)
+    await clearing_house.update_perp_auction_duration(0)
     await clearing_house.update_lp_cooldown_time(0, 0)
     await clearing_house.update_max_base_asset_amount_ratio(1, 0)
     await clearing_house.update_market_base_asset_amount_step_size(1 * AMM_RESERVE_PRECISION, 0)
@@ -166,17 +162,17 @@ async def main(protocol_path, experiments_folder):
             from solana.transaction import Transaction
             tx = Transaction()
             [tx.add(ix) for ix in instructions]
-            if first_init:
-                await provider.send(tx, [provider.wallet.payer, user_clearing_house.usdc_ata])
-            else:
-                await provider.send(tx, [provider.wallet.payer])
-
-            # deposit 
-            await user_clearing_house.deposit(
-                event.deposit_amount, 
-                0, 
-                user_clearing_house.usdc_ata.public_key, 
+            tx.add(
+                await user_clearing_house.get_deposit_collateral_ix(
+                    event.deposit_amount, 
+                    0, 
+                    user_clearing_house.usdc_ata.public_key
+                )
             )
+            if first_init:
+                await provider.send(tx,  user_clearing_house.signers + [provider.wallet.payer, user_clearing_house.usdc_ata])
+            else:
+                await provider.send(tx, user_clearing_house.signers + [provider.wallet.payer])
 
             # track collateral 
             init_total_collateral += event.deposit_amount
@@ -193,37 +189,47 @@ async def main(protocol_path, experiments_folder):
             event = Event.deserialize_from_row(ClosePositionEvent, event)
             print(f'=> {event.user_index} closing position...')
             assert event.user_index in user_chs, 'user doesnt exist'
-
+            
             ch: SDKClearingHouse = user_chs[event.user_index]
             await event.run_sdk(ch, oracle_program, adjust_oracle_pre_trade=True)
 
         elif event.event_name == addLiquidityEvent._event_name: 
             event = Event.deserialize_from_row(addLiquidityEvent, event)
-            print(f'=> {event.user_index} adding liquidity...')
+            print(f'=> {event.user_index} adding liquidity: {event.token_amount}...')
             assert event.user_index in user_chs, 'user doesnt exist'
 
             ch: SDKClearingHouse = user_chs[event.user_index]
             await event.run_sdk(ch)
 
-        elif event.event_name == removeLiquidityEvent._event_name:
-            event = Event.deserialize_from_row(removeLiquidityEvent, event)
-            print(f'=> {event.user_index} removing liquidity...')
-            assert event.user_index in user_chs, 'user doesnt exist'
-            event.lp_token_amount = -1
+        # elif event.event_name == removeLiquidityEvent._event_name:
+        #     event = Event.deserialize_from_row(removeLiquidityEvent, event)
+        #     print(f'=> {event.user_index} removing liquidity...')
+        #     assert event.user_index in user_chs, 'user doesnt exist'
+        #     event.lp_token_amount = -1
 
-            ch: SDKClearingHouse = user_chs[event.user_index]
-            await event.run_sdk(ch)
+        #     ch: SDKClearingHouse = user_chs[event.user_index]
+        #     await event.run_sdk(ch)
 
-        elif event.event_name == SettleLPEvent._event_name: 
-            event = Event.deserialize_from_row(SettleLPEvent, event)
-            print(f'=> {event.user_index} settle lp...')
-            ch: SDKClearingHouse = user_chs[event.user_index]
-            await event.run_sdk(ch)
+        # elif event.event_name == SettleLPEvent._event_name: 
+        #     event = Event.deserialize_from_row(SettleLPEvent, event)
+        #     print(f'=> {event.user_index} settle lp...')
+        #     ch: SDKClearingHouse = user_chs[event.user_index]
+        #     await event.run_sdk(ch)
         
         elif event.event_name == NullEvent._event_name: 
             pass
-        else: 
-            raise NotImplementedError
+
+    # close out anyone who hasnt already closed out 
+    end_total_collateral = 0 
+    for (i, ch) in user_chs.items():
+        position = await ch.get_user_position(0)
+
+        if position.lp_shares > 0:
+            await ch.remove_liquidity(position.lp_shares, position.market_index)
+            position = await ch.get_user_position(0)
+
+        if position.base_asset_amount != 0: 
+            await ch.close_position(position.market_index)
 
     # compute total collateral at end of sim
     end_total_collateral = 0 
@@ -233,16 +239,16 @@ async def main(protocol_path, experiments_folder):
             ch.authority, 
         )
 
-        balance = user.bank_balances[0].balance
+        balance = user.spot_positions[0].balance
         position = await ch.get_user_position(0)
         upnl = position.quote_asset_amount
         total_user_collateral = balance + upnl
 
         print(
             f'user {i}', 
-            user.positions[0].base_asset_amount, 
-            user.positions[0].lp_shares,
-            user.positions[0].remainder_base_asset_amount           
+            user.perp_positions[0].base_asset_amount, 
+            user.perp_positions[0].lp_shares,
+            user.perp_positions[0].remainder_base_asset_amount           
         )
         end_total_collateral += total_user_collateral
 
@@ -251,7 +257,7 @@ async def main(protocol_path, experiments_folder):
     market_collateral += market.amm.total_fee_minus_distributions
     end_total_collateral += market_collateral 
 
-    print('market:', market_collateral)
+    print('market $:', market_collateral)
     print(
         "=> difference in $, difference, end/init collateral",
         (end_total_collateral - init_total_collateral) / 1e6, 
@@ -266,18 +272,21 @@ async def main(protocol_path, experiments_folder):
         market.amm.net_base_asset_amount + market.amm.net_unsettled_lp_base_asset_amount
     )
 
-    # stop the validator
-    val.stop()
-
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument('--events', type=str)
-    parser.add_argument('--protocol', type=str)
+    parser.add_argument('--events', type=str, required=True)
+    parser.add_argument('--protocol', type=str, required=True)
     args = parser.parse_args()
 
-    import asyncio
-    asyncio.run(main(args.protocol, args.events))
+    val = LocalValidator(args.protocol)
+    val.start()
+    try: 
+        import asyncio
+        asyncio.run(main(args.protocol, args.events))
+    finally:
+        # pass
+        val.stop()
 
 # %%
 # %%

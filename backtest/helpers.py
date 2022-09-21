@@ -64,7 +64,7 @@ async def setup_bank(
     # init state + bank + market 
     clearing_house = Admin(program)
     await clearing_house.initialize(usdc_mint.public_key, True)
-    await clearing_house.initialize_bank(usdc_mint.public_key)
+    await clearing_house.initialize_spot_market(usdc_mint.public_key)
 
     return clearing_house, usdc_mint
 

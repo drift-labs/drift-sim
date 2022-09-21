@@ -10,7 +10,7 @@ from driftpy.math.amm import (
 )
 from driftpy.math.trade import calculate_trade_slippage, calculate_target_price_trade, calculate_trade_acquired_amounts
 from driftpy.math.positions import calculate_base_asset_value, calculate_position_pnl
-from driftpy.types import PositionDirection, MarketPosition, SwapDirection
+from driftpy.types import PositionDirection
 from driftpy.math.market import calculate_mark_price
 from driftpy.constants.numeric_constants import AMM_TIMES_PEG_TO_QUOTE_PRECISION_RATIO, PEG_PRECISION
 
@@ -171,7 +171,7 @@ class removeLiquidityEvent(Event):
         if self.lp_token_amount == -1: 
             user = await get_user_account(clearing_house.program, clearing_house.authority)
             position = None 
-            for _position in user.positions: 
+            for _position in user.perp_positions: 
                 if _position.market_index == self.market_index: 
                     position = _position
                     break 
@@ -227,6 +227,8 @@ class OpenPositionEvent(Event):
         if baa == 0: 
             print('warning: baa too small -> rounding up')
             baa = market.amm.base_asset_amount_step_size
+
+        print(f'opening baa: {baa}')
         
         direction = {
             "long": PositionDirection.LONG(),
@@ -264,16 +266,19 @@ class ClosePositionEvent(Event):
         
         return clearing_house
     
-    async def run_sdk(self, clearing_house, oracle_program=None, adjust_oracle_pre_trade=False) -> ClearingHouse:
+    async def run_sdk(self, clearing_house: ClearingHouse, oracle_program=None, adjust_oracle_pre_trade=False) -> ClearingHouse:
         # tmp -- sim is quote open position v2 is base only
         market = await get_market_account(clearing_house.program, self.market_index)
         user = await get_user_account(clearing_house.program, clearing_house.authority)
+
         position = None 
-        for _position in user.positions: 
+        for _position in user.perp_positions: 
             if _position.market_index == self.market_index: 
                 position = _position
                 break 
         assert position is not None, "user not in market"
+
+        print(f'closing: {position.base_asset_amount}')
 
         direction = PositionDirection.LONG() if position.base_asset_amount < 0 else PositionDirection.SHORT()
 

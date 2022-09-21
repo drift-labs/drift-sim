@@ -5,17 +5,36 @@ sys.path.insert(0, './driftpy/src/')
 import driftpy
 print(driftpy.__path__)
 
-from programs.clearing_house.state.market import Oracle, SimulationAMM, SimulationMarket
-from sim.helpers import random_walk_oracle
 from driftpy.constants import * 
 from anchorpy import Provider, Program, create_workspace
 
 ## note first run `anchor localnet` in v2 dir
 
-path = '../driftpy/protocol-v2'
+path = './driftpy/protocol-v2'
 workspace = create_workspace(path)
 program: Program = workspace["clearing_house"]
 provider: Provider = program.provider
+
+#%%
+from driftpy.accounts import *
+
+market = await get_market_account(program, 0)
+
+#%%
+if market.amm.net_base_asset_amount < 0: # users short (after close out = will add quote to pool)
+    print('u')
+    print(
+        market.amm.quote_asset_reserve < market.amm.terminal_quote_asset_reserve
+    )
+    print(
+        market.amm.quote_asset_reserve , market.amm.terminal_quote_asset_reserve
+    )
+
+#%%
+market.amm.user_lp_shares / market.amm.sqrt_k
+
+#%%
+
 
 #%%
 from solana.publickey import PublicKey

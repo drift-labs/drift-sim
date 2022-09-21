@@ -13,7 +13,7 @@ from driftpy.math.amm import (
 )
 from driftpy.math.trade import calculate_trade_slippage, calculate_target_price_trade, calculate_trade_acquired_amounts
 from driftpy.math.positions import calculate_base_asset_value, calculate_position_pnl
-from driftpy.types import AMM, PositionDirection, MarketPosition, SwapDirection
+from driftpy.types import AMM, PositionDirection, SwapDirection
 from driftpy.math.market import calculate_mark_price
 
 from driftpy.constants.numeric_constants import * 
