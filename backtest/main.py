@@ -58,7 +58,6 @@ class LocalValidator:
         self.proc = Popen(
             'anchor localnet'.split(' '), 
             stdout=self.log_file, 
-            stderr=self.log_file, 
             preexec_fn=os.setsid, 
             cwd=self.protocol_path
         )
@@ -116,66 +115,81 @@ async def main(protocol_path, experiments_folder):
     user_chs = {}
     init_total_collateral = 0 
 
+    import time 
+    start = time.time()
+
+    # deposit all at once for speed 
+    deposit_amounts = {}
+    for i in tqdm(range(len(events))):
+        event = events.iloc[i]
+        if event.event_name == DepositCollateralEvent._event_name:
+            event = Event.deserialize_from_row(DepositCollateralEvent, event)
+            deposit_amounts[event.user_index] = deposit_amounts.get(event.user_index, 0) + event.deposit_amount
+
+    routines = [] 
+    for user_index in deposit_amounts.keys(): 
+        deposit_amount = deposit_amounts[user_index]
+        user_kp = users[user_index][0]
+
+        # rough draft
+        print(f'=> user {user_index} depositing...')
+        instructions = []
+        first_init = user_index not in user_chs
+        if first_init: 
+            # initialize user 
+            user_clearing_house = SDKClearingHouse(program, user_kp)
+            await user_clearing_house.intialize_user()
+
+            usdc_ata_kp = Keypair()
+            usdc_ata_tx = await _create_user_usdc_ata_tx(
+                usdc_ata_kp, 
+                provider, 
+                usdc_mint, 
+                user_clearing_house.authority
+            )
+            user_clearing_house.usdc_ata = usdc_ata_kp
+            instructions += usdc_ata_tx.instructions
+
+            user_chs[user_index] = user_clearing_house
+
+        user_clearing_house: SDKClearingHouse = user_chs[user_index]
+
+        # add fundings 
+        mint_tx = _mint_usdc_tx(
+            usdc_mint, 
+            provider, 
+            deposit_amount, 
+            user_clearing_house.usdc_ata
+        )
+        instructions += mint_tx.instructions
+
+        from solana.transaction import Transaction
+        tx = Transaction()
+        [tx.add(ix) for ix in instructions]
+        tx.add(
+            await user_clearing_house.get_deposit_collateral_ix(
+                deposit_amount, 
+                0, 
+                user_clearing_house.usdc_ata.public_key
+            )
+        )
+
+        if first_init:
+            routine = provider.send(tx,  user_clearing_house.signers + [provider.wallet.payer, user_clearing_house.usdc_ata])
+        else:
+            routine = provider.send(tx, user_clearing_house.signers + [provider.wallet.payer])
+        routines.append(routine)
+
+        # track collateral 
+        init_total_collateral += deposit_amount
+
+    await asyncio.gather(*routines)
+
     for i in tqdm(range(len(events))):
         event = events.iloc[i]
 
         if event.event_name == DepositCollateralEvent._event_name:
-            event = Event.deserialize_from_row(DepositCollateralEvent, event)
-            assert event.user_index in users, "user not setup"
-
-            user_index = event.user_index
-            user_kp = users[user_index][0]
-
-            # rough draft
-            instructions = []
-            first_init = user_index not in user_chs
-            if first_init: 
-                print(f'=> {event.user_index} init user...')
-                # initialize user 
-                user_clearing_house = SDKClearingHouse(program, user_kp)
-                await user_clearing_house.intialize_user()
-
-                usdc_ata_kp = Keypair()
-                usdc_ata_tx = await _create_user_usdc_ata_tx(
-                    usdc_ata_kp, 
-                    provider, 
-                    usdc_mint, 
-                    user_clearing_house.authority
-                )
-                user_clearing_house.usdc_ata = usdc_ata_kp
-                instructions += usdc_ata_tx.instructions
-
-                user_chs[user_index] = user_clearing_house
-
-            print(f'=> {event.user_index} depositing...')
-            user_clearing_house: SDKClearingHouse = user_chs[user_index]
-
-            # add fundings 
-            mint_tx = _mint_usdc_tx(
-                usdc_mint, 
-                provider, 
-                event.deposit_amount, 
-                user_clearing_house.usdc_ata
-            )
-            instructions += mint_tx.instructions
-
-            from solana.transaction import Transaction
-            tx = Transaction()
-            [tx.add(ix) for ix in instructions]
-            tx.add(
-                await user_clearing_house.get_deposit_collateral_ix(
-                    event.deposit_amount, 
-                    0, 
-                    user_clearing_house.usdc_ata.public_key
-                )
-            )
-            if first_init:
-                await provider.send(tx,  user_clearing_house.signers + [provider.wallet.payer, user_clearing_house.usdc_ata])
-            else:
-                await provider.send(tx, user_clearing_house.signers + [provider.wallet.payer])
-
-            # track collateral 
-            init_total_collateral += event.deposit_amount
+            pass
 
         elif event.event_name == OpenPositionEvent._event_name: 
             event = Event.deserialize_from_row(OpenPositionEvent, event)
@@ -201,25 +215,26 @@ async def main(protocol_path, experiments_folder):
             ch: SDKClearingHouse = user_chs[event.user_index]
             await event.run_sdk(ch)
 
-        # elif event.event_name == removeLiquidityEvent._event_name:
-        #     event = Event.deserialize_from_row(removeLiquidityEvent, event)
-        #     print(f'=> {event.user_index} removing liquidity...')
-        #     assert event.user_index in user_chs, 'user doesnt exist'
-        #     event.lp_token_amount = -1
+        elif event.event_name == removeLiquidityEvent._event_name:
+            event = Event.deserialize_from_row(removeLiquidityEvent, event)
+            print(f'=> {event.user_index} removing liquidity...')
+            assert event.user_index in user_chs, 'user doesnt exist'
+            event.lp_token_amount = -1
 
-        #     ch: SDKClearingHouse = user_chs[event.user_index]
-        #     await event.run_sdk(ch)
+            ch: SDKClearingHouse = user_chs[event.user_index]
+            await event.run_sdk(ch)
 
-        # elif event.event_name == SettleLPEvent._event_name: 
-        #     event = Event.deserialize_from_row(SettleLPEvent, event)
-        #     print(f'=> {event.user_index} settle lp...')
-        #     ch: SDKClearingHouse = user_chs[event.user_index]
-        #     await event.run_sdk(ch)
+        elif event.event_name == SettleLPEvent._event_name: 
+            event = Event.deserialize_from_row(SettleLPEvent, event)
+            print(f'=> {event.user_index} settle lp...')
+            ch: SDKClearingHouse = user_chs[event.user_index]
+            await event.run_sdk(ch)
         
         elif event.event_name == NullEvent._event_name: 
             pass
 
     # close out anyone who hasnt already closed out 
+    print('closing out everyone...')
     end_total_collateral = 0 
     for (i, ch) in user_chs.items():
         position = await ch.get_user_position(0)
@@ -272,6 +287,11 @@ async def main(protocol_path, experiments_folder):
         market.amm.net_base_asset_amount + market.amm.net_unsettled_lp_base_asset_amount
     )
 
+    print(
+        'total time (seconds):',
+        time.time() - start
+    )
+
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
@@ -288,6 +308,5 @@ if __name__ == '__main__':
         # pass
         val.stop()
 
-# %%
 # %%
 # %%
