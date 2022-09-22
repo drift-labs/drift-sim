@@ -227,13 +227,13 @@ class OpenPositionEvent(Event):
         if baa == 0: 
             print('warning: baa too small -> rounding up')
             baa = market.amm.base_asset_amount_step_size
-
-        print(f'opening baa: {baa}')
         
         direction = {
             "long": PositionDirection.LONG(),
             "short": PositionDirection.SHORT(),
         }[self.direction]
+
+        print(f'opening baa: {baa} {direction} {self.market_index}')
 
         if adjust_oracle_pre_trade: 
             assert oracle_program is not None
@@ -278,9 +278,10 @@ class ClosePositionEvent(Event):
                 break 
         assert position is not None, "user not in market"
 
-        print(f'closing: {position.base_asset_amount}')
 
         direction = PositionDirection.LONG() if position.base_asset_amount < 0 else PositionDirection.SHORT()
+
+        print(f'closing: {abs(position.base_asset_amount)} {direction}')
 
         if adjust_oracle_pre_trade: 
             assert oracle_program is not None
@@ -292,8 +293,6 @@ class ClosePositionEvent(Event):
             )
 
         return await clearing_house.close_position(self.market_index)
-
- 
          
 @dataclass
 class SettleLPEvent(Event): 
