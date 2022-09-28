@@ -178,7 +178,6 @@ async def main(protocol_path, experiments_folder):
             event = Event.deserialize_from_row(DepositCollateralEvent, event)
             deposit_amounts[event.user_index] = deposit_amounts.get(event.user_index, 0) + event.deposit_amount
 
-    n_users = len(list(deposit_amounts.keys()))
     routines = [] 
     for user_index in deposit_amounts.keys(): 
         deposit_amount = deposit_amounts[user_index]
@@ -206,17 +205,50 @@ async def main(protocol_path, experiments_folder):
         # give the list of users + markets 
         # liquidate(): loop through users and try to liquidate them 
         # derisk(): close all positions taken on from liquidating users 
-    
-    liquidator_kp = Keypair()
+
+    print('=> setting up liquidator...') 
+    liquidator_kp, tx_sig = await _airdrop_user(provider)
+    await provider.connection.confirm_transaction(tx_sig, sleep_seconds=0.1)
+    deposit_amount = 1_000_000 * QUOTE_PRECISION
     await init_user(
         user_chs,
         user_index + 1, 
         program, 
         usdc_mint, 
         provider,
-        100_000 * QUOTE_PRECISION, # dont let liq get liqd
+        deposit_amount, # dont let liq get liqd
         liquidator_kp
     )
+    init_total_collateral += deposit_amount
+    liquidator_clearing_house: ClearingHouse = user_chs[user_index + 1]
+
+    async def try_liquidate():
+        ch: ClearingHouse
+        promises = []
+        for ch in user_chs.values(): 
+            authority = ch.authority
+            position = await ch.get_user_position(0)
+            if position:
+                promise = liquidator_clearing_house.liquidate_perp(
+                    authority, 
+                    0,
+                    position.base_asset_amount # take it fully on
+                )
+                promises.append(promise)
+
+        try:
+            await asyncio.gather(*promises)
+        except Exception:
+            print('liquidated failed...')
+            pass
+
+    async def derisk():
+        ch = liquidator_clearing_house
+        position = await ch.get_user_position(0)
+        if position is None: 
+            return
+        print(f'=> liquidator derisking {position.base_asset_amount} baa')
+        await ch.close_position(0)
 
     # todo 
     #   calculate margin requirements of user same as js sdk 
@@ -269,11 +301,16 @@ async def main(protocol_path, experiments_folder):
         elif event.event_name == NullEvent._event_name: 
             pass
 
+        await try_liquidate()
+        await derisk()
+
     # close out anyone who hasnt already closed out 
     print('closing out everyone...')
     end_total_collateral = 0 
     for (i, ch) in user_chs.items():
         position = await ch.get_user_position(0)
+        if position is None: 
+            continue
 
         if position.lp_shares > 0:
             await ch.remove_liquidity(position.lp_shares, position.market_index)
@@ -289,15 +326,20 @@ async def main(protocol_path, experiments_folder):
             program, 
             ch.authority, 
         )
-
         balance = user.spot_positions[0].balance
         position = await ch.get_user_position(0)
+
+        if position is None: 
+            end_total_collateral += balance
+            continue
+
         upnl = position.quote_asset_amount
         total_user_collateral = balance + upnl
 
         print(
             f'user {i}', 
             user.perp_positions[0].base_asset_amount, 
+            user.perp_positions[0].quote_asset_amount, 
             user.perp_positions[0].lp_shares,
             user.perp_positions[0].remainder_base_asset_amount           
         )
