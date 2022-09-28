@@ -67,6 +67,58 @@ class LocalValidator:
         self.log_file.close()
         os.killpg(os.getpgid(self.proc.pid), signal.SIGTERM)  
 
+async def init_user(
+    user_chs,
+    user_index, 
+    program, 
+    usdc_mint, 
+    provider,
+    deposit_amount, 
+    user_kp
+):
+    # rough draft
+    instructions = []
+
+    # initialize user 
+    user_clearing_house = SDKClearingHouse(program, user_kp)
+    await user_clearing_house.intialize_user()
+
+    usdc_ata_kp = Keypair()
+    usdc_ata_tx = await _create_user_usdc_ata_tx(
+        usdc_ata_kp, 
+        provider, 
+        usdc_mint, 
+        user_clearing_house.authority
+    )
+    user_clearing_house.usdc_ata = usdc_ata_kp
+    instructions += usdc_ata_tx.instructions
+
+    user_chs[user_index] = user_clearing_house
+
+    # add fundings 
+    mint_tx = _mint_usdc_tx(
+        usdc_mint, 
+        provider, 
+        deposit_amount, 
+        user_clearing_house.usdc_ata
+    )
+    instructions += mint_tx.instructions
+
+    instructions += [
+        await user_clearing_house.get_deposit_collateral_ix(
+            deposit_amount, 
+            0, 
+            user_clearing_house.usdc_ata.public_key
+        )
+    ]
+
+    from solana.transaction import Transaction
+    tx = Transaction()
+    [tx.add(ix) for ix in instructions]
+    routine = provider.send(tx,  user_clearing_house.signers + [provider.wallet.payer, user_clearing_house.usdc_ata])
+
+    return await routine
+
 async def main(protocol_path, experiments_folder):
     # protocol_path = "../driftpy/protocol-v2/"#
     # experiments_folder = 'tmp2'
@@ -126,64 +178,48 @@ async def main(protocol_path, experiments_folder):
             event = Event.deserialize_from_row(DepositCollateralEvent, event)
             deposit_amounts[event.user_index] = deposit_amounts.get(event.user_index, 0) + event.deposit_amount
 
+    n_users = len(list(deposit_amounts.keys()))
     routines = [] 
     for user_index in deposit_amounts.keys(): 
         deposit_amount = deposit_amounts[user_index]
         user_kp = users[user_index][0]
-
-        # rough draft
         print(f'=> user {user_index} depositing...')
-        instructions = []
-        first_init = user_index not in user_chs
-        if first_init: 
-            # initialize user 
-            user_clearing_house = SDKClearingHouse(program, user_kp)
-            await user_clearing_house.intialize_user()
 
-            usdc_ata_kp = Keypair()
-            usdc_ata_tx = await _create_user_usdc_ata_tx(
-                usdc_ata_kp, 
-                provider, 
-                usdc_mint, 
-                user_clearing_house.authority
-            )
-            user_clearing_house.usdc_ata = usdc_ata_kp
-            instructions += usdc_ata_tx.instructions
-
-            user_chs[user_index] = user_clearing_house
-
-        user_clearing_house: SDKClearingHouse = user_chs[user_index]
-
-        # add fundings 
-        mint_tx = _mint_usdc_tx(
+        routine = init_user(
+            user_chs,
+            user_index, 
+            program, 
             usdc_mint, 
-            provider, 
+            provider,
             deposit_amount, 
-            user_clearing_house.usdc_ata
+            user_kp
         )
-        instructions += mint_tx.instructions
-
-        from solana.transaction import Transaction
-        tx = Transaction()
-        [tx.add(ix) for ix in instructions]
-        tx.add(
-            await user_clearing_house.get_deposit_collateral_ix(
-                deposit_amount, 
-                0, 
-                user_clearing_house.usdc_ata.public_key
-            )
-        )
-
-        if first_init:
-            routine = provider.send(tx,  user_clearing_house.signers + [provider.wallet.payer, user_clearing_house.usdc_ata])
-        else:
-            routine = provider.send(tx, user_clearing_house.signers + [provider.wallet.payer])
         routines.append(routine)
 
         # track collateral 
         init_total_collateral += deposit_amount
 
     await asyncio.gather(*routines)
+
+    # initialize liquidator here 
+        # create new clearing house 
+        # give the list of users + markets 
+        # liquidate(): loop through users and try to liquidate them 
+        # derisk(): close all positions taken on from liquidating users 
+    
+    liquidator_kp = Keypair()
+    await init_user(
+        user_chs,
+        user_index + 1, 
+        program, 
+        usdc_mint, 
+        provider,
+        100_000 * QUOTE_PRECISION, # dont let liq get liqd
+        liquidator_kp
+    )
+
+    # todo 
+    #   calculate margin requirements of user same as js sdk 
 
     for i in tqdm(range(len(events))):
         event = events.iloc[i]
