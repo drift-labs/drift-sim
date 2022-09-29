@@ -155,6 +155,11 @@ async def main(protocol_path, experiments_folder):
     # fast init for users - airdrop takes a bit to finalize
     print('airdropping sol to users...')
     user_indexs = np.unique([json.loads(e['parameters'])['user_index'] for _, e in events.iterrows() if 'user_index' in json.loads(e['parameters'])])
+    user_indexs = list(np.sort(user_indexs))
+
+    liquidator_index = user_indexs[-1] + 1
+    user_indexs.append(liquidator_index) # liquidator
+
     users = {}
     for user_index in tqdm(user_indexs):
         user, tx_sig = await _airdrop_user(provider)
@@ -177,6 +182,7 @@ async def main(protocol_path, experiments_folder):
         if event.event_name == DepositCollateralEvent._event_name:
             event = Event.deserialize_from_row(DepositCollateralEvent, event)
             deposit_amounts[event.user_index] = deposit_amounts.get(event.user_index, 0) + event.deposit_amount
+    deposit_amounts[liquidator_index] = 1_000_000 * QUOTE_PRECISION
 
     routines = [] 
     for user_index in deposit_amounts.keys(): 
@@ -201,51 +207,45 @@ async def main(protocol_path, experiments_folder):
     await asyncio.gather(*routines)
 
     # initialize liquidator here 
-        # create new clearing house 
-        # give the list of users + markets 
         # liquidate(): loop through users and try to liquidate them 
         # derisk(): close all positions taken on from liquidating users 
 
     print('=> setting up liquidator...') 
-    liquidator_kp, tx_sig = await _airdrop_user(provider)
-    await provider.connection.confirm_transaction(tx_sig, sleep_seconds=0.1)
-    deposit_amount = 1_000_000 * QUOTE_PRECISION
-    await init_user(
-        user_chs,
-        user_index + 1, 
-        program, 
-        usdc_mint, 
-        provider,
-        deposit_amount, # dont let liq get liqd
-        liquidator_kp
-    )
-    init_total_collateral += deposit_amount
-    liquidator_clearing_house: ClearingHouse = user_chs[user_index + 1]
+    liquidator_clearing_house: ClearingHouse = user_chs[liquidator_index]
 
     async def try_liquidate():
         ch: ClearingHouse
         promises = []
         for ch in user_chs.values(): 
             authority = ch.authority
+            if authority == liquidator_clearing_house.authority: 
+                continue
             position = await ch.get_user_position(0)
             if position:
                 promise = liquidator_clearing_house.liquidate_perp(
                     authority, 
                     0,
-                    position.base_asset_amount # take it fully on
+                    abs(position.base_asset_amount) # take it fully on
                 )
                 promises.append(promise)
 
-        try:
-            await asyncio.gather(*promises)
-        except Exception:
-            print('liquidated failed...')
-            pass
+        for promise in promises:
+            try:
+                await promise
+                print('=> liquidation successful....')
+            except Exception as e:
+                if "0x1774" in e.args[0]['message']: # sufficient collateral
+                    continue 
+                else: 
+                    raise Exception(e)
+
+        await derisk()
 
     async def derisk():
         ch = liquidator_clearing_house
         position = await ch.get_user_position(0)
         if position is None: 
+            print(f'=> liquidator no position')
             return
         print(f'=> liquidator derisking {position.base_asset_amount} baa')
         await ch.close_position(0)
@@ -273,7 +273,7 @@ async def main(protocol_path, experiments_folder):
             assert event.user_index in user_chs, 'user doesnt exist'
             
             ch: SDKClearingHouse = user_chs[event.user_index]
-            await event.run_sdk(ch, oracle_program, adjust_oracle_pre_trade=True)
+            # await event.run_sdk(ch, oracle_program, adjust_oracle_pre_trade=True)
 
         elif event.event_name == addLiquidityEvent._event_name: 
             event = Event.deserialize_from_row(addLiquidityEvent, event)
@@ -298,11 +298,18 @@ async def main(protocol_path, experiments_folder):
             ch: SDKClearingHouse = user_chs[event.user_index]
             await event.run_sdk(ch)
         
+        elif event.event_name == oraclePriceEvent._event_name: 
+            event = Event.deserialize_from_row(oraclePriceEvent, event)
+            print(f'=> adjusting oracle: {event.price}')
+            await event.run_sdk(program, oracle_program)
+
+        elif event.event_name == 'liquidate':
+            print('=> liquidating...')
+            await try_liquidate()
+        
         elif event.event_name == NullEvent._event_name: 
             pass
 
-        await try_liquidate()
-        await derisk()
 
     # close out anyone who hasnt already closed out 
     print('closing out everyone...')
