@@ -144,6 +144,9 @@ async def main(protocol_path, experiments_folder):
         int(60), 
         int(init_state.m0_peg_multiplier), 
         OracleSource.PYTH(), 
+        margin_ratio_initial=500, 
+        margin_ratio_partial=250, 
+        margin_ratio_maintenance=200
     )
 
     # update durations
@@ -309,22 +312,27 @@ async def main(protocol_path, experiments_folder):
         
         elif event.event_name == NullEvent._event_name: 
             pass
-
+        
+        await try_liquidate()
 
     # close out anyone who hasnt already closed out 
     print('closing out everyone...')
     end_total_collateral = 0 
-    for (i, ch) in user_chs.items():
-        position = await ch.get_user_position(0)
-        if position is None: 
-            continue
-
-        if position.lp_shares > 0:
-            await ch.remove_liquidity(position.lp_shares, position.market_index)
+    net_baa = 10 
+    while net_baa != 0:
+        net_baa = 0
+        for (i, ch) in tqdm(user_chs.items()):
             position = await ch.get_user_position(0)
+            if position is None: 
+                continue
+            net_baa += abs(position.base_asset_amount)
 
-        if position.base_asset_amount != 0: 
-            await ch.close_position(position.market_index)
+            if position.lp_shares > 0:
+                await ch.remove_liquidity(position.lp_shares, position.market_index)
+                position = await ch.get_user_position(0)
+
+            if position.base_asset_amount != 0: 
+                await ch.close_position(position.market_index)
 
     # compute total collateral at end of sim
     end_total_collateral = 0 

@@ -32,11 +32,11 @@ with open("driftpy/src/driftpy/constants/config.py", 'w') as f:
     f.write(data)
 
 #%%
-## update protocol commit
+# update protocol commit
 from subprocess import Popen
 
 Popen(
-    'git pull'.split(' '), 
+    'git fetch --all'.split(' '), 
     cwd='./driftpy/protocol-v2/'
 ).wait()
 
