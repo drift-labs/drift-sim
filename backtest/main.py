@@ -67,6 +67,58 @@ class LocalValidator:
         self.log_file.close()
         os.killpg(os.getpgid(self.proc.pid), signal.SIGTERM)  
 
+async def init_user(
+    user_chs,
+    user_index, 
+    program, 
+    usdc_mint, 
+    provider,
+    deposit_amount, 
+    user_kp
+):
+    # rough draft
+    instructions = []
+
+    # initialize user 
+    user_clearing_house = SDKClearingHouse(program, user_kp)
+    await user_clearing_house.intialize_user()
+
+    usdc_ata_kp = Keypair()
+    usdc_ata_tx = await _create_user_usdc_ata_tx(
+        usdc_ata_kp, 
+        provider, 
+        usdc_mint, 
+        user_clearing_house.authority
+    )
+    user_clearing_house.usdc_ata = usdc_ata_kp
+    instructions += usdc_ata_tx.instructions
+
+    user_chs[user_index] = user_clearing_house
+
+    # add fundings 
+    mint_tx = _mint_usdc_tx(
+        usdc_mint, 
+        provider, 
+        deposit_amount, 
+        user_clearing_house.usdc_ata
+    )
+    instructions += mint_tx.instructions
+
+    instructions += [
+        await user_clearing_house.get_deposit_collateral_ix(
+            deposit_amount, 
+            0, 
+            user_clearing_house.usdc_ata.public_key
+        )
+    ]
+
+    from solana.transaction import Transaction
+    tx = Transaction()
+    [tx.add(ix) for ix in instructions]
+    routine = provider.send(tx,  user_clearing_house.signers + [provider.wallet.payer, user_clearing_house.usdc_ata])
+
+    return await routine
+
 async def main(protocol_path, experiments_folder):
     # protocol_path = "../driftpy/protocol-v2/"#
     # experiments_folder = 'tmp2'
@@ -92,6 +144,9 @@ async def main(protocol_path, experiments_folder):
         int(60), 
         int(init_state.m0_peg_multiplier), 
         OracleSource.PYTH(), 
+        margin_ratio_initial=500, 
+        margin_ratio_partial=250, 
+        margin_ratio_maintenance=200
     )
 
     # update durations
@@ -103,6 +158,11 @@ async def main(protocol_path, experiments_folder):
     # fast init for users - airdrop takes a bit to finalize
     print('airdropping sol to users...')
     user_indexs = np.unique([json.loads(e['parameters'])['user_index'] for _, e in events.iterrows() if 'user_index' in json.loads(e['parameters'])])
+    user_indexs = list(np.sort(user_indexs))
+
+    liquidator_index = user_indexs[-1] + 1
+    user_indexs.append(liquidator_index) # liquidator
+
     users = {}
     for user_index in tqdm(user_indexs):
         user, tx_sig = await _airdrop_user(provider)
@@ -125,65 +185,76 @@ async def main(protocol_path, experiments_folder):
         if event.event_name == DepositCollateralEvent._event_name:
             event = Event.deserialize_from_row(DepositCollateralEvent, event)
             deposit_amounts[event.user_index] = deposit_amounts.get(event.user_index, 0) + event.deposit_amount
+    deposit_amounts[liquidator_index] = 1_000_000 * QUOTE_PRECISION
 
     routines = [] 
     for user_index in deposit_amounts.keys(): 
         deposit_amount = deposit_amounts[user_index]
         user_kp = users[user_index][0]
-
-        # rough draft
         print(f'=> user {user_index} depositing...')
-        instructions = []
-        first_init = user_index not in user_chs
-        if first_init: 
-            # initialize user 
-            user_clearing_house = SDKClearingHouse(program, user_kp)
-            await user_clearing_house.intialize_user()
 
-            usdc_ata_kp = Keypair()
-            usdc_ata_tx = await _create_user_usdc_ata_tx(
-                usdc_ata_kp, 
-                provider, 
-                usdc_mint, 
-                user_clearing_house.authority
-            )
-            user_clearing_house.usdc_ata = usdc_ata_kp
-            instructions += usdc_ata_tx.instructions
-
-            user_chs[user_index] = user_clearing_house
-
-        user_clearing_house: SDKClearingHouse = user_chs[user_index]
-
-        # add fundings 
-        mint_tx = _mint_usdc_tx(
+        routine = init_user(
+            user_chs,
+            user_index, 
+            program, 
             usdc_mint, 
-            provider, 
+            provider,
             deposit_amount, 
-            user_clearing_house.usdc_ata
+            user_kp
         )
-        instructions += mint_tx.instructions
-
-        from solana.transaction import Transaction
-        tx = Transaction()
-        [tx.add(ix) for ix in instructions]
-        tx.add(
-            await user_clearing_house.get_deposit_collateral_ix(
-                deposit_amount, 
-                0, 
-                user_clearing_house.usdc_ata.public_key
-            )
-        )
-
-        if first_init:
-            routine = provider.send(tx,  user_clearing_house.signers + [provider.wallet.payer, user_clearing_house.usdc_ata])
-        else:
-            routine = provider.send(tx, user_clearing_house.signers + [provider.wallet.payer])
         routines.append(routine)
 
         # track collateral 
         init_total_collateral += deposit_amount
 
     await asyncio.gather(*routines)
+
+    # initialize liquidator here 
+        # liquidate(): loop through users and try to liquidate them 
+        # derisk(): close all positions taken on from liquidating users 
+
+    print('=> setting up liquidator...') 
+    liquidator_clearing_house: ClearingHouse = user_chs[liquidator_index]
+
+    async def try_liquidate():
+        ch: ClearingHouse
+        promises = []
+        for ch in user_chs.values(): 
+            authority = ch.authority
+            if authority == liquidator_clearing_house.authority: 
+                continue
+            position = await ch.get_user_position(0)
+            if position:
+                promise = liquidator_clearing_house.liquidate_perp(
+                    authority, 
+                    0,
+                    abs(position.base_asset_amount) # take it fully on
+                )
+                promises.append(promise)
+
+        for promise in promises:
+            try:
+                await promise
+                print('=> liquidation successful....')
+            except Exception as e:
+                if "0x1774" in e.args[0]['message']: # sufficient collateral
+                    continue 
+                else: 
+                    raise Exception(e)
+
+        await derisk()
+
+    async def derisk():
+        ch = liquidator_clearing_house
+        position = await ch.get_user_position(0)
+        if position is None: 
+            print(f'=> liquidator no position')
+            return
+        print(f'=> liquidator derisking {position.base_asset_amount} baa')
+        await ch.close_position(0)
+
+    # todo 
+    #   calculate margin requirements of user same as js sdk 
 
     for i in tqdm(range(len(events))):
         event = events.iloc[i]
@@ -205,7 +276,7 @@ async def main(protocol_path, experiments_folder):
             assert event.user_index in user_chs, 'user doesnt exist'
             
             ch: SDKClearingHouse = user_chs[event.user_index]
-            await event.run_sdk(ch, oracle_program, adjust_oracle_pre_trade=True)
+            # await event.run_sdk(ch, oracle_program, adjust_oracle_pre_trade=True)
 
         elif event.event_name == addLiquidityEvent._event_name: 
             event = Event.deserialize_from_row(addLiquidityEvent, event)
@@ -230,21 +301,38 @@ async def main(protocol_path, experiments_folder):
             ch: SDKClearingHouse = user_chs[event.user_index]
             await event.run_sdk(ch)
         
+        elif event.event_name == oraclePriceEvent._event_name: 
+            event = Event.deserialize_from_row(oraclePriceEvent, event)
+            print(f'=> adjusting oracle: {event.price}')
+            await event.run_sdk(program, oracle_program)
+
+        elif event.event_name == 'liquidate':
+            print('=> liquidating...')
+            await try_liquidate()
+        
         elif event.event_name == NullEvent._event_name: 
             pass
+        
+        await try_liquidate()
 
     # close out anyone who hasnt already closed out 
     print('closing out everyone...')
     end_total_collateral = 0 
-    for (i, ch) in user_chs.items():
-        position = await ch.get_user_position(0)
-
-        if position.lp_shares > 0:
-            await ch.remove_liquidity(position.lp_shares, position.market_index)
+    net_baa = 10 
+    while net_baa != 0:
+        net_baa = 0
+        for (i, ch) in tqdm(user_chs.items()):
             position = await ch.get_user_position(0)
+            if position is None: 
+                continue
+            net_baa += abs(position.base_asset_amount)
 
-        if position.base_asset_amount != 0: 
-            await ch.close_position(position.market_index)
+            if position.lp_shares > 0:
+                await ch.remove_liquidity(position.lp_shares, position.market_index)
+                position = await ch.get_user_position(0)
+
+            if position.base_asset_amount != 0: 
+                await ch.close_position(position.market_index)
 
     # compute total collateral at end of sim
     end_total_collateral = 0 
@@ -253,15 +341,20 @@ async def main(protocol_path, experiments_folder):
             program, 
             ch.authority, 
         )
-
         balance = user.spot_positions[0].balance
         position = await ch.get_user_position(0)
+
+        if position is None: 
+            end_total_collateral += balance
+            continue
+
         upnl = position.quote_asset_amount
         total_user_collateral = balance + upnl
 
         print(
             f'user {i}', 
             user.perp_positions[0].base_asset_amount, 
+            user.perp_positions[0].quote_asset_amount, 
             user.perp_positions[0].lp_shares,
             user.perp_positions[0].remainder_base_asset_amount           
         )

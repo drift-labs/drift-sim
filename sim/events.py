@@ -24,7 +24,7 @@ from dataclasses import dataclass, field
 
 from programs.clearing_house.state import Oracle, User
 from programs.clearing_house.lib import ClearingHouse
-from backtest.helpers import adjust_oracle_pretrade
+from backtest.helpers import adjust_oracle_pretrade, set_price_feed
 from driftpy.math.amm import calculate_price
 from driftpy.constants.numeric_constants import AMM_RESERVE_PRECISION, QUOTE_PRECISION
 
@@ -122,7 +122,24 @@ class DepositCollateralEvent(Event):
         #     user_kp,
         #     self.deposit_amount,
         # )
-    
+
+@dataclass 
+class oraclePriceEvent(Event):
+    market_index: int = 0 
+    price: int = 0 
+
+    _event_name: str = "oracle_price"
+
+    def run(self, clearing_house: ClearingHouse, verbose=False) -> ClearingHouse:
+        pass
+
+    async def run_sdk(self, program, oracle_program): 
+        market = await get_market_account(
+            program,
+            self.market_index
+        )
+        return await set_price_feed(oracle_program, market.amm.oracle, self.price)
+
 @dataclass 
 class addLiquidityEvent(Event):
     market_index: int = 0 
