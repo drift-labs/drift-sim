@@ -52,8 +52,8 @@ def setup_ch(base_spread=0, strategies='', n_steps=100, n_users=2):
     
     amm = SimulationAMM(
         oracle=oracle, 
-        base_asset_reserve=1_000_00 * AMM_RESERVE_PRECISION,
-        quote_asset_reserve=1_000_00 * AMM_RESERVE_PRECISION,
+        base_asset_reserve=1_000_0 * AMM_RESERVE_PRECISION,
+        quote_asset_reserve=1_000_0 * AMM_RESERVE_PRECISION,
         funding_period=60,
         peg_multiplier=int(oracle.get_price(0)*PEG_PRECISION),
         base_spread=base_spread,
@@ -81,7 +81,7 @@ ch = setup_ch(
 )
 market: SimulationMarket = ch.markets[0]
 
-n_lps = 10
+n_lps = 0
 n_trades = 20
 
 sim = RandomSimulation(ch)
@@ -112,15 +112,15 @@ agents += [
     sim.generate_trade(i, 0) for i in range(n_lps)
 ]
 
-leverage = 10
+leverage = 8
 # normal traders open/close 
 agents += [
     sim.generate_leveraged_trade(i, 0, leverage) for i in range(n_lps, n_lps+n_trades)
 ]
-# random open close == more open close trades of a single trader
-agents += [
-    sim.generate_leveraged_trade(i, 0, leverage) for i in range(n_lps, n_lps+n_trades)
-]
+# # random open close == more open close trades of a single trader
+# agents += [
+#     sim.generate_leveraged_trade(i, 0, leverage) for i in range(n_lps, n_lps+n_trades)
+# ]
 print('#agents:', len(agents))
 
 mark_prices = []
@@ -180,11 +180,15 @@ for x in tqdm(range(len(market.amm.oracle))):
 
                 # (abs_difference, _) = collateral_difference(ch, initial_collateral, verbose=False)[0]
                 # differences.append(abs_difference)
+
+                events.append(
+                    oraclePriceEvent(ch.time, 0, market.amm.oracle.get_price(ch.time))
+                )
         
-            if abs_difference > 1:
-                print('blahhh', abs_difference)
-                early_exit = True 
-                break 
+            # if abs_difference > 1:
+            #     print('blahhh', abs_difference)
+            #     early_exit = True 
+            #     break 
 
 
         if early_exit: 

@@ -88,13 +88,15 @@ class OpenClose(Agent):
         if (now == self.start_time) or (now > self.start_time and not self.has_opened): 
             self.deposit_start = now
             self.has_opened = True
+            market = state_i.markets[self.market_index]
+            amount = min(self.quote_amount, market.amm.quote_asset_reserve)
             # print(f'u{self.user_index} op...')
             event = OpenPositionEvent(
                 timestamp=now, 
                 direction=self.direction,
                 market_index=self.market_index, 
                 user_index=self.user_index, 
-                quote_amount=self.quote_amount
+                quote_amount=amount
             )
 
         elif self.has_opened and self.duration > 0 and now - self.deposit_start == self.duration:

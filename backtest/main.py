@@ -237,6 +237,8 @@ async def main(protocol_path, experiments_folder):
             except Exception as e:
                 if "0x1774" in e.args[0]['message']: # sufficient collateral
                     continue 
+                elif "0x1793" in e.args[0]['message']: # invalid oracle
+                    continue 
                 else: 
                     raise Exception(e)
 
@@ -245,7 +247,7 @@ async def main(protocol_path, experiments_folder):
     async def derisk():
         ch = liquidator_clearing_house
         position = await ch.get_user_position(0)
-        if position is None: 
+        if position is None or position.base_asset_amount == 0: 
             return
         print(f'=> liquidator derisking {position.base_asset_amount} baa')
         await ch.close_position(0)
@@ -314,9 +316,12 @@ async def main(protocol_path, experiments_folder):
 
     # close out anyone who hasnt already closed out 
     print('closing out everyone...')
-    end_total_collateral = 0 
-    net_baa = 10 
-    while net_baa != 0:
+    net_baa = 1 
+    market = await get_market_account(program, 0)
+    max_n_tries = 4
+    n_tries = 0
+    while net_baa != 0 and n_tries < max_n_tries:
+        n_tries += 1
         net_baa = 0
         for (i, ch) in tqdm(user_chs.items()):
             position = await ch.get_user_position(0)
@@ -329,7 +334,18 @@ async def main(protocol_path, experiments_folder):
                 position = await ch.get_user_position(0)
 
             if position.base_asset_amount != 0: 
-                await ch.close_position(position.market_index)
+                # price = (await get_feed_data(oracle_program, market.amm.oracle)).price
+                # if position.base_asset_amount > 0: 
+                #     limit = price * 0.8
+                # else: 
+                #     limit = price * 1.2 
+                sig = await ch.close_position(position.market_index)
+                
+                # from solana.rpc.commitment import Confirmed, Processed
+                # clearing_house.program.provider.connection._commitment = Confirmed
+                # tx = await clearing_house.program.provider.connection.get_transaction(sig)
+                # clearing_house.program.provider.connection._commitment = Processed
+                # print(tx)
 
     # compute total collateral at end of sim
     end_total_collateral = 0 

@@ -25,8 +25,10 @@ from dataclasses import dataclass, field
 from programs.clearing_house.state import Oracle, User
 from programs.clearing_house.lib import ClearingHouse
 from backtest.helpers import adjust_oracle_pretrade, set_price_feed
+from driftpy.setup.helpers import get_feed_data
 from driftpy.math.amm import calculate_price
 from driftpy.constants.numeric_constants import AMM_RESERVE_PRECISION, QUOTE_PRECISION
+from driftpy.clearing_house import ClearingHouse as ClearingHouseSDK
 
 @dataclass
 class Event:     
@@ -231,7 +233,7 @@ class OpenPositionEvent(Event):
         
         return clearing_house
 
-    async def run_sdk(self, clearing_house, oracle_program=None, adjust_oracle_pre_trade=False) -> ClearingHouse:
+    async def run_sdk(self, clearing_house: ClearingHouseSDK, oracle_program=None, adjust_oracle_pre_trade=False) -> ClearingHouse:
         # tmp -- sim is quote open position v2 is base only
         market = await get_market_account(clearing_house.program, self.market_index)
 
@@ -260,6 +262,15 @@ class OpenPositionEvent(Event):
                 market, 
                 oracle_program
             )
+
+        data = await get_feed_data(oracle_program, market.amm.oracle)
+        price = data.price
+        user = await clearing_house.get_user()
+        collateral = user.spot_positions[0].balance
+        max_leverage = 5
+        max_baa = collateral * max_leverage / price
+        # update 
+        baa = int(min(max_baa, baa))
         
         try:
             return await clearing_house.open_position(
@@ -268,7 +279,9 @@ class OpenPositionEvent(Event):
                 self.market_index
             )
         except Exception as e:
-            print('open position failed...')
+            print(e.args)
+            from termcolor import colored
+            print(colored('open position failed...', "red"))
             pass 
 
                 

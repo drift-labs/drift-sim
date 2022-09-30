@@ -176,6 +176,7 @@ class RandomSimulation():
         market = ch.markets[0]
         self.max_t = len(market.amm.oracle)
         self.amm_tokens = market.amm.amm_lp_shares
+        self.market = market
 
     def generate_random_lp(self, user_index, market_index) -> Agent:
         
@@ -222,8 +223,8 @@ class RandomSimulation():
     def generate_leveraged_trade(self, user_index, market_index, leverage) -> Agent:
         start = np.random.randint(0, self.max_t)
         dur = np.random.randint(0, self.max_t // 2)
-        amount = np.random.randint(0, 100_000)
-        quote_amount = amount * QUOTE_PRECISION
+        amount = np.random.randint(0, self.market.amm.quote_asset_reserve * QUOTE_PRECISION / AMM_RESERVE_PRECISION)
+        quote_amount = amount 
         
         return OpenClose(
             start_time=start,
@@ -238,13 +239,13 @@ class RandomSimulation():
     def generate_trade(self, user_index, market_index) -> Agent:
         start = np.random.randint(0, self.max_t)
         dur = np.random.randint(0, self.max_t // 2)
-        amount = np.random.randint(0, 100_000)
+        amount = np.random.randint(0, self.market.amm.quote_asset_reserve * QUOTE_PRECISION / AMM_RESERVE_PRECISION)
         
         return OpenClose(
             start_time=start,
             duration=dur, 
             direction='long' if np.random.choice([0, 1]) == 0 else 'short',
-            quote_amount=amount * QUOTE_PRECISION, 
+            quote_amount=amount, 
             user_index=user_index, 
             market_index=market_index
         )
