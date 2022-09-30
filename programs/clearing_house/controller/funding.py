@@ -26,7 +26,7 @@ def settle_funding_rates(
             funding_payment = (
                 funding_delta 
                 * position.base_asset_amount
-                / FUNDING_PAYMENT_PRECISION 
+                / FUNDING_RATE_BUFFER 
                 / AMM_TO_QUOTE_PRECISION_RATIO
             )
             

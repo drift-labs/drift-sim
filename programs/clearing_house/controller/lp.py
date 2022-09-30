@@ -42,7 +42,7 @@ def settle_lp_shares(
     user.collateral += lp_payment
     
     assert lp_metrics.unsettled_pnl <= 0, 'shouldnt happen'
-    market.amm.upnl -= lp_metrics.unsettled_pnl
+    # market.amm.upnl -= lp_metrics.unsettled_pnl
 
     # update stats 
     position.last_cumulative_funding_rate_lp = market.amm.cumulative_funding_payment_per_lp

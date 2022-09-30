@@ -5,9 +5,6 @@ import pandas as pd
 from dataclasses import dataclass, field
 
 import driftpy
-from driftpy.math.amm import (
-    calculate_swap_output, 
-)
 from driftpy.math.market import calculate_mark_price, calculate_freepeg_cost
 from driftpy.math.amm import calculate_peg_multiplier
 from driftpy.types import PositionDirection, PerpPosition, SwapDirection
@@ -47,7 +44,7 @@ class ClearingHouse:
     ):
         # initialize user if not already 
         if user_index not in self.users: 
-            positions = [PerpPosition(user_index) for _ in range(len(self.markets))]
+            positions = [MarketPosition(user_index) for _ in range(len(self.markets))]
             self.users[user_index] = User(
                 user_index=user_index,
                 collateral=0, 
@@ -312,7 +309,7 @@ class ClearingHouse:
             clamped_price_spread = np.clip(price_spread, -max_price_spread, max_price_spread)
                     
             adjustment = 1 ## 24 slots of funding period time till full payback -- hardcode for now
-            funding_rate = int(clamped_price_spread * FUNDING_PAYMENT_PRECISION / adjustment)
+            funding_rate = int(clamped_price_spread * FUNDING_RATE_BUFFER / adjustment)
             
             market.amm.cumulative_funding_rate_long += funding_rate
             market.amm.cumulative_funding_rate_short += funding_rate
@@ -321,16 +318,16 @@ class ClearingHouse:
             market.amm.last_funding_rate_ts = now
             
             market_net_position = -market.amm.net_base_asset_amount # AMM_RSERVE_PRE
-            market_funding_rate = funding_rate # FUNDING_PAYMENT_PRECISION 
+            market_funding_rate = funding_rate # FUNDING_RATE_BUFFER 
             market_funding_payment = (
                 market_funding_rate 
                 * market_net_position 
-                / FUNDING_PAYMENT_PRECISION
+                / FUNDING_RATE_BUFFER
                 / AMM_TO_QUOTE_PRECISION_RATIO
             )
             
-            funding_slice = market_funding_payment * 1e13 / market.amm.total_lp_shares
-            market.amm.lp_funding_payment += -1 * funding_slice * market.amm.amm_lp_shares / 1e13 
+            funding_slice = market_funding_payment * AMM_RESERVE_PRECISION / market.amm.total_lp_shares
+            # market.amm.lp_funding_payment += -1 * funding_slice * market.amm.amm_lp_shares / 1e13 
             market.amm.cumulative_funding_payment_per_lp += funding_slice
 
         return self

@@ -52,10 +52,10 @@ def setup_ch(base_spread=0, strategies='', n_steps=100, n_users=2):
     
     amm = SimulationAMM(
         oracle=oracle, 
-        base_asset_reserve=1_000_000 * 1e13,
-        quote_asset_reserve=1_000_000 * 1e13,
+        base_asset_reserve=1_000_00 * AMM_RESERVE_PRECISION,
+        quote_asset_reserve=1_000_00 * AMM_RESERVE_PRECISION,
         funding_period=60,
-        peg_multiplier=int(oracle.get_price(0)*1e3),
+        peg_multiplier=int(oracle.get_price(0)*PEG_PRECISION),
         base_spread=base_spread,
         strategies=strategies,
         # base_asset_amount_step_size=0,
@@ -64,13 +64,6 @@ def setup_ch(base_spread=0, strategies='', n_steps=100, n_users=2):
     market = SimulationMarket(amm=amm, market_index=0)
     fee_structure = FeeStructure(numerator=1, denominator=100)
     ch = ClearingHouse([market], fee_structure)
-
-    for i in range(n_users):
-        ch = DepositCollateralEvent(
-            user_index=i, 
-            deposit_amount=1_000 * QUOTE_PRECISION, 
-            timestamp=ch.time,
-        ).run(ch)
 
     return ch
 
@@ -89,10 +82,17 @@ ch = setup_ch(
 market: SimulationMarket = ch.markets[0]
 
 n_lps = 10
-n_trades = 10
+n_trades = 20
 
 sim = RandomSimulation(ch)
 agents = []
+
+for i in range(n_lps):
+    ch = DepositCollateralEvent(
+        user_index=i, 
+        deposit_amount=1_000 * QUOTE_PRECISION, 
+        timestamp=ch.time,
+    ).run(ch)
 
 # these are classic add remove full lps
 agents += [
@@ -107,19 +107,19 @@ agents += [
 agents += [
     sim.generate_lp_settler(i, 0) for i in range(n_lps)
 ]
-
 # let the lps trade
 agents += [
     sim.generate_trade(i, 0) for i in range(n_lps)
 ]
 
+leverage = 10
 # normal traders open/close 
 agents += [
-    sim.generate_trade(i, 0) for i in range(n_lps, n_lps+n_trades)
+    sim.generate_leveraged_trade(i, 0, leverage) for i in range(n_lps, n_lps+n_trades)
 ]
 # random open close == more open close trades of a single trader
 agents += [
-    sim.generate_trade(i, 0) for i in range(n_lps, n_lps+n_trades)
+    sim.generate_leveraged_trade(i, 0, leverage) for i in range(n_lps, n_lps+n_trades)
 ]
 print('#agents:', len(agents))
 
@@ -178,8 +178,8 @@ for x in tqdm(range(len(market.amm.oracle))):
                 events.append(event_i)
                 clearing_houses.append(copy.deepcopy(ch))
 
-                (abs_difference, _) = collateral_difference(ch, initial_collateral, verbose=False)[0]
-                differences.append(abs_difference)
+                # (abs_difference, _) = collateral_difference(ch, initial_collateral, verbose=False)[0]
+                # differences.append(abs_difference)
         
             if abs_difference > 1:
                 print('blahhh', abs_difference)
@@ -235,7 +235,8 @@ for (_, user) in ch.users.items():
     position: MarketPosition = user.positions[0]
     lp_funding_payments += position.lp_funding_payments
     market_funding += position.market_funding_payments
-total_payments = market.amm.lp_funding_payment + lp_funding_payments
+# total_payments = market.amm.lp_funding_payment + lp_funding_payments
+total_payments = lp_funding_payments
 
 print("funding diff", market_funding + total_payments)
 print('net baa', clearing_houses[-1].markets[0].amm.net_base_asset_amount)
@@ -245,7 +246,7 @@ print('---')
 import pathlib 
 import pandas as pd 
 
-path = pathlib.Path('sim-results/tmp5')
+path = pathlib.Path('../backtest/leverage')
 path.mkdir(exist_ok=True, parents=True)
 print(str(path.absolute()))
 

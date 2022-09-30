@@ -1,8 +1,8 @@
 def max_collateral_change(user, delta):
     if user.collateral + delta < 0: 
         print("warning neg collateral...")
-        assert False
-        delta = -user.collateral
+        # assert False
+        # delta = -user.collateral
     return delta
 
 def add_prefix(data: dict, prefix: str):

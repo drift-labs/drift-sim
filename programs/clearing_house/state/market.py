@@ -124,13 +124,13 @@ class SimulationMarket(Market):
         bid_price = calculate_bid_price(self, oracle_price)
         ask_price = calculate_ask_price(self, oracle_price)
         peg = calculate_peg_multiplier(self.amm, oracle_price)
-        wouldbe_peg_cost = calculate_repeg_cost(self, peg)[0]
+        wouldbe_peg_cost = calculate_repeg_cost(self.amm, peg)
         
         long_funding, short_funding = calculate_long_short_funding(self)
         predicted_long_funding = long_funding
         predicted_short_funding = short_funding
         last_mid_price_twap = (amm_dict['last_bid_price_twap']+amm_dict['last_ask_price_twap'])/2
-        repeg_to_oracle_cost = calculate_repeg_cost(self, int(oracle_price * 1e3))[0]
+        repeg_to_oracle_cost = calculate_repeg_cost(self.amm, int(oracle_price * 1e3))
                     
         # all in one 
         data = dict(

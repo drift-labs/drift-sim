@@ -3,9 +3,9 @@ from driftpy.math.amm import calculate_amm_reserves_after_swap, get_swap_directi
 from driftpy.math.amm import calculate_swap_output, calculate_terminal_price, calculate_mark_price_amm
 from driftpy.math.trade import calculate_trade_slippage, calculate_target_price_trade, calculate_trade_acquired_amounts
 from driftpy.math.positions import calculate_base_asset_value, calculate_position_pnl
-from driftpy.types import PositionDirection, MarketPosition
+from driftpy.types import PositionDirection, PerpPosition
 from driftpy.math.market import calculate_mark_price, calculate_bid_ask_price
-from driftpy.constants.numeric_constants import AMM_TIMES_PEG_TO_QUOTE_PRECISION_RATIO, MARK_PRICE_PRECISION, PEG_PRECISION, QUOTE_PRECISION
+from driftpy.constants.numeric_constants import AMM_TIMES_PEG_TO_QUOTE_PRECISION_RATIO, PRICE_PRECISION as PRICE_PRECISION, PEG_PRECISION, QUOTE_PRECISION
 from driftpy._types import AssetType
 
 from solana.publickey import PublicKey
@@ -57,6 +57,7 @@ class OpenClose(Agent):
         direction: str = 'long',
         user_index: int = 0,
         market_index: int = 0,
+        deposit_amount: int = None
     ):
         self.start_time = start_time
         self.duration = duration
@@ -66,13 +67,17 @@ class OpenClose(Agent):
         self.market_index = market_index
         self.has_opened = False
         self.deposit_start = None
+
+        self.deposit_amount = deposit_amount
+        if deposit_amount is None: 
+            self.deposit_amount = self.quote_amount
         
     def setup(self, state_i: ClearingHouse) -> [Event]: 
         event = default_user_deposit(
             self.user_index, 
             state_i, 
             username='openclose', 
-            deposit_amount=self.quote_amount
+            deposit_amount=self.deposit_amount
         )
         event = [event]
         return event
@@ -295,7 +300,7 @@ class Arb(Agent):
         direction, trade_size, entry_price, target_price = \
             calculate_target_price_trade(
                 market, 
-                int(target_mark * MARK_PRICE_PRECISION), 
+                int(target_mark * PRICE_PRECISION), 
                 unit, 
                 use_spread=True,
                 oracle_price=oracle_price
@@ -446,7 +451,7 @@ class ArbFunding(Agent):
         direction, trade_size, entry_price, target_price = \
             calculate_target_price_trade(
                 market, 
-                int(target * MARK_PRICE_PRECISION), 
+                int(target * PRICE_PRECISION), 
                 unit, 
                 use_spread=True,
                 oracle_price=oracle_price

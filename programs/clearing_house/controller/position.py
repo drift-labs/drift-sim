@@ -40,7 +40,7 @@ def track_new_base_assset(
     if not is_lp_update: 
         # need to update this like a normal position
         market.amm.cumulative_net_base_asset_amount_per_lp += base_amount_acquired / market.amm.total_lp_shares
-        market.amm.cumulative_net_quote_asset_amount_per_lp += quote_amount / market.amm.total_lp_shares
+        # market.amm.cumulative_net_quote_asset_amount_per_lp += quote_amount / market.amm.total_lp_shares
 
     if is_new_position: 
         # update the funding rate if new position 

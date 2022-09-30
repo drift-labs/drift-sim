@@ -261,11 +261,16 @@ class OpenPositionEvent(Event):
                 oracle_program
             )
         
-        return await clearing_house.open_position(
-            direction,
-            baa,
-            self.market_index
-        )
+        try:
+            return await clearing_house.open_position(
+                direction,
+                baa,
+                self.market_index
+            )
+        except Exception as e:
+            print('open position failed...')
+            pass 
+
                 
 @dataclass
 class ClosePositionEvent(Event): 

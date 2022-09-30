@@ -144,9 +144,6 @@ async def main(protocol_path, experiments_folder):
         int(60), 
         int(init_state.m0_peg_multiplier), 
         OracleSource.PYTH(), 
-        margin_ratio_initial=500, 
-        margin_ratio_partial=250, 
-        margin_ratio_maintenance=200
     )
 
     # update durations
@@ -224,7 +221,7 @@ async def main(protocol_path, experiments_folder):
             if authority == liquidator_clearing_house.authority: 
                 continue
             position = await ch.get_user_position(0)
-            if position:
+            if position and position.base_asset_amount != 0:
                 promise = liquidator_clearing_house.liquidate_perp(
                     authority, 
                     0,
@@ -235,7 +232,8 @@ async def main(protocol_path, experiments_folder):
         for promise in promises:
             try:
                 await promise
-                print('=> liquidation successful....')
+                from termcolor import colored
+                print(colored('     *** liquidation successful ***   ', "green"))
             except Exception as e:
                 if "0x1774" in e.args[0]['message']: # sufficient collateral
                     continue 
@@ -248,7 +246,6 @@ async def main(protocol_path, experiments_folder):
         ch = liquidator_clearing_house
         position = await ch.get_user_position(0)
         if position is None: 
-            print(f'=> liquidator no position')
             return
         print(f'=> liquidator derisking {position.base_asset_amount} baa')
         await ch.close_position(0)
@@ -341,7 +338,7 @@ async def main(protocol_path, experiments_folder):
             program, 
             ch.authority, 
         )
-        balance = user.spot_positions[0].balance
+        balance = user.spot_positions[0].balance / SPOT_BALANCE_PRECISION * QUOTE_PRECISION
         position = await ch.get_user_position(0)
 
         if position is None: 
@@ -355,26 +352,25 @@ async def main(protocol_path, experiments_folder):
             f'user {i}', 
             user.perp_positions[0].base_asset_amount, 
             user.perp_positions[0].quote_asset_amount, 
-            user.perp_positions[0].lp_shares,
-            user.perp_positions[0].remainder_base_asset_amount           
+            total_user_collateral
         )
         end_total_collateral += total_user_collateral
 
     market = await get_market_account(program, 0)
-    market_collateral = 0 # market.amm.market_position.quote_asset_amount
+    market_collateral = 0 
     market_collateral += market.amm.total_fee_minus_distributions
     end_total_collateral += market_collateral 
 
     print('market $:', market_collateral)
+    print(f'difference in $ {(end_total_collateral - init_total_collateral) / QUOTE_PRECISION:,}')
     print(
-        "=> difference in $, difference, end/init collateral",
-        (end_total_collateral - init_total_collateral) / 1e6, 
-        end_total_collateral - init_total_collateral, 
+        "=> end/init collateral",
         (end_total_collateral, init_total_collateral)
     )
 
     print(
         "net baa & net unsettled:",
+        market.amm.market_position.base_asset_amount,
         market.amm.net_base_asset_amount, 
         market.amm.net_unsettled_lp_base_asset_amount,
         market.amm.net_base_asset_amount + market.amm.net_unsettled_lp_base_asset_amount

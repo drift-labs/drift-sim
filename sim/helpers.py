@@ -14,6 +14,9 @@ from driftpy.math.user import *
 from sim.events import * 
 from sim.agents import * 
 
+from programs.clearing_house.state.market import SimulationMarket
+from programs.clearing_house.state.user import MarketPosition
+
 # %%
 def random_walk_oracle(start_price, n_steps=100):
     prices = []
@@ -161,8 +164,8 @@ def compute_total_collateral(ch):
     for market_index in range(len(ch.markets)):
         market: SimulationMarket = ch.markets[market_index]
         total_collateral += market.amm.total_fee_minus_distributions 
-        total_collateral += market.amm.upnl
-        total_collateral += market.amm.lp_funding_payment
+        # total_collateral += market.amm.upnl # todo - amm.base/quote positon
+        # total_collateral += market.amm.lp_funding_payment
 
     total_collateral /= 1e6
     return total_collateral
@@ -214,6 +217,22 @@ class RandomSimulation():
             token_amount=token_amount, 
             user_index=user_index, 
             market_index=market_index, 
+        )
+    
+    def generate_leveraged_trade(self, user_index, market_index, leverage) -> Agent:
+        start = np.random.randint(0, self.max_t)
+        dur = np.random.randint(0, self.max_t // 2)
+        amount = np.random.randint(0, 100_000)
+        quote_amount = amount * QUOTE_PRECISION
+        
+        return OpenClose(
+            start_time=start,
+            duration=dur, 
+            direction='long' if np.random.choice([0, 1]) == 0 else 'short',
+            quote_amount=quote_amount, 
+            deposit_amount=quote_amount//leverage,
+            user_index=user_index, 
+            market_index=market_index
         )
 
     def generate_trade(self, user_index, market_index) -> Agent:

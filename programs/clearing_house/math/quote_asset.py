@@ -1,4 +1,4 @@
-from driftpy.constants.numeric_constants import AMM_TIMES_PEG_TO_QUOTE_PRECISION_RATIO, MARK_PRICE_PRECISION, PEG_PRECISION
+from driftpy.constants.numeric_constants import AMM_TIMES_PEG_TO_QUOTE_PRECISION_RATIO, PRICE_PRECISION, PEG_PRECISION
 
 def reserve_to_asset_amount(
     quote_asset_amount: int,

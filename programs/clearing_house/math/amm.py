@@ -155,8 +155,8 @@ def update_mark_twap(
     amm.last_mark_price_twap_ts = now 
 
     oracle_price = amm.oracle.get_price(now)
-    amm.bid_price_before = calculate_bid_price_amm(amm, oracle_price) #* MARK_PRICE_PRECISION
-    amm.ask_price_before = calculate_ask_price_amm(amm, oracle_price) #* MARK_PRICE_PRECISION
+    amm.bid_price_before = calculate_bid_price_amm(amm, oracle_price) #* PRICE_PRECISION
+    amm.ask_price_before = calculate_ask_price_amm(amm, oracle_price) #* PRICE_PRECISION
 
     
     return new_mark_twap
