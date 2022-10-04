@@ -233,7 +233,7 @@ class OpenPositionEvent(Event):
         
         return clearing_house
 
-    async def run_sdk(self, clearing_house: ClearingHouseSDK, oracle_program=None, adjust_oracle_pre_trade=False) -> ClearingHouse:
+    async def run_sdk(self, clearing_house: ClearingHouseSDK, init_leverage=None, oracle_program=None, adjust_oracle_pre_trade=False) -> ClearingHouse:
         # tmp -- sim is quote open position v2 is base only
         market = await get_market_account(clearing_house.program, self.market_index)
 
@@ -263,14 +263,14 @@ class OpenPositionEvent(Event):
                 oracle_program
             )
 
-        data = await get_feed_data(oracle_program, market.amm.oracle)
-        price = data.price
-        user = await clearing_house.get_user()
-        collateral = user.spot_positions[0].balance
-        max_leverage = 5
-        max_baa = collateral * max_leverage / price
-        # update 
-        baa = int(min(max_baa, baa))
+        if init_leverage:
+            data = await get_feed_data(oracle_program, market.amm.oracle)
+            price = data.price
+            user = await clearing_house.get_user()
+            collateral = user.spot_positions[0].balance # todo: use clearing house user sdk fcns 
+            max_baa = collateral * init_leverage / price
+            # update 
+            baa = int(min(max_baa, baa))
         
         try:
             return await clearing_house.open_position(

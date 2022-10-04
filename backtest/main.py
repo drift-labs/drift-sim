@@ -67,8 +67,11 @@ class LocalValidator:
         self.log_file.close()
         os.killpg(os.getpgid(self.proc.pid), signal.SIGTERM)  
 
+from driftpy.clearing_house_user import ClearingHouseUser
+
 async def init_user(
     user_chs,
+    user_chus,
     user_index, 
     program, 
     usdc_mint, 
@@ -94,6 +97,7 @@ async def init_user(
     instructions += usdc_ata_tx.instructions
 
     user_chs[user_index] = user_clearing_house
+    user_chus[user_index] = ClearingHouseUser(user_clearing_house)
 
     # add fundings 
     mint_tx = _mint_usdc_tx(
@@ -137,6 +141,7 @@ async def main(protocol_path, experiments_folder):
     init_reserves = int(init_state.m0_base_asset_reserve) # 200 * 1e13
 
     oracle = await mock_oracle(workspace["pyth"], 1, -7)
+    init_leverage = 11
     await clearing_house.initialize_market(
         oracle, 
         int(init_reserves), 
@@ -144,6 +149,8 @@ async def main(protocol_path, experiments_folder):
         int(60), 
         int(init_state.m0_peg_multiplier), 
         OracleSource.PYTH(), 
+        # default is 5x
+        margin_ratio_initial=MARGIN_PRECISION // init_leverage if init_leverage else 2000
     )
 
     # update durations
@@ -170,6 +177,7 @@ async def main(protocol_path, experiments_folder):
 
     # process events 
     user_chs = {}
+    user_chus = {}
     init_total_collateral = 0 
 
     import time 
@@ -188,10 +196,11 @@ async def main(protocol_path, experiments_folder):
     for user_index in deposit_amounts.keys(): 
         deposit_amount = deposit_amounts[user_index]
         user_kp = users[user_index][0]
-        print(f'=> user {user_index} depositing...')
+        print(f'=> user {user_index} depositing {deposit_amount / QUOTE_PRECISION:,.0f}...')
 
         routine = init_user(
             user_chs,
+            user_chus,
             user_index, 
             program, 
             usdc_mint, 
@@ -206,11 +215,6 @@ async def main(protocol_path, experiments_folder):
 
     await asyncio.gather(*routines)
 
-    # initialize liquidator here 
-        # liquidate(): loop through users and try to liquidate them 
-        # derisk(): close all positions taken on from liquidating users 
-
-    print('=> setting up liquidator...') 
     liquidator_clearing_house: ClearingHouse = user_chs[liquidator_index]
 
     async def try_liquidate():
@@ -255,11 +259,13 @@ async def main(protocol_path, experiments_folder):
     # todo 
     #   calculate margin requirements of user same as js sdk 
 
+    df_rows = {}
+    was_event = True
     for i in tqdm(range(len(events))):
         event = events.iloc[i]
 
         if event.event_name == DepositCollateralEvent._event_name:
-            pass
+            continue
 
         elif event.event_name == OpenPositionEvent._event_name: 
             event = Event.deserialize_from_row(OpenPositionEvent, event)
@@ -267,7 +273,7 @@ async def main(protocol_path, experiments_folder):
             assert event.user_index in user_chs, 'user doesnt exist'
 
             ch: SDKClearingHouse = user_chs[event.user_index]
-            await event.run_sdk(ch, oracle_program, adjust_oracle_pre_trade=True)
+            await event.run_sdk(ch, init_leverage, oracle_program, adjust_oracle_pre_trade=True)
 
         elif event.event_name == ClosePositionEvent._event_name: 
             event = Event.deserialize_from_row(ClosePositionEvent, event)
@@ -275,7 +281,7 @@ async def main(protocol_path, experiments_folder):
             assert event.user_index in user_chs, 'user doesnt exist'
             
             ch: SDKClearingHouse = user_chs[event.user_index]
-            # await event.run_sdk(ch, oracle_program, adjust_oracle_pre_trade=True)
+            await event.run_sdk(ch, oracle_program, adjust_oracle_pre_trade=True)
 
         elif event.event_name == addLiquidityEvent._event_name: 
             event = Event.deserialize_from_row(addLiquidityEvent, event)
@@ -310,9 +316,27 @@ async def main(protocol_path, experiments_folder):
             await try_liquidate()
         
         elif event.event_name == NullEvent._event_name: 
-            pass
+            continue
         
+        #
         await try_liquidate()
+
+        # track metrics
+        chu: ClearingHouseUser
+        leverages = []
+        indexs = []
+        for user_index, chu in user_chus.items():
+            leverage = chu.get_leverage()
+            leverages.append(leverage)
+            indexs.append(user_index)
+        
+        leverages = await asyncio.gather(*leverages)
+        for l, i in zip(leverages, indexs):
+            k = f"user_{i}"
+            df_rows[k] = df_rows.get(k, []) + [l / 10_000]
+
+    df = pd.DataFrame(df_rows)
+    df.to_csv('tmp.csv', index=False)
 
     # close out anyone who hasnt already closed out 
     print('closing out everyone...')
@@ -334,18 +358,7 @@ async def main(protocol_path, experiments_folder):
                 position = await ch.get_user_position(0)
 
             if position.base_asset_amount != 0: 
-                # price = (await get_feed_data(oracle_program, market.amm.oracle)).price
-                # if position.base_asset_amount > 0: 
-                #     limit = price * 0.8
-                # else: 
-                #     limit = price * 1.2 
-                sig = await ch.close_position(position.market_index)
-                
-                # from solana.rpc.commitment import Confirmed, Processed
-                # clearing_house.program.provider.connection._commitment = Confirmed
-                # tx = await clearing_house.program.provider.connection.get_transaction(sig)
-                # clearing_house.program.provider.connection._commitment = Processed
-                # print(tx)
+                await ch.close_position(position.market_index)
 
     # compute total collateral at end of sim
     end_total_collateral = 0 
@@ -365,12 +378,14 @@ async def main(protocol_path, experiments_folder):
         total_user_collateral = balance + upnl
 
         print(
-            f'user {i}', 
+            f'user {i}  :', 
             user.perp_positions[0].base_asset_amount, 
             user.perp_positions[0].quote_asset_amount, 
             total_user_collateral
         )
         end_total_collateral += total_user_collateral
+
+    print('---')
 
     market = await get_market_account(program, 0)
     market_collateral = 0 
@@ -397,6 +412,9 @@ async def main(protocol_path, experiments_folder):
         time.time() - start
     )
 
+
+    await provider.close()
+
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
@@ -412,6 +430,3 @@ if __name__ == '__main__':
     finally:
         # pass
         val.stop()
-
-# %%
-# %%
