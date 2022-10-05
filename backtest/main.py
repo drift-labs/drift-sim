@@ -134,7 +134,7 @@ async def main(protocol_path, experiments_folder):
     oracle_program: Program = workspace["pyth"]
     provider: Provider = program.provider
 
-    clearing_house, usdc_mint = await setup_bank(program)
+    admin_clearing_house, usdc_mint = await setup_bank(program)
 
     # read and load initial clearing house state (thats all we use chs.csv for...)
     init_state = clearing_houses.iloc[0]
@@ -142,7 +142,7 @@ async def main(protocol_path, experiments_folder):
 
     oracle = await mock_oracle(workspace["pyth"], 1, -7)
     init_leverage = 11
-    await clearing_house.initialize_market(
+    await admin_clearing_house.initialize_market(
         oracle, 
         int(init_reserves), 
         int(init_reserves), 
@@ -154,10 +154,10 @@ async def main(protocol_path, experiments_folder):
     )
 
     # update durations
-    await clearing_house.update_perp_auction_duration(0)
-    await clearing_house.update_lp_cooldown_time(0, 0)
-    await clearing_house.update_max_base_asset_amount_ratio(1, 0)
-    await clearing_house.update_market_base_asset_amount_step_size(1 * AMM_RESERVE_PRECISION, 0)
+    await admin_clearing_house.update_perp_auction_duration(0)
+    await admin_clearing_house.update_lp_cooldown_time(0, 0)
+    await admin_clearing_house.update_max_base_asset_amount_ratio(1, 0)
+    await admin_clearing_house.update_market_base_asset_amount_step_size(1 * AMM_RESERVE_PRECISION, 0)
 
     # fast init for users - airdrop takes a bit to finalize
     print('airdropping sol to users...')
@@ -276,12 +276,13 @@ async def main(protocol_path, experiments_folder):
             await event.run_sdk(ch, init_leverage, oracle_program, adjust_oracle_pre_trade=True)
 
         elif event.event_name == ClosePositionEvent._event_name: 
-            event = Event.deserialize_from_row(ClosePositionEvent, event)
-            print(f'=> {event.user_index} closing position...')
-            assert event.user_index in user_chs, 'user doesnt exist'
+            pass
+            # event = Event.deserialize_from_row(ClosePositionEvent, event)
+            # print(f'=> {event.user_index} closing position...')
+            # assert event.user_index in user_chs, 'user doesnt exist'
             
-            ch: SDKClearingHouse = user_chs[event.user_index]
-            await event.run_sdk(ch, oracle_program, adjust_oracle_pre_trade=True)
+            # ch: SDKClearingHouse = user_chs[event.user_index]
+            # await event.run_sdk(ch, oracle_program, adjust_oracle_pre_trade=True)
 
         elif event.event_name == addLiquidityEvent._event_name: 
             event = Event.deserialize_from_row(addLiquidityEvent, event)
@@ -335,8 +336,36 @@ async def main(protocol_path, experiments_folder):
             k = f"user_{i}"
             df_rows[k] = df_rows.get(k, []) + [l / 10_000]
 
+    # get
+
+    slot = (await provider.connection.get_slot())['result']
+    time: int = (await provider.connection.get_block_time(slot))['result']
+
+    # + N seconds
+    seconds_time = 2
+    await admin_clearing_house.update_market_expiry(time + seconds_time, 0)
+    
+    # close out all the LPs 
+    routines = []
+    for (i, ch) in tqdm(user_chs.items()):
+        position = await ch.get_user_position(0)
+        if position is None: 
+            continue
+        if position.lp_shares > 0:
+            routines.append(
+                ch.remove_liquidity(position.lp_shares, position.market_index)
+            )
+    await asyncio.gather(*routines)
+
+    # settle expired market
+    import time 
+    time.sleep(seconds_time)
+    await admin_clearing_house.settle_expired_market(0)
+
     df = pd.DataFrame(df_rows)
     df.to_csv('tmp.csv', index=False)
+
+    return
 
     # close out anyone who hasnt already closed out 
     print('closing out everyone...')
@@ -405,6 +434,13 @@ async def main(protocol_path, experiments_folder):
         market.amm.net_base_asset_amount, 
         market.amm.net_unsettled_lp_base_asset_amount,
         market.amm.net_base_asset_amount + market.amm.net_unsettled_lp_base_asset_amount
+    )
+
+    print(
+        'net long/short',
+        market.base_asset_amount_long, 
+        market.base_asset_amount_short, 
+        market.amm.user_lp_shares, 
     )
 
     print(
