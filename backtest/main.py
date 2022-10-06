@@ -14,6 +14,7 @@ from driftpy.math.market import *
 from driftpy.math.user import *
 
 from driftpy.types import *
+from driftpy.types import PerpMarket
 from driftpy.constants.numeric_constants import *
 
 from driftpy.setup.helpers import _create_usdc_mint, mock_oracle, _airdrop_user, set_price_feed, adjust_oracle_pretrade, _mint_usdc_tx, _create_user_usdc_ata_tx
@@ -191,6 +192,16 @@ async def main(protocol_path, experiments_folder):
     deposit_amounts = {}
     for i in tqdm(range(len(events))):
         event = events.iloc[i]
+
+         # track market state after event
+        market: PerpMarket = await get_market_account(program, 0)
+        if i > 0:
+            pd.DataFrame(market.amm.__dict__, index=[0]).to_csv(f"./{experiments_folder}/result_market0.csv",
+            mode="a", index=False, header=False
+            )
+        else:
+            pd.DataFrame(market.amm.__dict__, index=[0]).to_csv(f"./{experiments_folder}/result_market0.csv", index=False)
+
         if event.event_name == DepositCollateralEvent._event_name:
             event = Event.deserialize_from_row(DepositCollateralEvent, event)
             deposit_amounts[event.user_index] = deposit_amounts.get(event.user_index, 0) + event.deposit_amount
