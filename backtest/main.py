@@ -124,6 +124,7 @@ async def init_user(
     return await routine
 
 async def main(protocol_path, experiments_folder):
+    # e.g.
     # protocol_path = "../driftpy/protocol-v2/"#
     # experiments_folder = 'tmp2'
     events = pd.read_csv(f"./{experiments_folder}/events.csv")
@@ -302,13 +303,8 @@ async def main(protocol_path, experiments_folder):
             ch: SDKClearingHouse = user_chs[event.user_index]
             sig = await event.run_sdk(ch, init_leverage, oracle_program, adjust_oracle_pre_trade=True)
 
-            # from solana.rpc.commitment import Confirmed, Processed
-            # ch.program.provider.connection._commitment = Confirmed
-            # tx = await ch.program.provider.connection.get_transaction(sig)
-            # ch.program.provider.connection._commitment = Processed
-            # print(tx)
-
         elif event.event_name == ClosePositionEvent._event_name: 
+            # dont close so we have stuff to settle 
             continue
             # event = Event.deserialize_from_row(ClosePositionEvent, event)
             # print(f'=> {event.user_index} closing position...')
@@ -357,19 +353,19 @@ async def main(protocol_path, experiments_folder):
         #
         await try_liquidate()
 
-        # track metrics
-        chu: ClearingHouseUser
-        leverages = []
-        indexs = []
-        for user_index, chu in user_chus.items():
-            leverage = chu.get_leverage()
-            leverages.append(leverage)
-            indexs.append(user_index)
+        # # track metrics
+        # chu: ClearingHouseUser
+        # leverages = []
+        # indexs = []
+        # for user_index, chu in user_chus.items():
+        #     leverage = chu.get_leverage()
+        #     leverages.append(leverage)
+        #     indexs.append(user_index)
         
-        leverages = await asyncio.gather(*leverages)
-        for l, i in zip(leverages, indexs):
-            k = f"user_{i}"
-            df_rows[k] = df_rows.get(k, []) + [l / 10_000]
+        # leverages = await asyncio.gather(*leverages)
+        # for l, i in zip(leverages, indexs):
+        #     k = f"user_{i}"
+        #     df_rows[k] = df_rows.get(k, []) + [l / 10_000]
 
     print('delisting market...')
     # get
@@ -397,6 +393,15 @@ async def main(protocol_path, experiments_folder):
     import time 
     time.sleep(seconds_time)
     sig = await admin_clearing_house.settle_expired_market(0)
+
+    market = await get_market_account(
+        program, 0
+    )
+    print(
+        'market settlment price vs twap', 
+        market.settlement_price, 
+        market.amm.historical_oracle_data.last_oracle_price_twap
+    )
 
     # liquidate em + resolve bankrupts
     await try_liquidate()
@@ -453,7 +458,7 @@ async def main(protocol_path, experiments_folder):
             except Exception as e:
                 if "0x17e2" in e.args[0]['message']: # pool doesnt have enough 
                     print(colored(f'     *** settle expired position failed... ***   ', "red"))
-                    print(e.args[0]['message'])
+                    print(e.args)
                     success = False
                 else: 
                     raise Exception(e)
@@ -479,8 +484,8 @@ async def main(protocol_path, experiments_folder):
     )
     print(market.status)
 
-    df = pd.DataFrame(df_rows)
-    df.to_csv('tmp.csv', index=False)
+    # df = pd.DataFrame(df_rows)
+    # df.to_csv('tmp.csv', index=False)
 
     # # close out anyone who hasnt already closed out 
     # print('closing out everyone...')

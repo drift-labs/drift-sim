@@ -253,7 +253,6 @@ class OpenPositionEvent(Event):
             "short": PositionDirection.SHORT(),
         }[self.direction]
 
-        print(f'opening baa: {baa} {direction} {self.market_index}')
 
         if adjust_oracle_pre_trade: 
             assert oracle_program is not None
@@ -272,6 +271,12 @@ class OpenPositionEvent(Event):
             max_baa = collateral * init_leverage / price
             # update 
             baa = int(min(max_baa, baa))
+
+        if baa == 0:
+            print('trying to open position with baa == 0 : early exiting open position')
+            return 
+
+        print(f'opening baa: {baa} {direction} {self.market_index}')
         
         try:
             return await clearing_house.open_position(
