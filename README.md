@@ -1,11 +1,13 @@
 ## QuickStart
 
-```
+## install python packages 
+```bash
 # creates a virtualenv called "venv"
-python3.9 -m venv venv
+python3.10 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 pip install driftpy/ --upgrade
+# setup other submodules
 bash setup.sh 
 ```
 
@@ -16,7 +18,7 @@ bash setup.sh
 ## update scripts
 
 ```
-git submodule update --remote --merge
+git submodule update --init --recursive
 pip install driftpy/ --upgrade
 ```
 
