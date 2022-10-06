@@ -282,8 +282,6 @@ class OpenPositionEvent(Event):
             print(e.args)
             from termcolor import colored
             print(colored('open position failed...', "red"))
-            pass 
-
                 
 @dataclass
 class ClosePositionEvent(Event): 

@@ -139,8 +139,10 @@ async def main(protocol_path, experiments_folder):
     # read and load initial clearing house state (thats all we use chs.csv for...)
     init_state = clearing_houses.iloc[0]
     init_reserves = int(init_state.m0_base_asset_reserve) # 200 * 1e13
+    print('> initial reserves:', init_reserves)
 
-    oracle = await mock_oracle(workspace["pyth"], 1, -7)
+    print('> init peg', init_state.m0_peg_multiplier / PEG_PRECISION)
+    oracle = await mock_oracle(workspace["pyth"], init_state.m0_peg_multiplier / PEG_PRECISION, -7)
     init_leverage = 11
     await admin_clearing_house.initialize_market(
         oracle, 
@@ -247,7 +249,32 @@ async def main(protocol_path, experiments_folder):
                     raise Exception(e)
 
         await derisk()
+        await resolve_bankruptcies()
 
+    async def resolve_bankruptcies():
+        ch: ClearingHouse
+        user_promises = []
+        for ch in user_chs.values(): 
+            authority = ch.authority
+            if authority == liquidator_clearing_house.authority: 
+                continue
+            user = ch.get_user()
+            user_promises.append(user)
+        users = await asyncio.gather(*user_promises)
+        promises = []
+        user: User
+        for user in users:
+            if user.bankrupt:
+                promise = liquidator_clearing_house.resolve_perp_bankruptcy(
+                    authority,  0
+                )
+                promises.append(promise)
+
+        for promise in promises:
+            await promise
+            from termcolor import colored
+            print(colored('     *** bankrupt resolved ***   ', "green"))
+        
     async def derisk():
         ch = liquidator_clearing_house
         position = await ch.get_user_position(0)
@@ -260,7 +287,6 @@ async def main(protocol_path, experiments_folder):
     #   calculate margin requirements of user same as js sdk 
 
     df_rows = {}
-    was_event = True
     for i in tqdm(range(len(events))):
         event = events.iloc[i]
 
@@ -273,7 +299,13 @@ async def main(protocol_path, experiments_folder):
             assert event.user_index in user_chs, 'user doesnt exist'
 
             ch: SDKClearingHouse = user_chs[event.user_index]
-            await event.run_sdk(ch, init_leverage, oracle_program, adjust_oracle_pre_trade=True)
+            sig = await event.run_sdk(ch, init_leverage, oracle_program, adjust_oracle_pre_trade=True)
+
+            from solana.rpc.commitment import Confirmed, Processed
+            ch.program.provider.connection._commitment = Confirmed
+            tx = await ch.program.provider.connection.get_transaction(sig)
+            ch.program.provider.connection._commitment = Processed
+            print(tx)
 
         elif event.event_name == ClosePositionEvent._event_name: 
             pass
@@ -347,11 +379,12 @@ async def main(protocol_path, experiments_folder):
     
     # close out all the LPs 
     routines = []
-    for (i, ch) in tqdm(user_chs.items()):
+    for (i, ch) in user_chs.items():
         position = await ch.get_user_position(0)
         if position is None: 
             continue
         if position.lp_shares > 0:
+            print(f'removing {position.lp_shares} lp shares...')
             routines.append(
                 ch.remove_liquidity(position.lp_shares, position.market_index)
             )
@@ -360,7 +393,28 @@ async def main(protocol_path, experiments_folder):
     # settle expired market
     import time 
     time.sleep(seconds_time)
-    await admin_clearing_house.settle_expired_market(0)
+    sig = await admin_clearing_house.settle_expired_market(0)
+
+    # liquidate em + resolve bankrupts
+    await try_liquidate()
+
+    # settle expired positions 
+    routines = []
+    for (i, ch) in user_chs.items():
+        position = await ch.get_user_position(0)
+        chu = ClearingHouseUser(ch)
+        free_collateral = await chu.get_free_collateral()
+        print(
+            f"user free collateral: {free_collateral}",
+            position,
+        )
+        if position is None: 
+            continue
+        routines.append(
+            ch.settle_expired_position(ch.authority, 0)
+        )
+    await asyncio.gather(*routines)
+
 
     df = pd.DataFrame(df_rows)
     df.to_csv('tmp.csv', index=False)
@@ -466,3 +520,5 @@ if __name__ == '__main__':
     finally:
         # pass
         val.stop()
+
+# %%
