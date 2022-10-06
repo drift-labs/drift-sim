@@ -138,8 +138,9 @@ async def main(protocol_path, experiments_folder):
 
     # read and load initial clearing house state (thats all we use chs.csv for...)
     init_state = clearing_houses.iloc[0]
-    init_reserves = int(init_state.m0_base_asset_reserve) # 200 * 1e13
+    init_reserves = int(init_state.m0_base_asset_reserve) / 1e13 * AMM_RESERVE_PRECISION # 200 * 1e13
     print('> initial reserves:', init_reserves)
+    print('> initial reserves log:', np.log10(init_reserves))
 
     print('> init peg', init_state.m0_peg_multiplier / PEG_PRECISION)
     oracle = await mock_oracle(workspace["pyth"], init_state.m0_peg_multiplier / PEG_PRECISION, -7)
@@ -301,14 +302,14 @@ async def main(protocol_path, experiments_folder):
             ch: SDKClearingHouse = user_chs[event.user_index]
             sig = await event.run_sdk(ch, init_leverage, oracle_program, adjust_oracle_pre_trade=True)
 
-            from solana.rpc.commitment import Confirmed, Processed
-            ch.program.provider.connection._commitment = Confirmed
-            tx = await ch.program.provider.connection.get_transaction(sig)
-            ch.program.provider.connection._commitment = Processed
-            print(tx)
+            # from solana.rpc.commitment import Confirmed, Processed
+            # ch.program.provider.connection._commitment = Confirmed
+            # tx = await ch.program.provider.connection.get_transaction(sig)
+            # ch.program.provider.connection._commitment = Processed
+            # print(tx)
 
         elif event.event_name == ClosePositionEvent._event_name: 
-            pass
+            continue
             # event = Event.deserialize_from_row(ClosePositionEvent, event)
             # print(f'=> {event.user_index} closing position...')
             # assert event.user_index in user_chs, 'user doesnt exist'
@@ -322,6 +323,8 @@ async def main(protocol_path, experiments_folder):
             assert event.user_index in user_chs, 'user doesnt exist'
 
             ch: SDKClearingHouse = user_chs[event.user_index]
+            # todo: update old percisions from backtest folders
+            event.token_amount = int(event.token_amount * AMM_RESERVE_PRECISION / 1e13)
             await event.run_sdk(ch)
 
         elif event.event_name == removeLiquidityEvent._event_name:
@@ -368,8 +371,8 @@ async def main(protocol_path, experiments_folder):
             k = f"user_{i}"
             df_rows[k] = df_rows.get(k, []) + [l / 10_000]
 
+    print('delisting market...')
     # get
-
     slot = (await provider.connection.get_slot())['result']
     time: int = (await provider.connection.get_block_time(slot))['result']
 
@@ -398,50 +401,108 @@ async def main(protocol_path, experiments_folder):
     # liquidate em + resolve bankrupts
     await try_liquidate()
 
-    # settle expired positions 
+    # cancel open orders
     routines = []
     for (i, ch) in user_chs.items():
         position = await ch.get_user_position(0)
-        chu = ClearingHouseUser(ch)
-        free_collateral = await chu.get_free_collateral()
-        print(
-            f"user free collateral: {free_collateral}",
-            position,
-        )
-        if position is None: 
-            continue
-        routines.append(
-            ch.settle_expired_position(ch.authority, 0)
-        )
+        if position is not None and position.open_orders > 0:
+            routines.append(
+                ch.cancel_order()
+            )
     await asyncio.gather(*routines)
 
+    # settle expired positions 
+    print('settling expired positions')
+
+    number_positions = 0
+    for (i, ch) in user_chs.items():
+        position = await ch.get_user_position(0)
+        if position is None: 
+            continue
+        number_positions += 1
+    print('number of positions:', number_positions)
+
+    market = await get_market_account(program, 0)
+    print(
+        'net long/short',
+        market.base_asset_amount_long, 
+        market.base_asset_amount_short, 
+        market.open_interest, 
+    )
+
+    from termcolor import colored
+    routines = []
+    success = False
+    attempt = -1
+    user_count = 0
+    n_users = len(list(user_chs.keys()))
+    while not success:
+        attempt += 1
+        success = True
+        print(f'attempt {attempt}')
+        for (i, ch) in user_chs.items():
+            position = await ch.get_user_position(0)
+            if position is None: 
+                user_count += 1
+                continue
+
+            try:
+                await ch.settle_expired_position(ch.authority, 0)
+                user_count += 1
+                print(colored(f'     *** settle expired position successful {user_count}/{n_users} ***   ', "green"))
+            except Exception as e:
+                if "0x17e2" in e.args[0]['message']: # pool doesnt have enough 
+                    print(colored(f'     *** settle expired position failed... ***   ', "red"))
+                    print(e.args[0]['message'])
+                    success = False
+                else: 
+                    raise Exception(e)
+
+            market = await get_market_account(program, 0)
+            print(
+                'net long/short',
+                market.base_asset_amount_long, 
+                market.base_asset_amount_short, 
+                market.open_interest, 
+            )
+
+    for (i, ch) in user_chs.items():
+        position = await ch.get_user_position(0)
+        if position is None: 
+            continue
+        print(position)
+
+    await admin_clearing_house.settle_expired_market_pools_to_revenue_pool(0)
+
+    market = await get_market_account(
+        program, 0
+    )
+    print(market.status)
 
     df = pd.DataFrame(df_rows)
     df.to_csv('tmp.csv', index=False)
 
-    return
+    # # close out anyone who hasnt already closed out 
+    # print('closing out everyone...')
+    # net_baa = 1 
+    # market = await get_market_account(program, 0)
+    # max_n_tries = 4
+    # n_tries = 0
+    # while net_baa != 0 and n_tries < max_n_tries:
+    #     n_tries += 1
+    #     net_baa = 0
+    #     for (i, ch) in tqdm(user_chs.items()):
+    #         position = await ch.get_user_position(0)
+    #         if position is None: 
+    #             continue
+    #         net_baa += abs(position.base_asset_amount)
 
-    # close out anyone who hasnt already closed out 
-    print('closing out everyone...')
-    net_baa = 1 
-    market = await get_market_account(program, 0)
-    max_n_tries = 4
-    n_tries = 0
-    while net_baa != 0 and n_tries < max_n_tries:
-        n_tries += 1
-        net_baa = 0
-        for (i, ch) in tqdm(user_chs.items()):
-            position = await ch.get_user_position(0)
-            if position is None: 
-                continue
-            net_baa += abs(position.base_asset_amount)
+    #         if position.lp_shares > 0:
+    #             await ch.remove_liquidity(position.lp_shares, position.market_index)
+    #             position = await ch.get_user_position(0)
 
-            if position.lp_shares > 0:
-                await ch.remove_liquidity(position.lp_shares, position.market_index)
-                position = await ch.get_user_position(0)
-
-            if position.base_asset_amount != 0: 
-                await ch.close_position(position.market_index)
+    #         if position.base_asset_amount != 0: 
+    #             await ch.close_position(position.market_index)
 
     # compute total collateral at end of sim
     end_total_collateral = 0 

@@ -243,6 +243,7 @@ class OpenPositionEvent(Event):
             market.amm.peg_multiplier,
         )
         baa = int(self.quote_amount * AMM_RESERVE_PRECISION / QUOTE_PRECISION / mark_price)
+        baa = min(baa, market.amm.base_asset_reserve // 2)
         if baa == 0: 
             print('warning: baa too small -> rounding up')
             baa = market.amm.base_asset_amount_step_size
