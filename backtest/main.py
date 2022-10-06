@@ -193,18 +193,21 @@ async def main(protocol_path, experiments_folder):
     for i in tqdm(range(len(events))):
         event = events.iloc[i]
 
-         # track market state after event
-        market: PerpMarket = await get_market_account(program, 0)
-        if i > 0:
-            pd.DataFrame(market.amm.__dict__, index=[0]).to_csv(f"./{experiments_folder}/result_market0.csv",
-            mode="a", index=False, header=False
-            )
-        else:
-            pd.DataFrame(market.amm.__dict__, index=[0]).to_csv(f"./{experiments_folder}/result_market0.csv", index=False)
-
         if event.event_name == DepositCollateralEvent._event_name:
             event = Event.deserialize_from_row(DepositCollateralEvent, event)
             deposit_amounts[event.user_index] = deposit_amounts.get(event.user_index, 0) + event.deposit_amount
+
+            # track market state after event
+            market: PerpMarket = await get_market_account(program, 0)
+            d = market.amm.__dict__
+            d.pop("padding")
+            if i > 0:
+                pd.DataFrame(d, index=[0]).to_csv(f"./{experiments_folder}/result_market0.csv",
+                    mode="a", index=False, header=False
+                )
+            else:
+                pd.DataFrame(d, index=[0]).to_csv(f"./{experiments_folder}/result_market0.csv", index=False)
+
     deposit_amounts[liquidator_index] = 1_000_000 * QUOTE_PRECISION
 
     routines = [] 
@@ -363,6 +366,17 @@ async def main(protocol_path, experiments_folder):
         
         #
         await try_liquidate()
+
+        # track market state after event
+        market: PerpMarket = await get_market_account(program, 0)
+        d = market.amm.__dict__
+        d.pop("padding")
+        if i > 0:
+            pd.DataFrame(d, index=[0]).to_csv(f"./{experiments_folder}/result_market0.csv",
+                mode="a", index=False, header=False
+            )
+        else:
+            pd.DataFrame(d, index=[0]).to_csv(f"./{experiments_folder}/result_market0.csv", index=False)
 
         # # track metrics
         # chu: ClearingHouseUser
