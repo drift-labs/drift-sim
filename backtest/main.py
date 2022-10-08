@@ -131,6 +131,7 @@ async def main(protocol_path, experiments_folder):
     events = pd.read_csv(f"./{experiments_folder}/events.csv")
     clearing_houses = pd.read_csv(f"./{experiments_folder}/chs.csv")
 
+    print('creating workspace: %s' % protocol_path)
     workspace = create_workspace(protocol_path)
     program: Program = workspace["clearing_house"]
     oracle_program: Program = workspace["pyth"]
@@ -162,7 +163,7 @@ async def main(protocol_path, experiments_folder):
     await admin_clearing_house.update_perp_auction_duration(0)
     await admin_clearing_house.update_lp_cooldown_time(0, 0)
     await admin_clearing_house.update_max_base_asset_amount_ratio(1, 0)
-    await admin_clearing_house.update_market_base_asset_amount_step_size(1 * AMM_RESERVE_PRECISION, 0)
+    await admin_clearing_house.update_perp_step_size_and_tick_size(0, 1 * AMM_RESERVE_PRECISION, 1)
 
     # fast init for users - airdrop takes a bit to finalize
     print('airdropping sol to users...')
@@ -502,7 +503,8 @@ async def main(protocol_path, experiments_folder):
             continue
         print(position)
 
-    await admin_clearing_house.settle_expired_market_pools_to_revenue_pool(0)
+    # skip for now
+    # await admin_clearing_house.settle_expired_market_pools_to_revenue_pool(0)
 
     market = await get_market_account(
         program, 0
@@ -586,6 +588,15 @@ async def main(protocol_path, experiments_folder):
         market.base_asset_amount_long, 
         market.base_asset_amount_short, 
         market.amm.user_lp_shares, 
+    )
+
+    print(
+        'cumulative_social_loss / funding:',
+        market.amm.cumulative_social_loss, 
+        market.amm.cumulative_funding_rate_long, 
+        market.amm.cumulative_funding_rate_short, 
+        market.amm.last_funding_rate_long, 
+        market.amm.last_funding_rate_short, 
     )
 
     print(

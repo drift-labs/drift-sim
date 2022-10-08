@@ -47,7 +47,7 @@ from sim.events import *
 from sim.agents import * 
 
 def setup_ch(base_spread=0, strategies='', n_steps=100, n_users=2):
-    prices, timestamps = random_walk_oracle(1, n_steps=n_steps)
+    prices, timestamps = rand_heterosk_oracle(90, n_steps=n_steps)
     oracle = Oracle(prices=prices, timestamps=timestamps)
     
     amm = SimulationAMM(
@@ -250,7 +250,7 @@ print('---')
 import pathlib 
 import pandas as pd 
 
-path = pathlib.Path('../backtest/leverage')
+path = pathlib.Path('../backtest/leverage10x')
 path.mkdir(exist_ok=True, parents=True)
 print(str(path.absolute()))
 
