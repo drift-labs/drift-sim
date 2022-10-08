@@ -11,6 +11,13 @@ pip install driftpy/ --upgrade
 bash setup.sh 
 ```
 
+
+requirements / setup help:
+- you'll need python 3.10
+- to satisfy the requirements.tx you may need to install some 
+- on mac OS, you can use homebrew
+  - `brew install postgresql`
+
 ## run an example 
 
 - `sim_eval.ipynb`
