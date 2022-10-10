@@ -1,26 +1,427 @@
-oracle,historical_oracle_data,market_position,market_position_per_lp,fee_pool,last_oracle_normalised_price,last_oracle_reserve_price_spread_pct,base_asset_reserve,quote_asset_reserve,concentration_coef,min_base_asset_reserve,max_base_asset_reserve,sqrt_k,peg_multiplier,terminal_quote_asset_reserve,net_base_asset_amount,quote_asset_amount_long,quote_asset_amount_short,quote_entry_amount_long,quote_entry_amount_short,user_lp_shares,net_unsettled_lp_base_asset_amount,last_funding_rate,last_funding_rate_long,last_funding_rate_short,last24h_avg_funding_rate,total_fee,total_mm_fee,total_exchange_fee,total_fee_minus_distributions,total_fee_withdrawn,total_liquidation_fee,cumulative_funding_rate_long,cumulative_funding_rate_short,cumulative_social_loss,long_spread,short_spread,ask_base_asset_reserve,ask_quote_asset_reserve,bid_base_asset_reserve,bid_quote_asset_reserve,last_bid_price_twap,last_ask_price_twap,last_mark_price_twap,last_mark_price_twap5min,last_update_slot,last_oracle_conf_pct,net_revenue_since_last_funding,lp_cooldown_time,last_funding_rate_ts,funding_period,order_step_size,order_tick_size,min_order_size,max_position_size,volume24h,long_intensity_volume,short_intensity_volume,last_trade_ts,mark_std,last_mark_price_twap_ts,max_spread,max_base_asset_amount_ratio,max_slippage_ratio,base_spread,long_intensity_count,short_intensity_count,curve_update_intensity,amm_jit_intensity,oracle_source,last_oracle_valid
-CVgBZST9AyrSsXEGPo4q3o33UTA5NMiS3FKtfuisLnv9,"HistoricalOracleData(last_oracle_price=14716202, last_oracle_conf=0, last_oracle_delay=-228506951, last_oracle_price_twap=14716202, last_oracle_price_twap5min=14716202, last_oracle_price_twap_ts=1665260209)","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_net_base_asset_amount_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_net_base_asset_amount_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PoolBalance(balance=0, market_index=0, padding=ListContainer([0, 0, 0, 0, 0, 0]))",14716202,0,1000000000,1000000000,1414200,707113562,1414200000,1000000000,14716202,1000000000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1000000000,1000000000,1000000000,1000000000,14716202,14716202,14716202,14716202,8,0,0,0,1665260209,60,1000000000,1,100000,0,0,0,0,1665260209,0,1665260209,38855,1,50,0,0,0,0,0,OracleSource.Pyth(),False
-CVgBZST9AyrSsXEGPo4q3o33UTA5NMiS3FKtfuisLnv9,"HistoricalOracleData(last_oracle_price=14716202, last_oracle_conf=0, last_oracle_delay=-228506951, last_oracle_price_twap=14716202, last_oracle_price_twap5min=14716202, last_oracle_price_twap_ts=1665260209)","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_net_base_asset_amount_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_net_base_asset_amount_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PoolBalance(balance=0, market_index=0, padding=ListContainer([0, 0, 0, 0, 0, 0]))",14716202,0,1000000000,1000000000,1414200,707113562,1414200000,1000000000,14716202,1000000000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1000000000,1000000000,1000000000,1000000000,14716202,14716202,14716202,14716202,8,0,0,0,1665260209,60,1000000000,1,100000,0,0,0,0,1665260209,0,1665260209,38855,1,50,0,0,0,0,0,OracleSource.Pyth(),False
-CVgBZST9AyrSsXEGPo4q3o33UTA5NMiS3FKtfuisLnv9,"HistoricalOracleData(last_oracle_price=14716202, last_oracle_conf=0, last_oracle_delay=-228506951, last_oracle_price_twap=14716202, last_oracle_price_twap5min=14716202, last_oracle_price_twap_ts=1665260209)","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_net_base_asset_amount_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_net_base_asset_amount_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PoolBalance(balance=0, market_index=0, padding=ListContainer([0, 0, 0, 0, 0, 0]))",14716202,0,1000000000,1000000000,1414200,707113562,1414200000,1000000000,14716202,1000000000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1000000000,1000000000,1000000000,1000000000,14716202,14716202,14716202,14716202,8,0,0,0,1665260209,60,1000000000,1,100000,0,0,0,0,1665260209,0,1665260209,38855,1,50,0,0,0,0,0,OracleSource.Pyth(),False
-CVgBZST9AyrSsXEGPo4q3o33UTA5NMiS3FKtfuisLnv9,"HistoricalOracleData(last_oracle_price=14716202, last_oracle_conf=0, last_oracle_delay=-228506951, last_oracle_price_twap=14716202, last_oracle_price_twap5min=14716202, last_oracle_price_twap_ts=1665260209)","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_net_base_asset_amount_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_net_base_asset_amount_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PoolBalance(balance=0, market_index=0, padding=ListContainer([0, 0, 0, 0, 0, 0]))",14716202,0,1000000000,1000000000,1414200,707113562,1414200000,1000000000,14716202,1000000000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1000000000,1000000000,1000000000,1000000000,14716202,14716202,14716202,14716202,8,0,0,0,1665260209,60,1000000000,1,100000,0,0,0,0,1665260209,0,1665260209,38855,1,50,0,0,0,0,0,OracleSource.Pyth(),False
-CVgBZST9AyrSsXEGPo4q3o33UTA5NMiS3FKtfuisLnv9,"HistoricalOracleData(last_oracle_price=14716202, last_oracle_conf=0, last_oracle_delay=-228506951, last_oracle_price_twap=14716202, last_oracle_price_twap5min=14716202, last_oracle_price_twap_ts=1665260209)","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_net_base_asset_amount_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_net_base_asset_amount_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PoolBalance(balance=0, market_index=0, padding=ListContainer([0, 0, 0, 0, 0, 0]))",14716202,0,1000000000,1000000000,1414200,707113562,1414200000,1000000000,14716202,1000000000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1000000000,1000000000,1000000000,1000000000,14716202,14716202,14716202,14716202,8,0,0,0,1665260209,60,1000000000,1,100000,0,0,0,0,1665260209,0,1665260209,38855,1,50,0,0,0,0,0,OracleSource.Pyth(),False
-CVgBZST9AyrSsXEGPo4q3o33UTA5NMiS3FKtfuisLnv9,"HistoricalOracleData(last_oracle_price=14716202, last_oracle_conf=0, last_oracle_delay=-228506951, last_oracle_price_twap=14716202, last_oracle_price_twap5min=14716202, last_oracle_price_twap_ts=1665260209)","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_net_base_asset_amount_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_net_base_asset_amount_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PoolBalance(balance=0, market_index=0, padding=ListContainer([0, 0, 0, 0, 0, 0]))",14716202,0,1000000000,1000000000,1414200,707113562,1414200000,1000000000,14716202,1000000000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1000000000,1000000000,1000000000,1000000000,14716202,14716202,14716202,14716202,8,0,0,0,1665260209,60,1000000000,1,100000,0,0,0,0,1665260209,0,1665260209,38855,1,50,0,0,0,0,0,OracleSource.Pyth(),False
-CVgBZST9AyrSsXEGPo4q3o33UTA5NMiS3FKtfuisLnv9,"HistoricalOracleData(last_oracle_price=14716202, last_oracle_conf=0, last_oracle_delay=-228506951, last_oracle_price_twap=14716202, last_oracle_price_twap5min=14716202, last_oracle_price_twap_ts=1665260209)","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_net_base_asset_amount_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_net_base_asset_amount_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PoolBalance(balance=0, market_index=0, padding=ListContainer([0, 0, 0, 0, 0, 0]))",14716202,0,1000000000,1000000000,1414200,707113562,1414200000,1000000000,14716202,1000000000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1000000000,1000000000,1000000000,1000000000,14716202,14716202,14716202,14716202,8,0,0,0,1665260209,60,1000000000,1,100000,0,0,0,0,1665260209,0,1665260209,38855,1,50,0,0,0,0,0,OracleSource.Pyth(),False
-CVgBZST9AyrSsXEGPo4q3o33UTA5NMiS3FKtfuisLnv9,"HistoricalOracleData(last_oracle_price=14716202, last_oracle_conf=0, last_oracle_delay=-228506951, last_oracle_price_twap=14716202, last_oracle_price_twap5min=14716202, last_oracle_price_twap_ts=1665260209)","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_net_base_asset_amount_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_net_base_asset_amount_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PoolBalance(balance=0, market_index=0, padding=ListContainer([0, 0, 0, 0, 0, 0]))",14716202,0,1000000000,1000000000,1414200,707113562,1414200000,1000000000,14716202,1000000000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1000000000,1000000000,1000000000,1000000000,14716202,14716202,14716202,14716202,8,0,0,0,1665260209,60,1000000000,1,100000,0,0,0,0,1665260209,0,1665260209,38855,1,50,0,0,0,0,0,OracleSource.Pyth(),False
-CVgBZST9AyrSsXEGPo4q3o33UTA5NMiS3FKtfuisLnv9,"HistoricalOracleData(last_oracle_price=14716202, last_oracle_conf=0, last_oracle_delay=-228506951, last_oracle_price_twap=14716202, last_oracle_price_twap5min=14716202, last_oracle_price_twap_ts=1665260209)","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_net_base_asset_amount_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_net_base_asset_amount_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PoolBalance(balance=0, market_index=0, padding=ListContainer([0, 0, 0, 0, 0, 0]))",14716202,0,1000000000,1000000000,1414200,707113562,1414200000,1000000000,14716202,1000000000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1000000000,1000000000,1000000000,1000000000,14716202,14716202,14716202,14716202,8,0,0,0,1665260209,60,1000000000,1,100000,0,0,0,0,1665260209,0,1665260209,38855,1,50,0,0,0,0,0,OracleSource.Pyth(),False
-CVgBZST9AyrSsXEGPo4q3o33UTA5NMiS3FKtfuisLnv9,"HistoricalOracleData(last_oracle_price=14716202, last_oracle_conf=0, last_oracle_delay=-228506951, last_oracle_price_twap=14716202, last_oracle_price_twap5min=14716202, last_oracle_price_twap_ts=1665260209)","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_net_base_asset_amount_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_net_base_asset_amount_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PoolBalance(balance=0, market_index=0, padding=ListContainer([0, 0, 0, 0, 0, 0]))",14716202,0,1000000000,1000000000,1414200,707113562,1414200000,1000000000,14716202,1000000000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1000000000,1000000000,1000000000,1000000000,14716202,14716202,14716202,14716202,8,0,0,0,1665260209,60,1000000000,1,100000,0,0,0,0,1665260209,0,1665260209,38855,1,50,0,0,0,0,0,OracleSource.Pyth(),False
-CVgBZST9AyrSsXEGPo4q3o33UTA5NMiS3FKtfuisLnv9,"HistoricalOracleData(last_oracle_price=14716202, last_oracle_conf=0, last_oracle_delay=-228506951, last_oracle_price_twap=14716202, last_oracle_price_twap5min=14716202, last_oracle_price_twap_ts=1665260209)","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_net_base_asset_amount_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_net_base_asset_amount_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PoolBalance(balance=0, market_index=0, padding=ListContainer([0, 0, 0, 0, 0, 0]))",14716202,0,1000000000,1000000000,1414200,707113562,1414200000,1000000000,14716202,1000000000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1000000000,1000000000,1000000000,1000000000,14716202,14716202,14716202,14716202,8,0,0,0,1665260209,60,1000000000,1,100000,0,0,0,0,1665260209,0,1665260209,38855,1,50,0,0,0,0,0,OracleSource.Pyth(),False
-CVgBZST9AyrSsXEGPo4q3o33UTA5NMiS3FKtfuisLnv9,"HistoricalOracleData(last_oracle_price=14716202, last_oracle_conf=0, last_oracle_delay=-228506951, last_oracle_price_twap=14716202, last_oracle_price_twap5min=14716202, last_oracle_price_twap_ts=1665260209)","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_net_base_asset_amount_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_net_base_asset_amount_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PoolBalance(balance=0, market_index=0, padding=ListContainer([0, 0, 0, 0, 0, 0]))",14716202,0,1000000000,1000000000,1414200,707113562,1414200000,1000000000,14716202,1000000000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1000000000,1000000000,1000000000,1000000000,14716202,14716202,14716202,14716202,8,0,0,0,1665260209,60,1000000000,1,100000,0,0,0,0,1665260209,0,1665260209,38855,1,50,0,0,0,0,0,OracleSource.Pyth(),False
-CVgBZST9AyrSsXEGPo4q3o33UTA5NMiS3FKtfuisLnv9,"HistoricalOracleData(last_oracle_price=14716202, last_oracle_conf=0, last_oracle_delay=-228506951, last_oracle_price_twap=14716202, last_oracle_price_twap5min=14716202, last_oracle_price_twap_ts=1665260209)","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_net_base_asset_amount_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_net_base_asset_amount_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PoolBalance(balance=0, market_index=0, padding=ListContainer([0, 0, 0, 0, 0, 0]))",14716202,0,1000000000,1000000000,1414200,707113562,1414200000,1000000000,14716202,1000000000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1000000000,1000000000,1000000000,1000000000,14716202,14716202,14716202,14716202,8,0,0,0,1665260209,60,1000000000,1,100000,0,0,0,0,1665260209,0,1665260209,38855,1,50,0,0,0,0,0,OracleSource.Pyth(),False
-CVgBZST9AyrSsXEGPo4q3o33UTA5NMiS3FKtfuisLnv9,"HistoricalOracleData(last_oracle_price=14716202, last_oracle_conf=0, last_oracle_delay=-228506951, last_oracle_price_twap=14716202, last_oracle_price_twap5min=14716202, last_oracle_price_twap_ts=1665260209)","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_net_base_asset_amount_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_net_base_asset_amount_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PoolBalance(balance=0, market_index=0, padding=ListContainer([0, 0, 0, 0, 0, 0]))",14716202,0,1000000000,1000000000,1414200,707113562,1414200000,1000000000,14716202,1000000000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1000000000,1000000000,1000000000,1000000000,14716202,14716202,14716202,14716202,8,0,0,0,1665260209,60,1000000000,1,100000,0,0,0,0,1665260209,0,1665260209,38855,1,50,0,0,0,0,0,OracleSource.Pyth(),False
-CVgBZST9AyrSsXEGPo4q3o33UTA5NMiS3FKtfuisLnv9,"HistoricalOracleData(last_oracle_price=14716202, last_oracle_conf=0, last_oracle_delay=-228506951, last_oracle_price_twap=14716202, last_oracle_price_twap5min=14716202, last_oracle_price_twap_ts=1665260209)","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_net_base_asset_amount_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_net_base_asset_amount_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PoolBalance(balance=0, market_index=0, padding=ListContainer([0, 0, 0, 0, 0, 0]))",14716202,0,1000000000,1000000000,1414200,707113562,1414200000,1000000000,14716202,1000000000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1000000000,1000000000,1000000000,1000000000,14716202,14716202,14716202,14716202,8,0,0,0,1665260209,60,1000000000,1,100000,0,0,0,0,1665260209,0,1665260209,38855,1,50,0,0,0,0,0,OracleSource.Pyth(),False
-CVgBZST9AyrSsXEGPo4q3o33UTA5NMiS3FKtfuisLnv9,"HistoricalOracleData(last_oracle_price=14716202, last_oracle_conf=0, last_oracle_delay=-228506951, last_oracle_price_twap=14716202, last_oracle_price_twap5min=14716202, last_oracle_price_twap_ts=1665260209)","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_net_base_asset_amount_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_net_base_asset_amount_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PoolBalance(balance=0, market_index=0, padding=ListContainer([0, 0, 0, 0, 0, 0]))",14716202,0,1000000000,1000000000,1414200,707113562,1414200000,1000000000,14716202,1000000000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1000000000,1000000000,1000000000,1000000000,14716202,14716202,14716202,14716202,8,0,0,0,1665260209,60,1000000000,1,100000,0,0,0,0,1665260209,0,1665260209,38855,1,50,0,0,0,0,0,OracleSource.Pyth(),False
-CVgBZST9AyrSsXEGPo4q3o33UTA5NMiS3FKtfuisLnv9,"HistoricalOracleData(last_oracle_price=14716202, last_oracle_conf=0, last_oracle_delay=-228506951, last_oracle_price_twap=14716202, last_oracle_price_twap5min=14716202, last_oracle_price_twap_ts=1665260209)","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_net_base_asset_amount_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_net_base_asset_amount_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PoolBalance(balance=0, market_index=0, padding=ListContainer([0, 0, 0, 0, 0, 0]))",14716202,0,1000000000,1000000000,1414200,707113562,1414200000,1000000000,14716202,1000000000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1000000000,1000000000,1000000000,1000000000,14716202,14716202,14716202,14716202,8,0,0,0,1665260209,60,1000000000,1,100000,0,0,0,0,1665260209,0,1665260209,38855,1,50,0,0,0,0,0,OracleSource.Pyth(),False
-CVgBZST9AyrSsXEGPo4q3o33UTA5NMiS3FKtfuisLnv9,"HistoricalOracleData(last_oracle_price=14716202, last_oracle_conf=0, last_oracle_delay=-228506951, last_oracle_price_twap=14716202, last_oracle_price_twap5min=14716202, last_oracle_price_twap_ts=1665260209)","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_net_base_asset_amount_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_net_base_asset_amount_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PoolBalance(balance=0, market_index=0, padding=ListContainer([0, 0, 0, 0, 0, 0]))",14716202,0,1000000000,1000000000,1414200,707113562,1414200000,1000000000,14716202,1000000000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1000000000,1000000000,1000000000,1000000000,14716202,14716202,14716202,14716202,8,0,0,0,1665260209,60,1000000000,1,100000,0,0,0,0,1665260209,0,1665260209,38855,1,50,0,0,0,0,0,OracleSource.Pyth(),False
-CVgBZST9AyrSsXEGPo4q3o33UTA5NMiS3FKtfuisLnv9,"HistoricalOracleData(last_oracle_price=14716202, last_oracle_conf=0, last_oracle_delay=-228506951, last_oracle_price_twap=14716202, last_oracle_price_twap5min=14716202, last_oracle_price_twap_ts=1665260209)","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_net_base_asset_amount_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_net_base_asset_amount_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PoolBalance(balance=0, market_index=0, padding=ListContainer([0, 0, 0, 0, 0, 0]))",14716202,0,1000000000,1000000000,1414200,707113562,1414200000,1000000000,14716202,1000000000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1000000000,1000000000,1000000000,1000000000,14716202,14716202,14716202,14716202,8,0,0,0,1665260209,60,1000000000,1,100000,0,0,0,0,1665260209,0,1665260209,38855,1,50,0,0,0,0,0,OracleSource.Pyth(),False
-CVgBZST9AyrSsXEGPo4q3o33UTA5NMiS3FKtfuisLnv9,"HistoricalOracleData(last_oracle_price=14716202, last_oracle_conf=0, last_oracle_delay=-228506951, last_oracle_price_twap=14716202, last_oracle_price_twap5min=14716202, last_oracle_price_twap_ts=1665260209)","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_net_base_asset_amount_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_net_base_asset_amount_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PoolBalance(balance=0, market_index=0, padding=ListContainer([0, 0, 0, 0, 0, 0]))",14716202,0,1000000000,1000000000,1414200,707113562,1414200000,1000000000,14716202,1000000000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1000000000,1000000000,1000000000,1000000000,14716202,14716202,14716202,14716202,8,0,0,0,1665260209,60,1000000000,1,100000,0,0,0,0,1665260209,0,1665260209,38855,1,50,0,0,0,0,0,OracleSource.Pyth(),False
-CVgBZST9AyrSsXEGPo4q3o33UTA5NMiS3FKtfuisLnv9,"HistoricalOracleData(last_oracle_price=14716202, last_oracle_conf=0, last_oracle_delay=-228506951, last_oracle_price_twap=14716202, last_oracle_price_twap5min=14716202, last_oracle_price_twap_ts=1665260209)","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_net_base_asset_amount_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_net_base_asset_amount_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PoolBalance(balance=0, market_index=0, padding=ListContainer([0, 0, 0, 0, 0, 0]))",14716202,0,1000000000,1000000000,1414200,707113562,1414200000,1000000000,14716202,1000000000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1000000000,1000000000,1000000000,1000000000,14716202,14716202,14716202,14716202,8,0,0,0,1665260209,60,1000000000,1,100000,0,0,0,0,1665260209,0,1665260209,38855,1,50,0,0,0,0,0,OracleSource.Pyth(),False
-CVgBZST9AyrSsXEGPo4q3o33UTA5NMiS3FKtfuisLnv9,"HistoricalOracleData(last_oracle_price=14716202, last_oracle_conf=0, last_oracle_delay=-228506951, last_oracle_price_twap=14716202, last_oracle_price_twap5min=14716202, last_oracle_price_twap_ts=1665260209)","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_net_base_asset_amount_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_net_base_asset_amount_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PoolBalance(balance=0, market_index=0, padding=ListContainer([0, 0, 0, 0, 0, 0]))",14716202,0,1000000000,1000000000,1414200,707113562,1414200000,1000000000,14716202,1000000000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1000000000,1000000000,1000000000,1000000000,14716202,14716202,14716202,14716202,8,0,0,0,1665260209,60,1000000000,1,100000,0,0,0,0,1665260209,0,1665260209,38855,1,50,0,0,0,0,0,OracleSource.Pyth(),False
-CVgBZST9AyrSsXEGPo4q3o33UTA5NMiS3FKtfuisLnv9,"HistoricalOracleData(last_oracle_price=14716202, last_oracle_conf=0, last_oracle_delay=-228506951, last_oracle_price_twap=14716202, last_oracle_price_twap5min=14716202, last_oracle_price_twap_ts=1665260209)","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_net_base_asset_amount_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_net_base_asset_amount_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PoolBalance(balance=0, market_index=0, padding=ListContainer([0, 0, 0, 0, 0, 0]))",14716202,0,1000000000,1000000000,1414200,707113562,1414200000,1000000000,14716202,1000000000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1000000000,1000000000,1000000000,1000000000,14716202,14716202,14716202,14716202,8,0,0,0,1665260209,60,1000000000,1,100000,0,0,0,0,1665260209,0,1665260209,38855,1,50,0,0,0,0,0,OracleSource.Pyth(),False
-CVgBZST9AyrSsXEGPo4q3o33UTA5NMiS3FKtfuisLnv9,"HistoricalOracleData(last_oracle_price=14716202, last_oracle_conf=0, last_oracle_delay=-228506951, last_oracle_price_twap=14716202, last_oracle_price_twap5min=14716202, last_oracle_price_twap_ts=1665260209)","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_net_base_asset_amount_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_net_base_asset_amount_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PoolBalance(balance=0, market_index=0, padding=ListContainer([0, 0, 0, 0, 0, 0]))",14716202,0,1000000000,1000000000,1414200,707113562,1414200000,1000000000,14716202,1000000000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1000000000,1000000000,1000000000,1000000000,14716202,14716202,14716202,14716202,8,0,0,0,1665260209,60,1000000000,1,100000,0,0,0,0,1665260209,0,1665260209,38855,1,50,0,0,0,0,0,OracleSource.Pyth(),False
-CVgBZST9AyrSsXEGPo4q3o33UTA5NMiS3FKtfuisLnv9,"HistoricalOracleData(last_oracle_price=14716202, last_oracle_conf=0, last_oracle_delay=-228506951, last_oracle_price_twap=14716202, last_oracle_price_twap5min=14716202, last_oracle_price_twap_ts=1665260209)","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_net_base_asset_amount_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_net_base_asset_amount_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PoolBalance(balance=0, market_index=0, padding=ListContainer([0, 0, 0, 0, 0, 0]))",14716202,0,1000000000,1000000000,1414200,707113562,1414200000,1000000000,14716202,1000000000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1000000000,1000000000,1000000000,1000000000,14716202,14716202,14716202,14716202,8,0,0,0,1665260209,60,1000000000,1,100000,0,0,0,0,1665260209,0,1665260209,38855,1,50,0,0,0,0,0,OracleSource.Pyth(),False
+oracle,historical_oracle_data,market_position,market_position_per_lp,fee_pool,last_oracle_normalised_price,last_oracle_reserve_price_spread_pct,base_asset_reserve,quote_asset_reserve,concentration_coef,min_base_asset_reserve,max_base_asset_reserve,sqrt_k,peg_multiplier,terminal_quote_asset_reserve,base_asset_amount_with_amm,quote_asset_amount_long,quote_asset_amount_short,quote_entry_amount_long,quote_entry_amount_short,user_lp_shares,base_asset_amount_with_unsettled_lp,last_funding_rate,last_funding_rate_long,last_funding_rate_short,last24h_avg_funding_rate,total_fee,total_mm_fee,total_exchange_fee,total_fee_minus_distributions,total_fee_withdrawn,total_liquidation_fee,cumulative_funding_rate_long,cumulative_funding_rate_short,cumulative_social_loss,long_spread,short_spread,ask_base_asset_reserve,ask_quote_asset_reserve,bid_base_asset_reserve,bid_quote_asset_reserve,last_bid_price_twap,last_ask_price_twap,last_mark_price_twap,last_mark_price_twap5min,last_update_slot,last_oracle_conf_pct,net_revenue_since_last_funding,lp_cooldown_time,last_funding_rate_ts,funding_period,order_step_size,order_tick_size,min_order_size,max_position_size,volume24h,long_intensity_volume,short_intensity_volume,last_trade_ts,mark_std,last_mark_price_twap_ts,max_spread,max_base_asset_amount_ratio,max_slippage_ratio,base_spread,long_intensity_count,short_intensity_count,curve_update_intensity,amm_jit_intensity,oracle_source,last_oracle_valid
+ABzigQUHEbN2eqwL1RYeT9c3GohTKtaAdXViZa3VF2xe,"HistoricalOracleData(last_oracle_price=14716202, last_oracle_conf=0, last_oracle_delay=-228506951, last_oracle_price_twap=14716202, last_oracle_price_twap5min=14716202, last_oracle_price_twap_ts=1665337067)","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_base_asset_amount_with_amm_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_base_asset_amount_with_amm_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PoolBalance(balance=0, market_index=0, padding=ListContainer([0, 0, 0, 0, 0, 0]))",14716202,0,1000000000,1000000000,1414200,707113562,1414200000,1000000000,14716202,1000000000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1000000000,1000000000,1000000000,1000000000,14716202,14716202,14716202,14716202,8,0,0,0,1665337067,60,100000,1,100000,0,0,0,0,1665337067,0,1665337067,38855,1,50,0,0,0,0,0,OracleSource.Pyth(),False
+ABzigQUHEbN2eqwL1RYeT9c3GohTKtaAdXViZa3VF2xe,"HistoricalOracleData(last_oracle_price=14716202, last_oracle_conf=0, last_oracle_delay=-228506951, last_oracle_price_twap=14716202, last_oracle_price_twap5min=14716202, last_oracle_price_twap_ts=1665337067)","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_base_asset_amount_with_amm_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_base_asset_amount_with_amm_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PoolBalance(balance=0, market_index=0, padding=ListContainer([0, 0, 0, 0, 0, 0]))",14716202,0,1000000000,1000000000,1414200,707113562,1414200000,1000000000,14716202,1000000000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1000000000,1000000000,1000000000,1000000000,14716202,14716202,14716202,14716202,8,0,0,0,1665337067,60,100000,1,100000,0,0,0,0,1665337067,0,1665337067,38855,1,50,0,0,0,0,0,OracleSource.Pyth(),False
+ABzigQUHEbN2eqwL1RYeT9c3GohTKtaAdXViZa3VF2xe,"HistoricalOracleData(last_oracle_price=14716202, last_oracle_conf=0, last_oracle_delay=-228506951, last_oracle_price_twap=14716202, last_oracle_price_twap5min=14716202, last_oracle_price_twap_ts=1665337067)","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_base_asset_amount_with_amm_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_base_asset_amount_with_amm_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PoolBalance(balance=0, market_index=0, padding=ListContainer([0, 0, 0, 0, 0, 0]))",14716202,0,1000000000,1000000000,1414200,707113562,1414200000,1000000000,14716202,1000000000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1000000000,1000000000,1000000000,1000000000,14716202,14716202,14716202,14716202,8,0,0,0,1665337067,60,100000,1,100000,0,0,0,0,1665337067,0,1665337067,38855,1,50,0,0,0,0,0,OracleSource.Pyth(),False
+ABzigQUHEbN2eqwL1RYeT9c3GohTKtaAdXViZa3VF2xe,"HistoricalOracleData(last_oracle_price=14716202, last_oracle_conf=0, last_oracle_delay=-228506951, last_oracle_price_twap=14716202, last_oracle_price_twap5min=14716202, last_oracle_price_twap_ts=1665337067)","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_base_asset_amount_with_amm_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_base_asset_amount_with_amm_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PoolBalance(balance=0, market_index=0, padding=ListContainer([0, 0, 0, 0, 0, 0]))",14716202,0,1000000000,1000000000,1414200,707113562,1414200000,1000000000,14716202,1000000000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1000000000,1000000000,1000000000,1000000000,14716202,14716202,14716202,14716202,8,0,0,0,1665337067,60,100000,1,100000,0,0,0,0,1665337067,0,1665337067,38855,1,50,0,0,0,0,0,OracleSource.Pyth(),False
+ABzigQUHEbN2eqwL1RYeT9c3GohTKtaAdXViZa3VF2xe,"HistoricalOracleData(last_oracle_price=14716202, last_oracle_conf=0, last_oracle_delay=-228506951, last_oracle_price_twap=14716202, last_oracle_price_twap5min=14716202, last_oracle_price_twap_ts=1665337067)","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_base_asset_amount_with_amm_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_base_asset_amount_with_amm_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PoolBalance(balance=0, market_index=0, padding=ListContainer([0, 0, 0, 0, 0, 0]))",14716202,0,1000000000,1000000000,1414200,707113562,1414200000,1000000000,14716202,1000000000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1000000000,1000000000,1000000000,1000000000,14716202,14716202,14716202,14716202,8,0,0,0,1665337067,60,100000,1,100000,0,0,0,0,1665337067,0,1665337067,38855,1,50,0,0,0,0,0,OracleSource.Pyth(),False
+ABzigQUHEbN2eqwL1RYeT9c3GohTKtaAdXViZa3VF2xe,"HistoricalOracleData(last_oracle_price=14716202, last_oracle_conf=0, last_oracle_delay=-228506951, last_oracle_price_twap=14716202, last_oracle_price_twap5min=14716202, last_oracle_price_twap_ts=1665337067)","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_base_asset_amount_with_amm_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_base_asset_amount_with_amm_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PoolBalance(balance=0, market_index=0, padding=ListContainer([0, 0, 0, 0, 0, 0]))",14716202,0,1000000000,1000000000,1414200,707113562,1414200000,1000000000,14716202,1000000000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1000000000,1000000000,1000000000,1000000000,14716202,14716202,14716202,14716202,8,0,0,0,1665337067,60,100000,1,100000,0,0,0,0,1665337067,0,1665337067,38855,1,50,0,0,0,0,0,OracleSource.Pyth(),False
+ABzigQUHEbN2eqwL1RYeT9c3GohTKtaAdXViZa3VF2xe,"HistoricalOracleData(last_oracle_price=14716202, last_oracle_conf=0, last_oracle_delay=-228506951, last_oracle_price_twap=14716202, last_oracle_price_twap5min=14716202, last_oracle_price_twap_ts=1665337067)","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_base_asset_amount_with_amm_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_base_asset_amount_with_amm_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PoolBalance(balance=0, market_index=0, padding=ListContainer([0, 0, 0, 0, 0, 0]))",14716202,0,1000000000,1000000000,1414200,707113562,1414200000,1000000000,14716202,1000000000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1000000000,1000000000,1000000000,1000000000,14716202,14716202,14716202,14716202,8,0,0,0,1665337067,60,100000,1,100000,0,0,0,0,1665337067,0,1665337067,38855,1,50,0,0,0,0,0,OracleSource.Pyth(),False
+ABzigQUHEbN2eqwL1RYeT9c3GohTKtaAdXViZa3VF2xe,"HistoricalOracleData(last_oracle_price=14716202, last_oracle_conf=0, last_oracle_delay=-228506951, last_oracle_price_twap=14716202, last_oracle_price_twap5min=14716202, last_oracle_price_twap_ts=1665337067)","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_base_asset_amount_with_amm_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_base_asset_amount_with_amm_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PoolBalance(balance=0, market_index=0, padding=ListContainer([0, 0, 0, 0, 0, 0]))",14716202,0,1000000000,1000000000,1414200,707113562,1414200000,1000000000,14716202,1000000000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1000000000,1000000000,1000000000,1000000000,14716202,14716202,14716202,14716202,8,0,0,0,1665337067,60,100000,1,100000,0,0,0,0,1665337067,0,1665337067,38855,1,50,0,0,0,0,0,OracleSource.Pyth(),False
+ABzigQUHEbN2eqwL1RYeT9c3GohTKtaAdXViZa3VF2xe,"HistoricalOracleData(last_oracle_price=14716202, last_oracle_conf=0, last_oracle_delay=-228506951, last_oracle_price_twap=14716202, last_oracle_price_twap5min=14716202, last_oracle_price_twap_ts=1665337067)","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_base_asset_amount_with_amm_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_base_asset_amount_with_amm_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PoolBalance(balance=0, market_index=0, padding=ListContainer([0, 0, 0, 0, 0, 0]))",14716202,0,1000000000,1000000000,1414200,707113562,1414200000,1000000000,14716202,1000000000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1000000000,1000000000,1000000000,1000000000,14716202,14716202,14716202,14716202,8,0,0,0,1665337067,60,100000,1,100000,0,0,0,0,1665337067,0,1665337067,38855,1,50,0,0,0,0,0,OracleSource.Pyth(),False
+ABzigQUHEbN2eqwL1RYeT9c3GohTKtaAdXViZa3VF2xe,"HistoricalOracleData(last_oracle_price=14716202, last_oracle_conf=0, last_oracle_delay=-228506951, last_oracle_price_twap=14716202, last_oracle_price_twap5min=14716202, last_oracle_price_twap_ts=1665337067)","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_base_asset_amount_with_amm_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_base_asset_amount_with_amm_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PoolBalance(balance=0, market_index=0, padding=ListContainer([0, 0, 0, 0, 0, 0]))",14716202,0,1000000000,1000000000,1414200,707113562,1414200000,1000000000,14716202,1000000000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1000000000,1000000000,1000000000,1000000000,14716202,14716202,14716202,14716202,8,0,0,0,1665337067,60,100000,1,100000,0,0,0,0,1665337067,0,1665337067,38855,1,50,0,0,0,0,0,OracleSource.Pyth(),False
+ABzigQUHEbN2eqwL1RYeT9c3GohTKtaAdXViZa3VF2xe,"HistoricalOracleData(last_oracle_price=14716202, last_oracle_conf=0, last_oracle_delay=-228506951, last_oracle_price_twap=14716202, last_oracle_price_twap5min=14716202, last_oracle_price_twap_ts=1665337067)","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_base_asset_amount_with_amm_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_base_asset_amount_with_amm_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PoolBalance(balance=0, market_index=0, padding=ListContainer([0, 0, 0, 0, 0, 0]))",14716202,0,1000000000,1000000000,1414200,707113562,1414200000,1000000000,14716202,1000000000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1000000000,1000000000,1000000000,1000000000,14716202,14716202,14716202,14716202,8,0,0,0,1665337067,60,100000,1,100000,0,0,0,0,1665337067,0,1665337067,38855,1,50,0,0,0,0,0,OracleSource.Pyth(),False
+ABzigQUHEbN2eqwL1RYeT9c3GohTKtaAdXViZa3VF2xe,"HistoricalOracleData(last_oracle_price=14716202, last_oracle_conf=0, last_oracle_delay=-228506951, last_oracle_price_twap=14716202, last_oracle_price_twap5min=14716202, last_oracle_price_twap_ts=1665337067)","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_base_asset_amount_with_amm_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_base_asset_amount_with_amm_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PoolBalance(balance=0, market_index=0, padding=ListContainer([0, 0, 0, 0, 0, 0]))",14716202,0,1000000000,1000000000,1414200,707113562,1414200000,1000000000,14716202,1000000000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1000000000,1000000000,1000000000,1000000000,14716202,14716202,14716202,14716202,8,0,0,0,1665337067,60,100000,1,100000,0,0,0,0,1665337067,0,1665337067,38855,1,50,0,0,0,0,0,OracleSource.Pyth(),False
+ABzigQUHEbN2eqwL1RYeT9c3GohTKtaAdXViZa3VF2xe,"HistoricalOracleData(last_oracle_price=14716202, last_oracle_conf=0, last_oracle_delay=-228506951, last_oracle_price_twap=14716202, last_oracle_price_twap5min=14716202, last_oracle_price_twap_ts=1665337067)","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_base_asset_amount_with_amm_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_base_asset_amount_with_amm_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PoolBalance(balance=0, market_index=0, padding=ListContainer([0, 0, 0, 0, 0, 0]))",14716202,0,1000000000,1000000000,1414200,707113562,1414200000,1000000000,14716202,1000000000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1000000000,1000000000,1000000000,1000000000,14716202,14716202,14716202,14716202,8,0,0,0,1665337067,60,100000,1,100000,0,0,0,0,1665337067,0,1665337067,38855,1,50,0,0,0,0,0,OracleSource.Pyth(),False
+ABzigQUHEbN2eqwL1RYeT9c3GohTKtaAdXViZa3VF2xe,"HistoricalOracleData(last_oracle_price=14716202, last_oracle_conf=0, last_oracle_delay=-228506951, last_oracle_price_twap=14716202, last_oracle_price_twap5min=14716202, last_oracle_price_twap_ts=1665337067)","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_base_asset_amount_with_amm_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_base_asset_amount_with_amm_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PoolBalance(balance=0, market_index=0, padding=ListContainer([0, 0, 0, 0, 0, 0]))",14716202,0,1000000000,1000000000,1414200,707113562,1414200000,1000000000,14716202,1000000000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1000000000,1000000000,1000000000,1000000000,14716202,14716202,14716202,14716202,8,0,0,0,1665337067,60,100000,1,100000,0,0,0,0,1665337067,0,1665337067,38855,1,50,0,0,0,0,0,OracleSource.Pyth(),False
+ABzigQUHEbN2eqwL1RYeT9c3GohTKtaAdXViZa3VF2xe,"HistoricalOracleData(last_oracle_price=14716202, last_oracle_conf=0, last_oracle_delay=-228506951, last_oracle_price_twap=14716202, last_oracle_price_twap5min=14716202, last_oracle_price_twap_ts=1665337067)","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_base_asset_amount_with_amm_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_base_asset_amount_with_amm_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PoolBalance(balance=0, market_index=0, padding=ListContainer([0, 0, 0, 0, 0, 0]))",14716202,0,1000000000,1000000000,1414200,707113562,1414200000,1000000000,14716202,1000000000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1000000000,1000000000,1000000000,1000000000,14716202,14716202,14716202,14716202,8,0,0,0,1665337067,60,100000,1,100000,0,0,0,0,1665337067,0,1665337067,38855,1,50,0,0,0,0,0,OracleSource.Pyth(),False
+ABzigQUHEbN2eqwL1RYeT9c3GohTKtaAdXViZa3VF2xe,"HistoricalOracleData(last_oracle_price=14716202, last_oracle_conf=0, last_oracle_delay=-228506951, last_oracle_price_twap=14716202, last_oracle_price_twap5min=14716202, last_oracle_price_twap_ts=1665337067)","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_base_asset_amount_with_amm_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_base_asset_amount_with_amm_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PoolBalance(balance=0, market_index=0, padding=ListContainer([0, 0, 0, 0, 0, 0]))",14716202,0,1000000000,1000000000,1414200,707113562,1414200000,1000000000,14716202,1000000000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1000000000,1000000000,1000000000,1000000000,14716202,14716202,14716202,14716202,8,0,0,0,1665337067,60,100000,1,100000,0,0,0,0,1665337067,0,1665337067,38855,1,50,0,0,0,0,0,OracleSource.Pyth(),False
+ABzigQUHEbN2eqwL1RYeT9c3GohTKtaAdXViZa3VF2xe,"HistoricalOracleData(last_oracle_price=14716202, last_oracle_conf=0, last_oracle_delay=-228506951, last_oracle_price_twap=14716202, last_oracle_price_twap5min=14716202, last_oracle_price_twap_ts=1665337067)","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_base_asset_amount_with_amm_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_base_asset_amount_with_amm_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PoolBalance(balance=0, market_index=0, padding=ListContainer([0, 0, 0, 0, 0, 0]))",14716202,0,1000000000,1000000000,1414200,707113562,1414200000,1000000000,14716202,1000000000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1000000000,1000000000,1000000000,1000000000,14716202,14716202,14716202,14716202,8,0,0,0,1665337067,60,100000,1,100000,0,0,0,0,1665337067,0,1665337067,38855,1,50,0,0,0,0,0,OracleSource.Pyth(),False
+ABzigQUHEbN2eqwL1RYeT9c3GohTKtaAdXViZa3VF2xe,"HistoricalOracleData(last_oracle_price=14716202, last_oracle_conf=0, last_oracle_delay=-228506951, last_oracle_price_twap=14716202, last_oracle_price_twap5min=14716202, last_oracle_price_twap_ts=1665337067)","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_base_asset_amount_with_amm_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_base_asset_amount_with_amm_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PoolBalance(balance=0, market_index=0, padding=ListContainer([0, 0, 0, 0, 0, 0]))",14716202,0,1000000000,1000000000,1414200,707113562,1414200000,1000000000,14716202,1000000000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1000000000,1000000000,1000000000,1000000000,14716202,14716202,14716202,14716202,8,0,0,0,1665337067,60,100000,1,100000,0,0,0,0,1665337067,0,1665337067,38855,1,50,0,0,0,0,0,OracleSource.Pyth(),False
+ABzigQUHEbN2eqwL1RYeT9c3GohTKtaAdXViZa3VF2xe,"HistoricalOracleData(last_oracle_price=14716202, last_oracle_conf=0, last_oracle_delay=-228506951, last_oracle_price_twap=14716202, last_oracle_price_twap5min=14716202, last_oracle_price_twap_ts=1665337067)","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_base_asset_amount_with_amm_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_base_asset_amount_with_amm_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PoolBalance(balance=0, market_index=0, padding=ListContainer([0, 0, 0, 0, 0, 0]))",14716202,0,1000000000,1000000000,1414200,707113562,1414200000,1000000000,14716202,1000000000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1000000000,1000000000,1000000000,1000000000,14716202,14716202,14716202,14716202,8,0,0,0,1665337067,60,100000,1,100000,0,0,0,0,1665337067,0,1665337067,38855,1,50,0,0,0,0,0,OracleSource.Pyth(),False
+ABzigQUHEbN2eqwL1RYeT9c3GohTKtaAdXViZa3VF2xe,"HistoricalOracleData(last_oracle_price=14716202, last_oracle_conf=0, last_oracle_delay=-228506951, last_oracle_price_twap=14716202, last_oracle_price_twap5min=14716202, last_oracle_price_twap_ts=1665337067)","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_base_asset_amount_with_amm_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PerpPosition(last_cumulative_funding_rate=0, base_asset_amount=0, quote_asset_amount=0, quote_entry_amount=0, open_bids=0, open_asks=0, settled_pnl=0, lp_shares=0, last_base_asset_amount_with_amm_per_lp=0, last_net_quote_asset_amount_per_lp=0, remainder_base_asset_amount=0, market_index=0, open_orders=0, padding=ListContainer([0]))","PoolBalance(balance=0, market_index=0, padding=ListContainer([0, 0, 0, 0, 0, 0]))",14716202,0,1000000000,1000000000,1414200,707113562,1414200000,1000000000,14716202,1000000000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1000000000,1000000000,1000000000,1000000000,14716202,14716202,14716202,14716202,8,0,0,0,1665337067,60,100000,1,100000,0,0,0,0,1665337067,0,1665337067,38855,1,50,0,0,0,0,0,OracleSource.Pyth(),False
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -243,7 +243,7 @@ for (_, user) in ch.users.items():
 total_payments = lp_funding_payments
 
 print("funding diff", market_funding + total_payments)
-print('net baa', clearing_houses[-1].markets[0].amm.net_base_asset_amount)
+print('net baa', clearing_houses[-1].markets[0].amm.base_asset_amount_with_amm)
 print('---')
 
 #%%

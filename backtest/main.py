@@ -24,7 +24,7 @@ from driftpy.types import OracleSource
 
 from sim.events import * 
 from driftpy.clearing_house import ClearingHouse as SDKClearingHouse
-from driftpy.accounts import get_market_account
+from driftpy.accounts import get_market_account, get_spot_market_account
 from driftpy.math.amm import calculate_mark_price_amm
 from driftpy.accounts import get_user_account
 
@@ -148,7 +148,7 @@ async def main(protocol_path, experiments_folder):
     print('> init peg', init_state.m0_peg_multiplier / PEG_PRECISION)
     oracle = await mock_oracle(workspace["pyth"], init_state.m0_peg_multiplier / PEG_PRECISION, -7)
     init_leverage = 11
-    await admin_clearing_house.initialize_market(
+    await admin_clearing_house.initialize_perp_market(
         oracle, 
         int(init_reserves), 
         int(init_reserves), 
@@ -163,7 +163,7 @@ async def main(protocol_path, experiments_folder):
     await admin_clearing_house.update_perp_auction_duration(0)
     await admin_clearing_house.update_lp_cooldown_time(0, 0)
     await admin_clearing_house.update_max_base_asset_amount_ratio(1, 0)
-    await admin_clearing_house.update_perp_step_size_and_tick_size(0, 1 * AMM_RESERVE_PRECISION, 1)
+    await admin_clearing_house.update_perp_step_size_and_tick_size(0, int(AMM_RESERVE_PRECISION/1e4), 1)
 
     # fast init for users - airdrop takes a bit to finalize
     print('airdropping sol to users...')
@@ -199,15 +199,15 @@ async def main(protocol_path, experiments_folder):
             deposit_amounts[event.user_index] = deposit_amounts.get(event.user_index, 0) + event.deposit_amount
 
             # track market state after event
-            market: PerpMarket = await get_market_account(program, 0)
-            d = market.amm.__dict__
-            d.pop("padding")
-            if i > 0:
-                pd.DataFrame(d, index=[0]).to_csv(f"./{experiments_folder}/result_market0.csv",
-                    mode="a", index=False, header=False
-                )
-            else:
-                pd.DataFrame(d, index=[0]).to_csv(f"./{experiments_folder}/result_market0.csv", index=False)
+            # market: PerpMarket = await get_market_account(program, 0)
+            # d = market.amm.__dict__
+            # d.pop("padding")
+            # if i > 0:
+            #     pd.DataFrame(d, index=[0]).to_csv(f"./{experiments_folder}/result_market0.csv",
+            #         mode="a", index=False, header=False
+            #     )
+            # else:
+            #     pd.DataFrame(d, index=[0]).to_csv(f"./{experiments_folder}/result_market0.csv", index=False)
 
     deposit_amounts[liquidator_index] = 1_000_000 * QUOTE_PRECISION
 
@@ -281,7 +281,7 @@ async def main(protocol_path, experiments_folder):
         promises = []
         user: User
         for user in users:
-            if user.bankrupt:
+            if user.is_bankrupt:
                 promise = liquidator_clearing_house.resolve_perp_bankruptcy(
                     authority,  0
                 )
@@ -370,14 +370,19 @@ async def main(protocol_path, experiments_folder):
 
         # track market state after event
         market: PerpMarket = await get_market_account(program, 0)
-        d = market.amm.__dict__
-        d.pop("padding")
+        d1 = market.__dict__
+        
+        d2 = market.amm.__dict__
+        d2.pop("padding")
+        
+        d = d1.update(d2)
+        df = pd.DataFrame(d, index=[0])
+        outfile = f"./{experiments_folder}/result_market0.csv"
+        
         if i > 0:
-            pd.DataFrame(d, index=[0]).to_csv(f"./{experiments_folder}/result_market0.csv",
-                mode="a", index=False, header=False
-            )
+            df.to_csv(outfile, mode="a", index=False, header=False)
         else:
-            pd.DataFrame(d, index=[0]).to_csv(f"./{experiments_folder}/result_market0.csv", index=False)
+            df.to_csv(outfile, index=False)
 
         # # track metrics
         # chu: ClearingHouseUser
@@ -424,10 +429,12 @@ async def main(protocol_path, experiments_folder):
         program, 0
     )
     print(
-        'market settlment price vs twap', 
-        market.settlement_price, 
-        market.amm.historical_oracle_data.last_oracle_price_twap
+        'market expiry_price vs twap/price', 
+        market.expiry_price, 
+        market.amm.historical_oracle_data.last_oracle_price_twap,
+        market.amm.historical_oracle_data.last_oracle_price
     )
+
 
     # liquidate em + resolve bankrupts
     await try_liquidate()
@@ -456,9 +463,9 @@ async def main(protocol_path, experiments_folder):
     market = await get_market_account(program, 0)
     print(
         'net long/short',
-        market.base_asset_amount_long, 
-        market.base_asset_amount_short, 
-        market.open_interest, 
+        market.amm.base_asset_amount_long, 
+        market.amm.base_asset_amount_short, 
+        market.number_of_users, 
     )
 
     from termcolor import colored
@@ -492,9 +499,9 @@ async def main(protocol_path, experiments_folder):
             market = await get_market_account(program, 0)
             print(
                 'net long/short',
-                market.base_asset_amount_long, 
-                market.base_asset_amount_short, 
-                market.open_interest, 
+                market.amm.base_asset_amount_long, 
+                market.amm.base_asset_amount_short, 
+                market.number_of_users, 
             )
 
     for (i, ch) in user_chs.items():
@@ -563,6 +570,16 @@ async def main(protocol_path, experiments_folder):
 
     print('---')
 
+    usdc_spot_market = await get_spot_market_account(program, 0)
+
+    print('usdc spot market info:',
+    'deposit_balance:', usdc_spot_market.deposit_balance, 
+    'borrow_balance:', usdc_spot_market.borrow_balance, 
+    'revenue_pool:', usdc_spot_market.revenue_pool.balance,
+    'spot_fee_pool:', usdc_spot_market.spot_fee_pool.balance,
+    )
+
+
     market = await get_market_account(program, 0)
     market_collateral = 0 
     market_collateral += market.amm.total_fee_minus_distributions
@@ -577,16 +594,15 @@ async def main(protocol_path, experiments_folder):
 
     print(
         "net baa & net unsettled:",
-        market.amm.market_position.base_asset_amount,
-        market.amm.net_base_asset_amount, 
-        market.amm.net_unsettled_lp_base_asset_amount,
-        market.amm.net_base_asset_amount + market.amm.net_unsettled_lp_base_asset_amount
+        market.amm.base_asset_amount_with_amm, 
+        market.amm.base_asset_amount_with_unsettled_lp,
+        market.amm.base_asset_amount_with_amm + market.amm.base_asset_amount_with_unsettled_lp
     )
 
     print(
         'net long/short',
-        market.base_asset_amount_long, 
-        market.base_asset_amount_short, 
+        market.amm.base_asset_amount_long, 
+        market.amm.base_asset_amount_short, 
         market.amm.user_lp_shares, 
     )
 
@@ -597,6 +613,12 @@ async def main(protocol_path, experiments_folder):
         market.amm.cumulative_funding_rate_short, 
         market.amm.last_funding_rate_long, 
         market.amm.last_funding_rate_short, 
+    )
+
+    print(
+        'market pool balances:: ',
+        'fee pool:', market.amm.fee_pool.balance, 
+        'pnl pool:', market.pnl_pool.balance
     )
 
     print(

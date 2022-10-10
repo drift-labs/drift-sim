@@ -27,19 +27,19 @@ def track_new_base_assset(
 
     # update market 
     if (is_new_position and base_amount_acquired > 0) or position.base_asset_amount > 0:
-        market.base_asset_amount_long += base_amount_acquired
+        market.amm.base_asset_amount_long += base_amount_acquired
         market.amm.quote_asset_amount_long += quote_amount
     elif (is_new_position and base_amount_acquired < 0) or position.base_asset_amount < 0:
-        market.base_asset_amount_short += base_amount_acquired 
+        market.amm.base_asset_amount_short += base_amount_acquired 
         market.amm.quote_asset_amount_short += quote_amount
     else: 
         assert False, 'shouldnt be called...'
 
-    market.amm.net_base_asset_amount += base_amount_acquired
+    market.amm.base_asset_amount_with_amm += base_amount_acquired
 
     if not is_lp_update: 
         # need to update this like a normal position
-        market.amm.cumulative_net_base_asset_amount_per_lp += base_amount_acquired / market.amm.total_lp_shares
+        market.amm.cumulative_base_asset_amount_with_amm_per_lp += base_amount_acquired / market.amm.total_lp_shares
         # market.amm.cumulative_net_quote_asset_amount_per_lp += quote_amount / market.amm.total_lp_shares
 
     if is_new_position: 
@@ -48,10 +48,10 @@ def track_new_base_assset(
             True: market.amm.cumulative_funding_rate_long,
             False: market.amm.cumulative_funding_rate_short
         }[position.base_asset_amount > 0]
-        market.open_interest += 1 
+        market.number_of_users += 1 
 
     if is_close:
-        market.open_interest -= 1 
+        market.number_of_users -= 1 
 
     position.base_asset_amount += base_amount_acquired
     position.quote_asset_amount += quote_amount

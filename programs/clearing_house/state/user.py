@@ -24,7 +24,7 @@ class MarketPosition:
     lp_quote_asset_amount: int = 0 
     last_cumulative_funding_rate_lp: int = 0
     last_cumulative_fee_per_lp: int = 0 
-    last_cumulative_net_base_asset_amount_per_lp: int = 0 
+    last_cumulative_base_asset_amount_with_amm_per_lp: int = 0 
 
     # other metrics for debugging
     lp_funding_payments: int = 0 

@@ -33,7 +33,7 @@ async def setup_market(
     amm = market.amm
     oracle = await mock_oracle(workspace["pyth"], 1, -7)
 
-    await clearing_house.initialize_market(
+    await clearing_house.initialize_perp_market(
         oracle, 
         int(amm.base_asset_reserve), 
         int(amm.quote_asset_reserve), 
