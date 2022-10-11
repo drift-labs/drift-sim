@@ -44,7 +44,7 @@ async def setup_market(
 
     # update durations
     await clearing_house.update_auction_duration(0, 0)
-    await clearing_house.update_perp_market_lp_cooldown_time(0, 0)
+    await clearing_house.update_lp_cooldown_time(0, 0)
     await clearing_house.update_max_base_asset_amount_ratio(1, 0)
     await clearing_house.update_perp_step_size_and_tick_size(0, 1, 1)
     
