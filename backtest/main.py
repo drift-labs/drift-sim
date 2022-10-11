@@ -654,13 +654,8 @@ async def run_trial(protocol_path, events, clearing_houses, trial_outpath, oracl
     'usdc spot market info:',
     'deposit_balance:', usdc_spot_market.deposit_balance, 
     'borrow_balance:', usdc_spot_market.borrow_balance, 
-<<<<<<< HEAD
     'revenue_pool:', usdc_spot_market.revenue_pool.scaled_balance,
     'spot_fee_pool:', usdc_spot_market.spot_fee_pool.scaled_balance,
-=======
-    'revenue_pool:', usdc_spot_market.revenue_pool.balance,
-    'spot_fee_pool:', usdc_spot_market.spot_fee_pool.balance,
->>>>>>> master
     )
 
 
