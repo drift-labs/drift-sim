@@ -193,7 +193,7 @@ async def init_user(
     return await routine
 
 
-async def run_trial(protocol_path, events, clearing_houses, trial_outpath):
+async def run_trial(protocol_path, events, clearing_houses, trial_outpath, oracle_guard_rails=None):
     print('trial_outpath:', trial_outpath)
     os.makedirs(trial_outpath, exist_ok=True)
 
@@ -227,7 +227,9 @@ async def run_trial(protocol_path, events, clearing_houses, trial_outpath):
     )
 
     # update durations
-    # await admin_clearing_house.update_oracle_guard_rails(oracel_guard_rails)
+    if oracle_guard_rails is not None:
+        await admin_clearing_house.update_oracle_guard_rails(oracle_guard_rails)
+
     await admin_clearing_house.update_perp_auction_duration(0)
     await admin_clearing_house.update_perp_market_lp_cooldown_time(0, 0)
     await admin_clearing_house.update_perp_market_max_fill_reserve_fraction(0, 1)
@@ -652,8 +654,8 @@ async def run_trial(protocol_path, events, clearing_houses, trial_outpath):
     'usdc spot market info:',
     'deposit_balance:', usdc_spot_market.deposit_balance, 
     'borrow_balance:', usdc_spot_market.borrow_balance, 
-    'revenue_pool:', usdc_spot_market.revenue_pool.balance,
-    'spot_fee_pool:', usdc_spot_market.spot_fee_pool.balance,
+    'revenue_pool:', usdc_spot_market.revenue_pool.scaled_balance,
+    'spot_fee_pool:', usdc_spot_market.spot_fee_pool.scaled_balance,
     )
 
 
@@ -694,8 +696,8 @@ async def run_trial(protocol_path, events, clearing_houses, trial_outpath):
 
     print(
         'market pool balances:: ',
-        'fee pool:', market.amm.fee_pool.balance, 
-        'pnl pool:', market.pnl_pool.balance
+        'fee pool:', market.amm.fee_pool.scaled_balance, 
+        'pnl pool:', market.pnl_pool.scaled_balance
     )
 
     print(
@@ -717,10 +719,21 @@ async def main(protocol_path, experiments_folder):
 
     
     for trial in trials:
+        no_oracle_guard_rails = OracleGuardRails(
+            price_divergence=PriceDivergenceGuardRails(1, 1), 
+            validity=ValidityGuardRails(10, 10, 100, 100),
+        use_for_liquidations=True)
+        
+        trial_guard_rails = None
+        if 'no_oracle_guards' in trial:
+            print('no_oracle_guard_rails acrtivated')
+            trial_guard_rails = no_oracle_guard_rails
+
         val = LocalValidator(protocol_path)
         val.start()
         try:
-            await run_trial(protocol_path, events, clearing_houses, f"./{experiments_folder}/trial_{trial}")
+            print(trial_guard_rails)
+            await run_trial(protocol_path, events, clearing_houses, f"./{experiments_folder}/trial_{trial}", trial_guard_rails)
         finally:
             val.stop()
 
