@@ -6,10 +6,16 @@
 python3.10 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
-pip install driftpy/ --upgrade
 # setup other submodules
 bash setup.sh 
 ```
+
+
+requirements / setup help:
+- you'll need python 3.10
+- to satisfy the requirements.tx you may need to install some 
+- on mac OS, you can use homebrew
+  - `brew install postgresql`
 
 ## run an example 
 
@@ -18,10 +24,9 @@ bash setup.sh
 ## update scripts
 
 ```
-git submodule update --init --recursive
+git submodule update --remote --merge
 pip install driftpy/ --upgrade
 ```
-
 
 ## future work
 - split test.py to tests/*_test.py
