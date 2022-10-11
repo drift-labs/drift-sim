@@ -1,5 +1,10 @@
 #%%
 import sys
+from typing import final
+
+from tqdm.utils import ObjectWrapper
+
+from driftpy import admin
 sys.path.insert(0, '../')
 sys.path.insert(0, '../driftpy/src/')
 sys.path.insert(0, './driftpy/src/')
@@ -17,18 +22,17 @@ from driftpy.types import *
 from driftpy.types import PerpMarket
 from driftpy.constants.numeric_constants import *
 
-from driftpy.setup.helpers import _create_usdc_mint, mock_oracle, _airdrop_user, set_price_feed, adjust_oracle_pretrade, _mint_usdc_tx, _create_user_usdc_ata_tx
+from driftpy.setup.helpers import _create_usdc_mint, mock_oracle, _airdrop_user, set_price_feed, set_price_feed_detailed, adjust_oracle_pretrade, _mint_usdc_tx, _create_user_usdc_ata_tx
 from driftpy.clearing_house import ClearingHouse
 from driftpy.admin import Admin
 from driftpy.types import OracleSource
 
 from sim.events import * 
 from driftpy.clearing_house import ClearingHouse as SDKClearingHouse
-from driftpy.accounts import get_market_account, get_spot_market_account
+from driftpy.accounts import get_perp_market_account, get_spot_market_account, get_user_account, get_state_account
 from driftpy.math.amm import calculate_mark_price_amm
-from driftpy.accounts import get_user_account
 
-from anchorpy import Provider, Program, create_workspace
+from anchorpy import Provider, Program, create_workspace, close_workspace
 from programs.clearing_house.state.market import SimulationAMM, SimulationMarket
 from helpers import setup_bank, setup_market, view_logs
 from tqdm import tqdm
@@ -69,6 +73,70 @@ class LocalValidator:
         os.killpg(os.getpgid(self.proc.pid), signal.SIGTERM)  
 
 from driftpy.clearing_house_user import ClearingHouseUser
+
+
+async def save_state(program, experiments_folder, event_i):
+
+
+    def human_amm_df(amm: AMM):
+        bool_fields = [ 'last_oracle_valid']
+        enum_fields = ['oracle_source']
+        pure_fields = ['last_update_slot', 'long_intensity_count', 'short_intensity_count', 
+        'curve_update_intensity', 'amm_jit_intensity'
+        ]
+        reserve_fields = [
+            'base_asset_reserve', 'quote_asset_reserve', 'min_base_asset_reserve', 'max_base_asset_reserve', 'sqrt_k'
+            'ask_base_asset_reserve', 'ask_quote_asset_reserve', 'bid_base_asset_reserve', 'bid_quote_asset_reserve'
+            'terminal_quote_asset_reserve', 'base_asset_amount_long', 'base_asset_amount_short', 'base_asset_amount_with_amm', 'base_asset_amount_with_unsettled_lp',
+            'user_lp_shares'
+            ]
+        pct_fields = ['long_spread', 'short_spread', 'concentration_coef',]
+        funding_fields = ['cumulative_funding_rate_long', 'cumulative_funding_rate_short', 'last_funding_rate', 'last_funding_rate_long', 'last_funding_rate_short', 'last24h_avg_funding_rate']
+        quote_asset_fields = ['total_fee', 'total_mm_fee', 'total_exchange_fee', 'total_fee_minus_distributions',
+        'total_fee_withdrawn', 'total_liquidation_fee', 'cumulative_social_loss', 'net_revenue_since_last_funding',
+        'quote_asset_amount_long', 'quote_asset_amount_short', 'quote_entry_amount_long', 'quote_entry_amount_short',
+        'volume24h', 'long_intensity_volume', 'short_intensity_volume',]
+        time_fields = ['last_mark_price_twap_ts', 'last_oracle_price_twap_ts']
+        duration_fields = ['lp_cooldown_time']
+        px_fields = ['last_bid_price_twap', 'last_ask_price_twap', 'last_mark_price_twap', 'last_mark_price_twap5min',
+        'peg_multiplier',
+        'mark_std']
+        pool_fields = ['fee_pool']
+
+
+    def human_market_df(market: PerpMarket):
+        enum_fields = ['status', 'contract_tier', '']
+        pure_fields = ['number_of_users', 'market_index', 'next_curve_record_id', 'next_fill_record_id', 'next_funding_rate_record_id']
+        pct_fields = ['imf_factor', 'unrealized_pnl_imf_factor', 'liquidator_fee', 'if_liquidation_fee',
+        'margin_ratio_initial', 'margin_ratio_maintenance']
+        px_fields = ['expiry_price', ]
+        time_fields = ['last_trade_ts', 'expiry_ts']
+        pool_fields = ['pnl_pool']
+
+        dffull = pd.DataFrame(market.__dict__)
+
+
+
+    market: PerpMarket = await get_perp_market_account(program, 0)
+    d = market.__dict__
+    d2 = market.amm.__dict__  
+    d3 = market.amm.historical_oracle_data.__dict__
+    d.pop('padding')
+    d.update(d2)
+    d.update(d3)
+
+    # if event_i > 40:
+    #     import pdb; pdb.set_trace()
+    # print(d)
+    df = pd.DataFrame(d, index=list(range(6))).head(1)
+    # print(df)
+    outfile = f"./{experiments_folder}/result_market0.csv"
+    # print('event i going to file:', outfile)
+    if event_i > 0:
+        df.to_csv(outfile, mode="a", index=False, header=False)
+    else:
+        df.to_csv(outfile, index=False)
+
 
 async def init_user(
     user_chs,
@@ -124,13 +192,12 @@ async def init_user(
 
     return await routine
 
-async def main(protocol_path, experiments_folder):
-    # e.g.
-    # protocol_path = "../driftpy/protocol-v2/"#
-    # experiments_folder = 'tmp2'
-    events = pd.read_csv(f"./{experiments_folder}/events.csv")
-    clearing_houses = pd.read_csv(f"./{experiments_folder}/chs.csv")
 
+async def run_trial(protocol_path, events, clearing_houses, trial_outpath):
+    print('trial_outpath:', trial_outpath)
+    os.makedirs(trial_outpath, exist_ok=True)
+
+    df_row_index = 0
     print('creating workspace: %s' % protocol_path)
     workspace = create_workspace(protocol_path)
     program: Program = workspace["clearing_house"]
@@ -160,10 +227,37 @@ async def main(protocol_path, experiments_folder):
     )
 
     # update durations
+    # await admin_clearing_house.update_oracle_guard_rails(oracel_guard_rails)
     await admin_clearing_house.update_perp_auction_duration(0)
-    await admin_clearing_house.update_lp_cooldown_time(0, 0)
-    await admin_clearing_house.update_max_base_asset_amount_ratio(1, 0)
-    await admin_clearing_house.update_perp_step_size_and_tick_size(0, int(AMM_RESERVE_PRECISION/1e4), 1)
+    await admin_clearing_house.update_perp_market_lp_cooldown_time(0, 0)
+    await admin_clearing_house.update_perp_market_max_fill_reserve_fraction(0, 1)
+    await admin_clearing_house.update_perp_market_step_size_and_tick_size(0, int(AMM_RESERVE_PRECISION/1e4), 1)
+
+
+    initial_state: State = await get_state_account(program)
+    initial_state_d = initial_state.__dict__
+
+    for x in ['admin', 'whitelist_mint', 'discount_mint', 'signer', 'srm_vault', 'exchange_status']:
+        initial_state_d[x] = str(initial_state_d[x])
+
+    class ComplexEncoder(json.JSONEncoder):
+         def default(self, obj):
+            if isinstance(obj, object):
+                 return obj.__dict__
+             # Let the base class default method raise the TypeError
+            return json.JSONEncoder.default(self, obj)
+
+    for x in ['oracle_guard_rails', 'spot_fee_structure', 'perp_fee_structure']:
+        initial_state_d[x] = initial_state_d[x].__dict__
+
+    state_outfile = f"{trial_outpath}/init_state.json"
+    with open(state_outfile, "w") as outfile:
+        json_string = json.dumps(initial_state_d,
+            sort_keys=True, 
+            cls=ComplexEncoder,
+            skipkeys=True,
+            indent=4)
+        json.dump(json_string, outfile)
 
     # fast init for users - airdrop takes a bit to finalize
     print('airdropping sol to users...')
@@ -197,17 +291,6 @@ async def main(protocol_path, experiments_folder):
         if event.event_name == DepositCollateralEvent._event_name:
             event = Event.deserialize_from_row(DepositCollateralEvent, event)
             deposit_amounts[event.user_index] = deposit_amounts.get(event.user_index, 0) + event.deposit_amount
-
-            # track market state after event
-            # market: PerpMarket = await get_market_account(program, 0)
-            # d = market.amm.__dict__
-            # d.pop("padding")
-            # if i > 0:
-            #     pd.DataFrame(d, index=[0]).to_csv(f"./{experiments_folder}/result_market0.csv",
-            #         mode="a", index=False, header=False
-            #     )
-            # else:
-            #     pd.DataFrame(d, index=[0]).to_csv(f"./{experiments_folder}/result_market0.csv", index=False)
 
     deposit_amounts[liquidator_index] = 1_000_000 * QUOTE_PRECISION
 
@@ -308,7 +391,7 @@ async def main(protocol_path, experiments_folder):
         event = events.iloc[i]
 
         if event.event_name == DepositCollateralEvent._event_name:
-            continue
+            pass
 
         elif event.event_name == OpenPositionEvent._event_name: 
             event = Event.deserialize_from_row(OpenPositionEvent, event)
@@ -316,7 +399,7 @@ async def main(protocol_path, experiments_folder):
             assert event.user_index in user_chs, 'user doesnt exist'
 
             ch: SDKClearingHouse = user_chs[event.user_index]
-            sig = await event.run_sdk(ch, init_leverage, oracle_program, adjust_oracle_pre_trade=True)
+            sig = await event.run_sdk(ch, init_leverage, oracle_program, adjust_oracle_pre_trade=False)
 
         elif event.event_name == ClosePositionEvent._event_name: 
             # dont close so we have stuff to settle 
@@ -355,6 +438,7 @@ async def main(protocol_path, experiments_folder):
         
         elif event.event_name == oraclePriceEvent._event_name: 
             event = Event.deserialize_from_row(oraclePriceEvent, event)
+            event.slot = (await provider.connection.get_slot())['result']
             print(f'=> adjusting oracle: {event.price}')
             await event.run_sdk(program, oracle_program)
 
@@ -369,20 +453,8 @@ async def main(protocol_path, experiments_folder):
         await try_liquidate()
 
         # track market state after event
-        market: PerpMarket = await get_market_account(program, 0)
-        d1 = market.__dict__
-        
-        d2 = market.amm.__dict__
-        d2.pop("padding")
-        
-        d = d1.update(d2)
-        df = pd.DataFrame(d, index=[0])
-        outfile = f"./{experiments_folder}/result_market0.csv"
-        
-        if i > 0:
-            df.to_csv(outfile, mode="a", index=False, header=False)
-        else:
-            df.to_csv(outfile, index=False)
+        await save_state(program, trial_outpath, i)
+        df_row_index += 1
 
         # # track metrics
         # chu: ClearingHouseUser
@@ -405,7 +477,7 @@ async def main(protocol_path, experiments_folder):
 
     # + N seconds
     seconds_time = 2
-    await admin_clearing_house.update_market_expiry(time + seconds_time, 0)
+    await admin_clearing_house.update_perp_market_expiry(0, time + seconds_time)
     
     # close out all the LPs 
     routines = []
@@ -423,9 +495,11 @@ async def main(protocol_path, experiments_folder):
     # settle expired market
     import time 
     time.sleep(seconds_time)
-    sig = await admin_clearing_house.settle_expired_market(0)
+    await admin_clearing_house.settle_expired_market(0)
+    await save_state(program, trial_outpath, df_row_index)
+    df_row_index+=1
 
-    market = await get_market_account(
+    market = await get_perp_market_account(
         program, 0
     )
     print(
@@ -460,7 +534,7 @@ async def main(protocol_path, experiments_folder):
         number_positions += 1
     print('number of positions:', number_positions)
 
-    market = await get_market_account(program, 0)
+    market = await get_perp_market_account(program, 0)
     print(
         'net long/short',
         market.amm.base_asset_amount_long, 
@@ -488,6 +562,8 @@ async def main(protocol_path, experiments_folder):
                 await ch.settle_expired_position(ch.authority, 0)
                 user_count += 1
                 print(colored(f'     *** settle expired position successful {user_count}/{n_users} ***   ', "green"))
+                await save_state(program, trial_outpath, df_row_index)
+                df_row_index+=1
             except Exception as e:
                 if "0x17e2" in e.args[0]['message']: # pool doesnt have enough 
                     print(colored(f'     *** settle expired position failed... ***   ', "red"))
@@ -496,7 +572,7 @@ async def main(protocol_path, experiments_folder):
                 else: 
                     raise Exception(e)
 
-            market = await get_market_account(program, 0)
+            market = await get_perp_market_account(program, 0)
             print(
                 'net long/short',
                 market.amm.base_asset_amount_long, 
@@ -513,7 +589,7 @@ async def main(protocol_path, experiments_folder):
     # skip for now
     # await admin_clearing_house.settle_expired_market_pools_to_revenue_pool(0)
 
-    market = await get_market_account(
+    market = await get_perp_market_account(
         program, 0
     )
     print(market.status)
@@ -524,7 +600,7 @@ async def main(protocol_path, experiments_folder):
     # # close out anyone who hasnt already closed out 
     # print('closing out everyone...')
     # net_baa = 1 
-    # market = await get_market_account(program, 0)
+    # market = await get_perp_market_account(program, 0)
     # max_n_tries = 4
     # n_tries = 0
     # while net_baa != 0 and n_tries < max_n_tries:
@@ -550,7 +626,7 @@ async def main(protocol_path, experiments_folder):
             program, 
             ch.authority, 
         )
-        balance = user.spot_positions[0].balance / SPOT_BALANCE_PRECISION * QUOTE_PRECISION
+        balance = user.spot_positions[0].scaled_balance / SPOT_BALANCE_PRECISION * QUOTE_PRECISION
         position = await ch.get_user_position(0)
 
         if position is None: 
@@ -572,7 +648,8 @@ async def main(protocol_path, experiments_folder):
 
     usdc_spot_market = await get_spot_market_account(program, 0)
 
-    print('usdc spot market info:',
+    print(
+    'usdc spot market info:',
     'deposit_balance:', usdc_spot_market.deposit_balance, 
     'borrow_balance:', usdc_spot_market.borrow_balance, 
     'revenue_pool:', usdc_spot_market.revenue_pool.balance,
@@ -580,7 +657,7 @@ async def main(protocol_path, experiments_folder):
     )
 
 
-    market = await get_market_account(program, 0)
+    market = await get_perp_market_account(program, 0)
     market_collateral = 0 
     market_collateral += market.amm.total_fee_minus_distributions
     end_total_collateral += market_collateral 
@@ -625,9 +702,27 @@ async def main(protocol_path, experiments_folder):
         'total time (seconds):',
         time.time() - start
     )
-
-
+    
     await provider.close()
+    await close_workspace(workspace)
+
+
+async def main(protocol_path, experiments_folder):
+    # e.g.
+    # protocol_path = "../driftpy/protocol-v2/"#
+    # experiments_folder = 'tmp2'
+    events = pd.read_csv(f"./{experiments_folder}/events.csv")
+    clearing_houses = pd.read_csv(f"./{experiments_folder}/chs.csv")
+    trials = ['no_oracle_guards', 'oracle_guards']
+
+    
+    for trial in trials:
+        val = LocalValidator(protocol_path)
+        val.start()
+        try:
+            await run_trial(protocol_path, events, clearing_houses, f"./{experiments_folder}/trial_{trial}")
+        finally:
+            val.stop()
 
 if __name__ == '__main__':
     import argparse
@@ -636,13 +731,10 @@ if __name__ == '__main__':
     parser.add_argument('--protocol', type=str, required=True)
     args = parser.parse_args()
 
-    val = LocalValidator(args.protocol)
-    val.start()
     try: 
         import asyncio
         asyncio.run(main(args.protocol, args.events))
     finally:
-        # pass
-        val.stop()
+        pass
 
 # %%
