@@ -111,8 +111,8 @@ market = ch.markets[0]
 print(close_events)
 print('---')
 print("final abs diff:", abs_difference)
-net_baa = market.amm.net_base_asset_amount # should be zero ?
-net_baa_lp = market.amm.cumulative_net_base_asset_amount_per_lp
+net_baa = market.amm.base_asset_amount_with_amm # should be zero ?
+net_baa_lp = market.amm.cumulative_base_asset_amount_with_amm_per_lp
 print('net baa', net_baa)
 print('---')
 

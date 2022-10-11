@@ -13,7 +13,7 @@ from driftpy.math.user import *
 from driftpy.types import *
 from driftpy.constants.numeric_constants import *
 
-from driftpy.setup.helpers import _create_usdc_mint, mock_oracle, _airdrop_user, set_price_feed, adjust_oracle_pretrade
+from driftpy.setup.helpers import _create_usdc_mint, mock_oracle, _airdrop_user, set_price_feed, set_price_feed_detailed, adjust_oracle_pretrade
 from driftpy.admin import Admin
 from driftpy.types import OracleSource
 
@@ -33,7 +33,7 @@ async def setup_market(
     amm = market.amm
     oracle = await mock_oracle(workspace["pyth"], 1, -7)
 
-    await clearing_house.initialize_market(
+    await clearing_house.initialize_perp_market(
         oracle, 
         int(amm.base_asset_reserve), 
         int(amm.quote_asset_reserve), 
@@ -44,9 +44,9 @@ async def setup_market(
 
     # update durations
     await clearing_house.update_auction_duration(0, 0)
-    await clearing_house.update_lp_cooldown_time(0, 0)
+    await clearing_house.update_perp_market_lp_cooldown_time(0, 0)
     await clearing_house.update_max_base_asset_amount_ratio(1, 0)
-    await clearing_house.update_market_base_asset_amount_step_size(1, 0)
+    await clearing_house.update_perp_step_size_and_tick_size(0, 1, 1)
     
     # add a spread 
     if amm.base_spread > 0:

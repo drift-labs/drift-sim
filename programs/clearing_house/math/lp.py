@@ -30,13 +30,13 @@ def get_lp_metrics(
     # give them the amm position  
     # print(
     #     "lp settling (last, curr):", 
-    #     position.last_cumulative_net_base_asset_amount_per_lp,
-    #     market.amm.cumulative_net_base_asset_amount_per_lp
+    #     position.last_cumulative_base_asset_amount_with_amm_per_lp,
+    #     market.amm.cumulative_base_asset_amount_with_amm_per_lp
     # )
 
     amm_net_position_change = (
-        position.last_cumulative_net_base_asset_amount_per_lp -
-        market.amm.cumulative_net_base_asset_amount_per_lp
+        position.last_cumulative_base_asset_amount_with_amm_per_lp -
+        market.amm.cumulative_base_asset_amount_with_amm_per_lp
     ) * market.amm.total_lp_shares
 
     market_baa = 0 

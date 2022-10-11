@@ -121,12 +121,12 @@ ch = close_all_users(ch)[0]
 end_collateral = compute_total_collateral(ch)
 print('collateral diff', init_collateral - end_collateral)
 market = ch.markets[0]
-print(market.amm.net_base_asset_amount)
+print(market.amm.base_asset_amount_with_amm)
 
-print("long diff", market.amm.quote_asset_amount_long, market.base_asset_amount_long)
-print("short diff", market.amm.quote_asset_amount_short, market.base_asset_amount_short)
+print("long diff", market.amm.quote_asset_amount_long, market.amm.base_asset_amount_long)
+print("short diff", market.amm.quote_asset_amount_short, market.amm.base_asset_amount_short)
 
-print(market.open_interest)
+print(market.number_of_users)
 
 print('done')
 # print(ch.to_json())

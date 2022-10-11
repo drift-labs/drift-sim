@@ -223,7 +223,9 @@ class RandomSimulation():
     def generate_leveraged_trade(self, user_index, market_index, leverage) -> Agent:
         start = np.random.randint(0, self.max_t)
         dur = np.random.randint(0, self.max_t // 2)
-        amount = np.random.randint(0, self.market.amm.quote_asset_reserve * QUOTE_PRECISION / AMM_RESERVE_PRECISION)
+        amount = np.random.randint(0, 
+        QUOTE_PRECISION * 100
+        )
         quote_amount = amount 
         
         return OpenClose(
