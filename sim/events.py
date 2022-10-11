@@ -35,12 +35,18 @@ class Event:
     timestamp: int 
     
     def serialize_parameters(self):
-        return json.loads(json.dumps(
-            self, 
-            default=lambda o: o.__dict__, 
-            sort_keys=True, 
-            indent=4
-        ))
+        try:
+            params = json.dumps(
+                self, 
+                default=lambda o: o.__dict__, 
+                sort_keys=True, 
+                indent=4
+            )
+            return json.loads(params)
+        except:
+            print("ERRRRR")
+            print(self)
+            return {}
         
     def serialize_to_row(self):
         parameters = self.serialize_parameters()

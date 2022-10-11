@@ -118,6 +118,8 @@ async def save_state(program, experiments_folder, event_i):
 
 
     market: PerpMarket = await get_perp_market_account(program, 0)
+    print(str(market.status))
+    # assert(str(market.status) == str(MarketStatus.Active()))
     d = market.__dict__
     d2 = market.amm.__dict__  
     d3 = market.amm.historical_oracle_data.__dict__
@@ -136,6 +138,52 @@ async def save_state(program, experiments_folder, event_i):
         df.to_csv(outfile, mode="a", index=False, header=False)
     else:
         df.to_csv(outfile, index=False)
+
+
+    print(str(market.status))
+    # assert(str(market.status) == str(MarketStatus.Active()))
+    d = market.__dict__
+    d2 = market.amm.__dict__  
+    d3 = market.amm.historical_oracle_data.__dict__
+    d.pop('padding')
+    d.update(d2)
+    d.update(d3)
+
+    # if event_i > 40:
+    #     import pdb; pdb.set_trace()
+    # print(d)
+    df = pd.DataFrame(d, index=list(range(6))).head(1)
+    # print(df)
+    outfile = f"./{experiments_folder}/result_market0.csv"
+    # print('event i going to file:', outfile)
+    if event_i > 0:
+        df.to_csv(outfile, mode="a", index=False, header=False)
+    else:
+        df.to_csv(outfile, index=False)
+
+
+    all_users = await program.account["User"].all()
+    for user in all_users:
+        upk = (user.account.authority)
+        user_account: PerpMarket = await get_user_account(program, upk, 0)
+        # try:
+        uu = user_account.__dict__
+        uu.pop('orders')
+        uu.pop('name')
+        uu.pop('padding')
+        # print(pd.DataFrame(uu))
+        df = pd.DataFrame(uu, index=list(range(8))).head(1)
+        # print(df)
+        outfile = f"./{experiments_folder}/result_user_"+str(upk)+".csv"
+        # print('event i going to file:', outfile)
+        if event_i > 0:
+            df.to_csv(outfile, mode="a", index=False, header=False)
+        else:
+            df.to_csv(outfile, index=False)
+            # except Exception as e:
+            #     print(e)
+            #     pass
+
 
 
 async def init_user(
@@ -221,7 +269,7 @@ async def run_trial(protocol_path, events, clearing_houses, trial_outpath, oracl
         int(init_reserves), 
         int(60), 
         int(init_state.m0_peg_multiplier), 
-        OracleSource.PYTH(), 
+        OracleSource.Pyth(), 
         # default is 5x
         margin_ratio_initial=MARGIN_PRECISION // init_leverage if init_leverage else 2000
     )
@@ -294,7 +342,7 @@ async def run_trial(protocol_path, events, clearing_houses, trial_outpath, oracl
             event = Event.deserialize_from_row(DepositCollateralEvent, event)
             deposit_amounts[event.user_index] = deposit_amounts.get(event.user_index, 0) + event.deposit_amount
 
-    deposit_amounts[liquidator_index] = 1_000_000 * QUOTE_PRECISION
+    deposit_amounts[liquidator_index] = 10_000_000 * QUOTE_PRECISION
 
     routines = [] 
     for user_index in deposit_amounts.keys(): 
@@ -337,6 +385,17 @@ async def run_trial(protocol_path, events, clearing_houses, trial_outpath, oracl
                 )
                 promises.append(promise)
 
+                position_after = await ch.get_user_position(0)
+                if position_after.base_asset_amount == 0 and position_after.quote_asset_amount < 0:
+                    promise = liquidator_clearing_house.liquidate_perp_pnl_for_deposit(
+                        authority,
+                        0,
+                        0,
+                        abs(position_after.quote_asset_amount) # take it fully on
+                    )
+                    promises.append(promise)
+
+
         for promise in promises:
             try:
                 await promise
@@ -350,8 +409,12 @@ async def run_trial(protocol_path, events, clearing_houses, trial_outpath, oracl
                 else: 
                     raise Exception(e)
 
+        # try:
         await derisk()
         await resolve_bankruptcies()
+        # except: 
+        #     print('derisk / bankrupt error (TODO)')
+        #     pass
 
     async def resolve_bankruptcies():
         ch: ClearingHouse
@@ -382,8 +445,20 @@ async def run_trial(protocol_path, events, clearing_houses, trial_outpath, oracl
         position = await ch.get_user_position(0)
         if position is None or position.base_asset_amount == 0: 
             return
-        print(f'=> liquidator derisking {position.base_asset_amount} baa')
-        await ch.close_position(0)
+
+        market = await get_perp_market_account(ch.program, 0)
+        slot = (await provider.connection.get_slot())['result']
+        time: int = (await provider.connection.get_block_time(slot))['result']
+
+        print(f'=> liquidator derisking {position.base_asset_amount} baa in market status:', market.status)
+        if str(market.status) == str(MarketStatus.Settlement()) or market.expiry_ts  >= time:
+            try:
+                print(f'=> liquidator settling expired position')
+                await ch.settle_pnl(liquidator_clearing_house.authority, 0)
+            except:
+                pass
+        else:
+            await ch.close_position(0)
 
     # todo 
     #   calculate margin requirements of user same as js sdk 
@@ -561,7 +636,11 @@ async def run_trial(protocol_path, events, clearing_houses, trial_outpath, oracl
                 continue
 
             try:
-                await ch.settle_expired_position(ch.authority, 0)
+                settling_position = await ch.get_user_position(0)
+                scaled_balance = (await ch.get_user()).spot_positions[0].scaled_balance
+                print(str(ch.authority), ': ', '$',scaled_balance/SPOT_BALANCE_PRECISION)
+                print('settling position:', settling_position)
+                await ch.settle_pnl(ch.authority, 0)
                 user_count += 1
                 print(colored(f'     *** settle expired position successful {user_count}/{n_users} ***   ', "green"))
                 await save_state(program, trial_outpath, df_row_index)
@@ -569,6 +648,10 @@ async def run_trial(protocol_path, events, clearing_houses, trial_outpath, oracl
             except Exception as e:
                 if "0x17e2" in e.args[0]['message']: # pool doesnt have enough 
                     print(colored(f'     *** settle expired position failed... ***   ', "red"))
+                    print(e.args)
+                    success = False
+                elif "0x17C0" in e.args[0]['message']: # pool doesnt have enough 
+                    print(colored(f'     *** settle expired position failed InsufficientCollateralForSettlingPNL... ***   ', "red"))
                     print(e.args)
                     success = False
                 else: 
@@ -726,7 +809,7 @@ async def main(protocol_path, experiments_folder):
         
         trial_guard_rails = None
         if 'no_oracle_guards' in trial:
-            print('no_oracle_guard_rails acrtivated')
+            print('no_oracle_guard_rails activated')
             trial_guard_rails = no_oracle_guard_rails
 
         val = LocalValidator(protocol_path)
