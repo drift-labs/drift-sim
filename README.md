@@ -6,7 +6,6 @@
 python3.10 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
-pip install driftpy/ --upgrade
 # setup other submodules
 bash setup.sh 
 ```
@@ -18,10 +17,9 @@ bash setup.sh
 ## update scripts
 
 ```
-git submodule update --init --recursive
+git submodule update --remote --merge
 pip install driftpy/ --upgrade
 ```
-
 
 ## future work
 - split test.py to tests/*_test.py

@@ -162,7 +162,7 @@ async def main(protocol_path, experiments_folder):
     await admin_clearing_house.update_perp_auction_duration(0)
     await admin_clearing_house.update_lp_cooldown_time(0, 0)
     await admin_clearing_house.update_max_base_asset_amount_ratio(1, 0)
-    await admin_clearing_house.update_market_base_asset_amount_step_size(1 * AMM_RESERVE_PRECISION, 0)
+    await admin_clearing_house.update_perp_step_size_and_tick_size(1 * AMM_RESERVE_PRECISION, 1, 0)
 
     # fast init for users - airdrop takes a bit to finalize
     print('airdropping sol to users...')
