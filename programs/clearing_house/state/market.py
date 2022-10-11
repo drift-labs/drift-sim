@@ -119,7 +119,7 @@ class SimulationMarket(Market):
         amm_dict['base_asset_reserve'] = f'{b1:.0f}'
         amm_dict['quote_asset_reserve'] = f'{q1:.0f}'
 
-        self.base_asset_amount = self.amm.net_base_asset_amount
+        self.base_asset_amount = self.amm.base_asset_amount_with_amm
         mark_price = calculate_mark_price(self, oracle_price)
         bid_price = calculate_bid_price(self, oracle_price)
         ask_price = calculate_ask_price(self, oracle_price)

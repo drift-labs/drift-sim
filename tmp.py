@@ -45,7 +45,7 @@ chu = ClearingHouseUser(ch, pubkey)
 
 #%%
 user = await chu.get_user_account()
-bt = user.spot_positions[0].balance / QUOTE_PRECISION
+bt = user.spot_positions[0].scaled_balance / QUOTE_PRECISION
 f"{bt:,.0f}"
 
 #%%
@@ -70,7 +70,7 @@ f"{col / QUOTE_PRECISION:,.0f}"
 
 #%%
 position = await chu.get_user_position(0)
-market = await get_market_account(
+market = await get_perp_market_account(
     chu.program, 
     position.market_index
 )

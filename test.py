@@ -413,8 +413,8 @@ class TestClearingHousePositiveFunding(unittest.TestCase):
             market_index
         )
                 
-        self.assertGreater(market.base_asset_amount_long, 0)
-        self.assertGreater(market.amm.net_base_asset_amount, 0)        
+        self.assertGreater(market.amm.base_asset_amount_long, 0)
+        self.assertGreater(market.amm.base_asset_amount_with_amm, 0)        
         
         # fast forward time 
         ch = ch.change_time(1 * self.funding_period)
@@ -520,8 +520,8 @@ class TestClearingHouseNegativeFunding(unittest.TestCase):
             market_index
         )
         
-        self.assertGreater(market.base_asset_amount_long, 0)
-        self.assertGreater(market.amm.net_base_asset_amount, 0)        
+        self.assertGreater(market.amm.base_asset_amount_long, 0)
+        self.assertGreater(market.amm.base_asset_amount_with_amm, 0)        
         
         # fast forward time 
         ch = ch.change_time(1 * self.funding_period)
@@ -824,7 +824,7 @@ class TestClearingHousePositions(unittest.TestCase):
         ### TEST LONG
         prev_collateral = user.collateral
         prev_fees = market.amm.total_fee
-        prev_oi = market.open_interest
+        prev_oi = market.number_of_users
         
         long_amount = 1 
         ch = ch.open_position(
@@ -844,7 +844,7 @@ class TestClearingHousePositions(unittest.TestCase):
         # base/quote reserves change 
         self.assertGreater(market.amm.quote_asset_reserve, market.amm.base_asset_reserve)
         # increase in oi 
-        self.assertGreater(market.open_interest, prev_oi)
+        self.assertGreater(market.number_of_users, prev_oi)
         
         ### LONG -> LESS LONG
         prev_collateral = user.collateral

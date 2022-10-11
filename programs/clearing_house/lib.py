@@ -77,7 +77,7 @@ class ClearingHouse:
         if user_position.lp_shares > 0:
             settle_lp_shares(user, market, user_position.lp_shares)
         else: 
-            user_position.last_cumulative_net_base_asset_amount_per_lp = market.amm.cumulative_net_base_asset_amount_per_lp
+            user_position.last_cumulative_base_asset_amount_with_amm_per_lp = market.amm.cumulative_base_asset_amount_with_amm_per_lp
             user_position.last_cumulative_funding_rate_lp = market.amm.cumulative_funding_payment_per_lp
             user_position.last_cumulative_fee_per_lp = market.amm.cumulative_fee_per_lp
 
@@ -317,7 +317,7 @@ class ClearingHouse:
             market.amm.last_funding_rate = funding_rate
             market.amm.last_funding_rate_ts = now
             
-            market_net_position = -market.amm.net_base_asset_amount # AMM_RSERVE_PRE
+            market_net_position = -market.amm.base_asset_amount_with_amm # AMM_RSERVE_PRE
             market_funding_rate = funding_rate # FUNDING_RATE_BUFFER 
             market_funding_payment = (
                 market_funding_rate 
@@ -636,7 +636,7 @@ class ClearingHouse:
             market.amm.quote_asset_reserve *= quote_scale
             market.amm.peg_multiplier = new_peg  
             market.amm.sqrt_k = np.sqrt(market.amm.base_asset_reserve * market.amm.quote_asset_reserve)
-            market.amm.terminal_quote_asset_reserve = market.amm.sqrt_k**2 / (market.amm.base_asset_reserve+market.amm.net_base_asset_amount)
+            market.amm.terminal_quote_asset_reserve = market.amm.sqrt_k**2 / (market.amm.base_asset_reserve+market.amm.base_asset_amount_with_amm)
             market.amm.total_fee_minus_distributions -= int(freepeg_cost*1e6)
             # print('new price:', calculate_mark_price(market))
             # print('post fpeg:', market.amm.base_asset_reserve, market.amm.quote_asset_reserve)

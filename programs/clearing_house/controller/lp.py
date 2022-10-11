@@ -47,6 +47,6 @@ def settle_lp_shares(
     # update stats 
     position.last_cumulative_funding_rate_lp = market.amm.cumulative_funding_payment_per_lp
     position.last_cumulative_fee_per_lp = market.amm.cumulative_fee_per_lp
-    position.last_cumulative_net_base_asset_amount_per_lp = market.amm.cumulative_net_base_asset_amount_per_lp
+    position.last_cumulative_base_asset_amount_with_amm_per_lp = market.amm.cumulative_base_asset_amount_with_amm_per_lp
 
     return lp_metrics

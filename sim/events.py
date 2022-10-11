@@ -2,7 +2,7 @@
 import sys 
 import driftpy
 
-from driftpy.accounts import get_market_account, get_user_account
+from driftpy.accounts import get_perp_market_account, get_user_account
 from driftpy.math.amm import (
     calculate_swap_output, 
     calculate_amm_reserves_after_swap, 
@@ -24,7 +24,7 @@ from dataclasses import dataclass, field
 
 from programs.clearing_house.state import Oracle, User
 from programs.clearing_house.lib import ClearingHouse
-from backtest.helpers import adjust_oracle_pretrade, set_price_feed
+from backtest.helpers import adjust_oracle_pretrade, set_price_feed, set_price_feed_detailed
 from driftpy.setup.helpers import get_feed_data
 from driftpy.math.amm import calculate_price
 from driftpy.constants.numeric_constants import AMM_RESERVE_PRECISION, QUOTE_PRECISION
@@ -129,18 +129,19 @@ class DepositCollateralEvent(Event):
 class oraclePriceEvent(Event):
     market_index: int = 0 
     price: int = 0 
-
+    conf: int = 0
+    slot: int = 0
     _event_name: str = "oracle_price"
 
     def run(self, clearing_house: ClearingHouse, verbose=False) -> ClearingHouse:
         pass
 
     async def run_sdk(self, program, oracle_program): 
-        market = await get_market_account(
+        market = await get_perp_market_account(
             program,
             self.market_index
         )
-        return await set_price_feed(oracle_program, market.amm.oracle, self.price)
+        return await set_price_feed_detailed(oracle_program, market.amm.oracle, self.price, self.conf, self.slot)
 
 @dataclass 
 class addLiquidityEvent(Event):
@@ -235,7 +236,7 @@ class OpenPositionEvent(Event):
 
     async def run_sdk(self, clearing_house: ClearingHouseSDK, init_leverage=None, oracle_program=None, adjust_oracle_pre_trade=False) -> ClearingHouse:
         # tmp -- sim is quote open position v2 is base only
-        market = await get_market_account(clearing_house.program, self.market_index)
+        market = await get_perp_market_account(clearing_house.program, self.market_index)
 
         mark_price = calculate_price(
             market.amm.base_asset_reserve,
@@ -266,8 +267,9 @@ class OpenPositionEvent(Event):
         if init_leverage:
             data = await get_feed_data(oracle_program, market.amm.oracle)
             price = data.price
+            print('get_feed_data oracle price:', price, data)
             user = await clearing_house.get_user()
-            collateral = user.spot_positions[0].balance # todo: use clearing house user sdk fcns 
+            collateral = user.spot_positions[0].scaled_balance # todo: use clearing house user sdk fcns 
             max_baa = collateral * init_leverage / price
             # update 
             baa = int(min(max_baa, baa))
@@ -307,7 +309,7 @@ class ClosePositionEvent(Event):
     
     async def run_sdk(self, clearing_house: ClearingHouse, oracle_program=None, adjust_oracle_pre_trade=False) -> ClearingHouse:
         # tmp -- sim is quote open position v2 is base only
-        market = await get_market_account(clearing_house.program, self.market_index)
+        market = await get_perp_market_account(clearing_house.program, self.market_index)
         user = await get_user_account(clearing_house.program, clearing_house.authority)
 
         position = None 
