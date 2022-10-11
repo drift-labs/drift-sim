@@ -649,11 +649,11 @@ async def run_trial(protocol_path, events, clearing_houses, trial_outpath):
     usdc_spot_market = await get_spot_market_account(program, 0)
 
     print(
-    'usdc spot market info:',
-    'deposit_balance:', usdc_spot_market.deposit_balance, 
-    'borrow_balance:', usdc_spot_market.borrow_balance, 
-    'revenue_pool:', usdc_spot_market.revenue_pool.balance,
-    'spot_fee_pool:', usdc_spot_market.spot_fee_pool.balance,
+        'usdc spot market info:',
+        'deposit_balance:', usdc_spot_market.deposit_balance, 
+        'borrow_balance:', usdc_spot_market.borrow_balance, 
+        'revenue_pool:', usdc_spot_market.revenue_pool.scaled_balance,
+        'spot_fee_pool:', usdc_spot_market.spot_fee_pool.scaled_balance,
     )
 
 
@@ -694,8 +694,8 @@ async def run_trial(protocol_path, events, clearing_houses, trial_outpath):
 
     print(
         'market pool balances:: ',
-        'fee pool:', market.amm.fee_pool.balance, 
-        'pnl pool:', market.pnl_pool.balance
+        'fee pool:', market.amm.fee_pool.scaled_balance, 
+        'pnl pool:', market.pnl_pool.scaled_balance
     )
 
     print(
