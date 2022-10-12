@@ -120,8 +120,18 @@ def setup_run_info(sim_path, protocol_path, ch_name):
 
 
 def serialize_perp_market(market: PerpMarket):
+    data = market.__dict__
+    d2 = market.amm.__dict__  
+    d3 = market.amm.historical_oracle_data.__dict__
+    data.pop('padding')
+    data.update(d2)
+    data.update(d3)
+    result = pd.DataFrame(data, index=list(range(6))).head(1)
 
-    def human_amm_df(amm: AMM):
+    return result 
+
+def serialize_perp_market_2(market: PerpMarket):
+    def human_amm_df(df):
         bool_fields = [ 'last_oracle_valid']
         enum_fields = ['oracle_source']
         pure_fields = ['last_update_slot', 'long_intensity_count', 'short_intensity_count', 
@@ -144,81 +154,91 @@ def serialize_perp_market(market: PerpMarket):
         px_fields = ['last_bid_price_twap', 'last_ask_price_twap', 'last_mark_price_twap', 'last_mark_price_twap5min',
         'peg_multiplier',
         'mark_std']
-        pool_fields = ['fee_pool']
+        balance_fields = ['scaled_balance']
+        
+        for col in df.columns:
+            # if col in enum_fields or col in bool_fields:
+            #     pass
+            # else if col in duration_fields:
+            #     pass
+            # else if col in pure_fields:
+            #     pass
+            if col in reserve_fields:
+                df[col] /= 1e9
+            elif col in funding_fields:
+                df[col] /= 1e9
+            elif col in quote_asset_fields:
+                df[col] /= 1e6
+            elif col in pct_fields:
+                df[col] /= 1e6
+            elif col in px_fields:
+                df[col] /= 1e6
+            # else if col in time_fields:
+            #     pass
+            elif col in balance_fields:
+                df[col] /= 1e9
+                
+        return df
 
 
-    def human_market_df(market: PerpMarket):
+    def human_market_df(df):
         enum_fields = ['status', 'contract_tier', '']
         pure_fields = ['number_of_users', 'market_index', 'next_curve_record_id', 'next_fill_record_id', 'next_funding_rate_record_id']
         pct_fields = ['imf_factor', 'unrealized_pnl_imf_factor', 'liquidator_fee', 'if_liquidation_fee',
         'margin_ratio_initial', 'margin_ratio_maintenance']
         px_fields = ['expiry_price', ]
         time_fields = ['last_trade_ts', 'expiry_ts']
-        pool_fields = ['pnl_pool']
-
-    # current prices 
-    # mark_price = calculate_mark_price(market)        
-    # market_dict = copy.deepcopy(self.__dict__)
-    # market_dict.pop("amm")
-    
-    # amm_dict = copy.deepcopy(self.amm.__dict__)
-    # amm_dict.pop("oracle")
-    # b1 = amm_dict['base_asset_reserve']
-    # q1 = amm_dict['quote_asset_reserve']
-    # amm_dict['base_asset_reserve'] = f'{b1:.0f}'
-    # amm_dict['quote_asset_reserve'] = f'{q1:.0f}'
-
-    # mark_price = calculate_mark_price(self, oracle_price)
-    # bid_price = calculate_bid_price(self, oracle_price)
-    # ask_price = calculate_ask_price(self, oracle_price)
-    # peg = calculate_peg_multiplier(self.amm, oracle_price)
-    # wouldbe_peg_cost = calculate_repeg_cost(self.amm, peg)
-    
-    # long_funding, short_funding = calculate_long_short_funding(self)
-    # predicted_long_funding = long_funding
-    # predicted_short_funding = short_funding
-    # last_mid_price_twap = (amm_dict['last_bid_price_twap']+amm_dict['last_ask_price_twap'])/2
-    # repeg_to_oracle_cost = calculate_repeg_cost(self.amm, int(oracle_price * 1e3))
+        balance_fields = ['scaled_balance']
+        
+        for col in df.columns:
+            # if col in enum_fields:
+            #     pass
+            # else if col in pure_fields:
+            #     pass
+            if col in pct_fields:
+                df[col] /= 1e6
+            elif col in px_fields:
+                df[col] /= 1e6
+            # else if col in time_fields:
+            #     pass
+            elif col in balance_fields:
+                df[col] /= 1e9
                 
-    # # all in one 
-    # data = dict(
-    #     mark_price=mark_price, 
-    #     oracle_price=oracle_price,
-    #     bid_price=bid_price, 
-    #     ask_price=ask_price, 
-    #     wouldbe_peg=peg/1e3, 
-    #     wouldbe_peg_cost=wouldbe_peg_cost, 
-    #     predicted_long_funding=predicted_long_funding,
-    #     predicted_short_funding=predicted_short_funding,
-    #     last_mid_price_twap=last_mid_price_twap,
-    #     repeg_to_oracle_cost=repeg_to_oracle_cost
-    # ) | market_dict | amm_dict
-    
-    # # rescale
-    # for key in ['total_fee', 'total_mm_fees', 'total_exchange_fees', 'total_fee_minus_distributions']:
-    #     if key in data:
-    #         data[key] /= 1e6
-    
+        return df
+        
 
-    data = market.__dict__
-    d2 = market.amm.__dict__  
-    d3 = market.amm.historical_oracle_data.__dict__
-    data.pop('padding')
-    data.update(d2)
-    data.update(d3)
+    market_df = pd.json_normalize(market.__dict__).drop(['amm', 'insurance_claim', 'pnl_pool'],axis=1).pipe(human_market_df)
+    market_df.columns = ['market.'+col for col in market_df.columns]
 
-    return data 
+    amm_df= pd.json_normalize(market.amm.__dict__).drop(['historical_oracle_data', 'fee_pool'],axis=1).pipe(human_amm_df)
+    amm_df.columns = ['market.amm.'+col for col in amm_df.columns]
+
+    amm_hist_oracle_df= pd.json_normalize(market.amm.historical_oracle_data.__dict__).pipe(human_amm_df)
+    amm_hist_oracle_df.columns = ['market.amm.historical_oracle_data.'+col for col in amm_hist_oracle_df.columns]
+
+    market_amm_pool_df = pd.json_normalize(market.amm.fee_pool.__dict__).pipe(human_amm_df)
+    market_amm_pool_df.columns = ['market.amm.fee_pool.'+col for col in market_amm_pool_df.columns]
+
+    market_if_df = pd.json_normalize(market.insurance_claim.__dict__).pipe(human_market_df)
+    market_if_df.columns = ['market.insurance_claim.'+col for col in market_if_df.columns]
+
+    market_pool_df = pd.json_normalize(market.pnl_pool.__dict__).pipe(human_amm_df)
+    market_pool_df.columns = ['market.pnl_pool.'+col for col in market_pool_df.columns]
+
+
+    result_df = pd.concat([market_df, amm_df, amm_hist_oracle_df, market_amm_pool_df, market_if_df, market_pool_df],axis=1)
+    return result_df
 
 
 async def save_state(program, experiments_folder, event_i, user_chs):
-    state: State = await get_state_account()
+    state: State = await get_state_account(program)
+
     for market_index in range(0, state.number_of_markets):
         market: PerpMarket = await get_perp_market_account(program, market_index)
         print(str(market.status))
         # assert(str(market.status) == str(MarketStatus.Active()))
 
-        d = serialize_perp_market(market)
-        df = pd.DataFrame(d, index=list(range(6))).head(1)
+        df = serialize_perp_market_2(market)
         outfile = f"./{experiments_folder}/result_market"+str(market_index)+".csv"
         if event_i > 0:
             df.to_csv(outfile, mode="a", index=False, header=False)

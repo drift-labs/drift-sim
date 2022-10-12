@@ -1,6 +1,7 @@
 **/node.txt
 test-ledger/
 .tmp
+backtest/*.ipynb
 sim-results/
 examples/
 notes.py 
