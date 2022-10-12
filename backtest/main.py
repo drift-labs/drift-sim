@@ -78,7 +78,7 @@ from driftpy.clearing_house_user import ClearingHouseUser
 async def save_state(program, experiments_folder, event_i, user_chs):
 
 
-    def human_amm_df(amm: AMM):
+    def human_amm_dict(amm: AMM):
         bool_fields = [ 'last_oracle_valid']
         enum_fields = ['oracle_source']
         pure_fields = ['last_update_slot', 'long_intensity_count', 'short_intensity_count', 
@@ -104,7 +104,7 @@ async def save_state(program, experiments_folder, event_i, user_chs):
         pool_fields = ['fee_pool']
 
 
-    def human_market_df(market: PerpMarket):
+    def human_market_dict(market: PerpMarket):
         enum_fields = ['status', 'contract_tier', '']
         pure_fields = ['number_of_users', 'market_index', 'next_curve_record_id', 'next_fill_record_id', 'next_funding_rate_record_id']
         pct_fields = ['imf_factor', 'unrealized_pnl_imf_factor', 'liquidator_fee', 'if_liquidation_fee',
@@ -113,7 +113,6 @@ async def save_state(program, experiments_folder, event_i, user_chs):
         time_fields = ['last_trade_ts', 'expiry_ts']
         pool_fields = ['pnl_pool']
 
-        dffull = pd.DataFrame(market.__dict__)
 
 
 
@@ -443,7 +442,10 @@ async def run_trial(protocol_path, events, clearing_houses, trial_outpath, oracl
             except:
                 pass
         else:
-            await ch.close_position(0)
+            try:
+                await ch.close_position(0)
+            except:
+                pass
 
     # todo 
     #   calculate margin requirements of user same as js sdk 
@@ -788,7 +790,7 @@ async def main(protocol_path, experiments_folder):
     events = pd.read_csv(f"./{experiments_folder}/events.csv")
     clearing_houses = pd.read_csv(f"./{experiments_folder}/chs.csv")
     trials = ['no_oracle_guards', 'spread', 'oracle_guards']
-
+    trials = ['spread']
     
     for trial in trials:
         no_oracle_guard_rails = OracleGuardRails(
@@ -799,9 +801,10 @@ async def main(protocol_path, experiments_folder):
         trial_guard_rails = None
         spread = None
 
-        if 'spread_250' in trial:
-            print('spread_250 activated')
+        if 'spread' in trial:
+            print('spread activated')
             spread = 250
+            trial_guard_rails = no_oracle_guard_rails
 
         if 'no_oracle_guards' in trial:
             print('no_oracle_guard_rails activated')
