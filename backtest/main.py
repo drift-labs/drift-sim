@@ -156,7 +156,7 @@ def human_amm_df(df):
         'order_tick_size',
         'last_bid_price_twap', 'last_ask_price_twap', 'last_mark_price_twap', 'last_mark_price_twap5min',
     'peg_multiplier',
-    'mark_std'
+    'mark_std',
     'last_oracle_price_twap', 'last_oracle_price_twap5min',
     
     ]
@@ -562,7 +562,7 @@ async def run_trial(protocol_path, events, clearing_houses, trial_outpath, oracl
                 from termcolor import colored
                 print(colored('     *** liquidation successful ***   ', "green"))
             except Exception as e:
-                print(e.args)
+                # print(e.args)
                 pass
                 # if "0x1774" in e.args[0]['message']: # sufficient collateral
                 #     continue 
