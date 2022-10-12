@@ -138,8 +138,8 @@ def serialize_perp_market_2(market: PerpMarket):
         'curve_update_intensity', 'amm_jit_intensity'
         ]
         reserve_fields = [
-            'base_asset_reserve', 'quote_asset_reserve', 'min_base_asset_reserve', 'max_base_asset_reserve', 'sqrt_k'
-            'ask_base_asset_reserve', 'ask_quote_asset_reserve', 'bid_base_asset_reserve', 'bid_quote_asset_reserve'
+            'base_asset_reserve', 'quote_asset_reserve', 'min_base_asset_reserve', 'max_base_asset_reserve', 'sqrt_k',
+            'ask_base_asset_reserve', 'ask_quote_asset_reserve', 'bid_base_asset_reserve', 'bid_quote_asset_reserve',
             'terminal_quote_asset_reserve', 'base_asset_amount_long', 'base_asset_amount_short', 'base_asset_amount_with_amm', 'base_asset_amount_with_unsettled_lp',
             'user_lp_shares'
             ]
@@ -887,7 +887,6 @@ async def main(protocol_path, experiments_folder):
     events = pd.read_csv(f"./{experiments_folder}/events.csv")
     clearing_houses = pd.read_csv(f"./{experiments_folder}/chs.csv")
     trials = ['no_oracle_guards', 'spread', 'oracle_guards']
-    trials = ['spread']
 
     setup_run_info(experiments_folder, protocol_path, '')
     
