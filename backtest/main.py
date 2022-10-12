@@ -74,11 +74,122 @@ class LocalValidator:
 
 from driftpy.clearing_house_user import ClearingHouseUser
 
+import datetime
+import subprocess
+
+def get_git_revision_hash(path=None) -> str:
+    result = None
+    if path is None:
+        result = subprocess.check_output(['git', 'rev-parse', 'HEAD']).decode('ascii').strip()
+    else:
+        result = subprocess.check_output(['git', '-C', path, 'rev-parse', 'HEAD']).decode('ascii').strip()
+
+    is_dirty = get_git_dirty()
+    if is_dirty:
+        result+='-dirty'
+
+    return result
+
+def get_git_revision_short_hash(path=None) -> str:
+    output = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).decode('ascii').strip()
+    is_dirty = get_git_dirty()
+    if is_dirty:
+        output+='-dirty'
+    return output
+
+def get_git_dirty() -> str:
+    #If the exit code is 0, then there were no differences.
+    return subprocess.call(['git', 'diff-index', '--quiet', 'HEAD'])
+
+def setup_run_info(sim_path, protocol_path, ch_name):
+    os.makedirs(sim_path, exist_ok=True)
+    maintenant = datetime.datetime.utcnow()
+    maintenant_str = maintenant.strftime("%Y/%m/%d %H:%M:%S UTC")
+    sim_git_commit = get_git_revision_hash()
+    protocol_git_commit = get_git_revision_hash(protocol_path)
+
+    run_data = {
+        'run_time': maintenant_str, 
+        'sim_git_commit': sim_git_commit,
+        'protocol_git_commit': protocol_git_commit,
+        'path': sim_path,
+        'name': ch_name,
+    }
+    with open(os.path.join(sim_path, 'run_info.json'), 'w') as f:
+        json.dump(run_data, f)
+
+
+def serialize_perp_market(market: PerpMarket):
+        # current prices 
+        mark_price = calculate_mark_price(market)        
+        market_dict = copy.deepcopy(self.__dict__)
+        market_dict.pop("amm")
+        
+        amm_dict = copy.deepcopy(self.amm.__dict__)
+        amm_dict.pop("oracle")
+        b1 = amm_dict['base_asset_reserve']
+        q1 = amm_dict['quote_asset_reserve']
+        amm_dict['base_asset_reserve'] = f'{b1:.0f}'
+        amm_dict['quote_asset_reserve'] = f'{q1:.0f}'
+
+        mark_price = calculate_mark_price(self, oracle_price)
+        bid_price = calculate_bid_price(self, oracle_price)
+        ask_price = calculate_ask_price(self, oracle_price)
+        peg = calculate_peg_multiplier(self.amm, oracle_price)
+        wouldbe_peg_cost = calculate_repeg_cost(self.amm, peg)
+        
+        long_funding, short_funding = calculate_long_short_funding(self)
+        predicted_long_funding = long_funding
+        predicted_short_funding = short_funding
+        last_mid_price_twap = (amm_dict['last_bid_price_twap']+amm_dict['last_ask_price_twap'])/2
+        repeg_to_oracle_cost = calculate_repeg_cost(self.amm, int(oracle_price * 1e3))
+                    
+        # all in one 
+        data = dict(
+            mark_price=mark_price, 
+            oracle_price=oracle_price,
+            bid_price=bid_price, 
+            ask_price=ask_price, 
+            wouldbe_peg=peg/1e3, 
+            wouldbe_peg_cost=wouldbe_peg_cost, 
+            predicted_long_funding=predicted_long_funding,
+            predicted_short_funding=predicted_short_funding,
+            last_mid_price_twap=last_mid_price_twap,
+            repeg_to_oracle_cost=repeg_to_oracle_cost
+        ) | market_dict | amm_dict
+        
+        # rescale
+        for key in ['total_fee', 'total_mm_fees', 'total_exchange_fees', 'total_fee_minus_distributions']:
+            if key in data:
+                data[key] /= 1e6
+        
+
+        data = market.__dict__
+        d2 = market.amm.__dict__  
+        d3 = market.amm.historical_oracle_data.__dict__
+        data.pop('padding')
+        data.update(d2)
+        data.update(d3)
+
+        return data 
+
 
 async def save_state(program, experiments_folder, event_i, user_chs):
+    state: State = await get_state_account()
+    for market_index in range(0, state.number_of_markets):
+        market: PerpMarket = await get_perp_market_account(program, market_index)
+        print(str(market.status))
+        # assert(str(market.status) == str(MarketStatus.Active()))
 
+        d = serialize_perp_market(market)
+        df = pd.DataFrame(d, index=list(range(6))).head(1)
+        outfile = f"./{experiments_folder}/result_market"+str(market_index)+".csv"
+        if event_i > 0:
+            df.to_csv(outfile, mode="a", index=False, header=False)
+        else:
+            df.to_csv(outfile, index=False)
 
-    def human_amm_dict(amm: AMM):
+    def human_amm_df(amm: AMM):
         bool_fields = [ 'last_oracle_valid']
         enum_fields = ['oracle_source']
         pure_fields = ['last_update_slot', 'long_intensity_count', 'short_intensity_count', 
@@ -104,7 +215,7 @@ async def save_state(program, experiments_folder, event_i, user_chs):
         pool_fields = ['fee_pool']
 
 
-    def human_market_dict(market: PerpMarket):
+    def human_market_df(market: PerpMarket):
         enum_fields = ['status', 'contract_tier', '']
         pure_fields = ['number_of_users', 'market_index', 'next_curve_record_id', 'next_fill_record_id', 'next_funding_rate_record_id']
         pct_fields = ['imf_factor', 'unrealized_pnl_imf_factor', 'liquidator_fee', 'if_liquidation_fee',
@@ -114,54 +225,20 @@ async def save_state(program, experiments_folder, event_i, user_chs):
         pool_fields = ['pnl_pool']
 
 
-
-
-    market: PerpMarket = await get_perp_market_account(program, 0)
-    print(str(market.status))
-    # assert(str(market.status) == str(MarketStatus.Active()))
-    d = market.__dict__
-    d2 = market.amm.__dict__  
-    d3 = market.amm.historical_oracle_data.__dict__
-    d.pop('padding')
-    d.update(d2)
-    d.update(d3)
-
-    # if event_i > 40:
-    #     import pdb; pdb.set_trace()
-    # print(d)
-    df = pd.DataFrame(d, index=list(range(6))).head(1)
-    # print(df)
-    outfile = f"./{experiments_folder}/result_market0.csv"
-    # print('event i going to file:', outfile)
-    if event_i > 0:
-        df.to_csv(outfile, mode="a", index=False, header=False)
-    else:
-        df.to_csv(outfile, index=False)
-
-
-    all_users = await program.account["User"].all()
+    # all_users = await program.account["User"].all()
     for (i, user_ch) in user_chs.items():
         upk = (user_ch.authority)
         user_account: PerpMarket = await get_user_account(program, upk, 0)
-        # try:
         uu = user_account.__dict__
         uu.pop('orders')
         uu.pop('name')
         uu.pop('padding')
-        # print(pd.DataFrame(uu))
-        df = pd.DataFrame(uu, index=list(range(8))).head(1)
-        # print(df)
+        df = pd.DataFrame(uu, index=list(range(8))).head(1) #todo show all positions
         outfile = f"./{experiments_folder}/result_user_"+str(i)+".csv"
-        # print('event i going to file:', outfile)
         if event_i > 0:
             df.to_csv(outfile, mode="a", index=False, header=False)
         else:
             df.to_csv(outfile, index=False)
-            # except Exception as e:
-            #     print(e)
-            #     pass
-
-
 
 async def init_user(
     user_chs,
@@ -791,6 +868,8 @@ async def main(protocol_path, experiments_folder):
     clearing_houses = pd.read_csv(f"./{experiments_folder}/chs.csv")
     trials = ['no_oracle_guards', 'spread', 'oracle_guards']
     trials = ['spread']
+
+    setup_run_info(experiments_folder, protocol_path, '')
     
     for trial in trials:
         no_oracle_guard_rails = OracleGuardRails(
