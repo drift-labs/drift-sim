@@ -143,12 +143,18 @@ def human_amm_df(df):
         'terminal_quote_asset_reserve', 'base_asset_amount_long', 'base_asset_amount_short', 'base_asset_amount_with_amm', 'base_asset_amount_with_unsettled_lp',
         'user_lp_shares', 'min_order_size', 'max_position_size',
         ]
-    pct_fields = ['base_spread','long_spread', 'short_spread', 'max_spread', 'concentration_coef', 'last_oracle_reserve_price_spread_pct',]
+    pct_fields = ['base_spread','long_spread', 'short_spread', 'max_spread', 'concentration_coef', 'last_oracle_reserve_price_spread_pct',
+    
+    'utilization_twap',
+    
+    ]
     funding_fields = ['cumulative_funding_rate_long', 'cumulative_funding_rate_short', 'last_funding_rate', 'last_funding_rate_long', 'last_funding_rate_short', 'last24h_avg_funding_rate']
     quote_asset_fields = ['total_fee', 'total_mm_fee', 'total_exchange_fee', 'total_fee_minus_distributions',
     'total_fee_withdrawn', 'total_liquidation_fee', 'cumulative_social_loss', 'net_revenue_since_last_funding',
     'quote_asset_amount_long', 'quote_asset_amount_short', 'quote_entry_amount_long', 'quote_entry_amount_short',
-    'volume24h', 'long_intensity_volume', 'short_intensity_volume',]
+    'volume24h', 'long_intensity_volume', 'short_intensity_volume',
+    'total_spot_fee',
+    ]
     time_fields = ['last_trade_ts', 'last_mark_price_twap_ts', 'last_oracle_price_twap_ts',]
     duration_fields = ['lp_cooldown_time', 'funding_period']
     px_fields = [
@@ -160,8 +166,8 @@ def human_amm_df(df):
     'last_oracle_price_twap', 'last_oracle_price_twap5min',
     
     ]
-    balance_fields = ['scaled_balance']
-    
+    balance_fields = ['scaled_balance', 'deposit_balance', 'borrow_balance']
+
     for col in df.columns:
         # if col in enum_fields or col in bool_fields:
         #     pass
@@ -191,14 +197,31 @@ def human_market_df(df):
     enum_fields = ['status', 'contract_tier', '']
     pure_fields = ['number_of_users', 'market_index', 'next_curve_record_id', 'next_fill_record_id', 'next_funding_rate_record_id']
     pct_fields = ['imf_factor', 'unrealized_pnl_imf_factor', 'liquidator_fee', 'if_liquidation_fee']
-    wgt_fields = ['unrealized_pnl_initial_asset_weight', 'unrealized_pnl_maintenance_asset_weight']
-    margin_fields = ['margin_ratio_initial', 'margin_ratio_maintenance']
-    px_fields = ['expiry_price', ]
-    time_fields = ['last_trade_ts', 'expiry_ts', 'last_revenue_withdraw_ts']
-    balance_fields = ['scaled_balance']
-    quote_fields = ['unrealized_pnl_max_imbalance', 'quote_settled_insurance', 'quote_max_insurance', 
-    'max_revenue_withdraw_per_period', 'revenue_withdraw_since_last_settle', ]
+    wgt_fields = ['initial_asset_weight', 'maintenance_asset_weight',
     
+    'initial_liability_weight', 'maintenance_liability_weight',
+    'unrealized_pnl_initial_asset_weight', 'unrealized_pnl_maintenance_asset_weight']
+    margin_fields = ['margin_ratio_initial', 'margin_ratio_maintenance']
+    px_fields = [
+        'expiry_price',
+        'last_oracle_normalised_price',
+        'order_tick_size',
+        'last_bid_price_twap', 'last_ask_price_twap', 'last_mark_price_twap', 'last_mark_price_twap5min',
+    'peg_multiplier',
+    'mark_std',
+    'last_oracle_price_twap', 'last_oracle_price_twap5min',
+    
+    ]
+    time_fields = ['last_trade_ts', 'expiry_ts', 'last_revenue_withdraw_ts']
+    balance_fields = ['scaled_balance', 'deposit_balance', 'borrow_balance']
+    quote_fields = [
+        
+        'total_spot_fee', 
+        'unrealized_pnl_max_imbalance', 'quote_settled_insurance', 'quote_max_insurance', 
+    'max_revenue_withdraw_per_period', 'revenue_withdraw_since_last_settle', ]
+    token_fields = ['borrow_token_twap', 'deposit_token_twap', 'withdraw_guard_threshold', 'max_token_deposits']
+    interest_fields = ['cumulative_deposit_interest', 'cumulative_borrow_interest']
+
     for col in df.columns:
         # if col in enum_fields:
         #     pass
@@ -218,7 +241,11 @@ def human_market_df(df):
             df[col] /= 1e6
         elif col in balance_fields:
             df[col] /= 1e9
-            
+        elif col in interest_fields:
+            df[col] /= 1e10
+        elif col in token_fields:
+            df[col] /= 1e6 #todo   
+
     return df
     
 
@@ -249,7 +276,7 @@ def serialize_perp_market_2(market: PerpMarket):
 
 
 def serialize_spot_market(spot_market: SpotMarket):
-    spot_market_df = pd.json_normalize(spot_market.__dict__, errors="ignore").drop([
+    spot_market_df = pd.json_normalize(spot_market.__dict__).drop([
         'historical_oracle_data', 'historical_index_data',
         'insurance_fund', # todo
         'spot_fee_pool', 'revenue_pool'
@@ -971,6 +998,7 @@ async def main(protocol_path, experiments_folder):
     events = pd.read_csv(f"./{experiments_folder}/events.csv")
     clearing_houses = pd.read_csv(f"./{experiments_folder}/chs.csv")
     trials = ['no_oracle_guards', 'spread_250', 'spread_1000', 'oracle_guards',]
+    trials = ['spread_1000', 'oracle_guards',]
 
     setup_run_info(experiments_folder, protocol_path, '')
     

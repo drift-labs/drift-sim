@@ -1,12 +1,12 @@
 spot_market.pubkey,spot_market.oracle,spot_market.mint,spot_market.vault,spot_market.initial_asset_weight,spot_market.maintenance_asset_weight,spot_market.initial_liability_weight,spot_market.maintenance_liability_weight,spot_market.imf_factor,spot_market.liquidator_fee,spot_market.if_liquidation_fee,spot_market.withdraw_guard_threshold,spot_market.total_spot_fee,spot_market.deposit_balance,spot_market.borrow_balance,spot_market.max_token_deposits,spot_market.deposit_token_twap,spot_market.borrow_token_twap,spot_market.utilization_twap,spot_market.cumulative_deposit_interest,spot_market.cumulative_borrow_interest,spot_market.last_interest_ts,spot_market.last_twap_ts,spot_market.expiry_ts,spot_market.order_step_size,spot_market.order_tick_size,spot_market.min_order_size,spot_market.max_position_size,spot_market.next_fill_record_id,spot_market.optimal_utilization,spot_market.optimal_borrow_rate,spot_market.max_borrow_rate,spot_market.market_index,spot_market.decimals,spot_market.oracle_source,spot_market.status,spot_market.asset_tier,spot_market.padding,spot_market.historical_oracle_data.last_oracle_price,spot_market.historical_oracle_data.last_oracle_conf,spot_market.historical_oracle_data.last_oracle_delay,spot_market.historical_oracle_data.last_oracle_price_twap,spot_market.historical_oracle_data.last_oracle_price_twap5min,spot_market.historical_oracle_data.last_oracle_price_twap_ts,spot_market.historical_oracle_data.last_index_bid_price,spot_market.historical_oracle_data.last_index_ask_price,spot_market.historical_oracle_data.last_index_price_twap,spot_market.historical_oracle_data.last_index_price_twap5min,spot_market.historical_oracle_data.last_index_price_twap_ts,market.pnl_pool.scaled_balance,market.pnl_pool.market_index,market.pnl_pool.padding
-H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FXuqLCxNDUknYqVUnQA1q5sraMPyUu1B8tbJTaPuF367,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18508210226.0,0.0,0.0,10000000000.0,10000000000.0,1665604687.0,1665604708.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18856060590.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607739.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
     0
     0
     0
     0
     0
     0",,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1000001.0,1.000001,1665604708.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607739.0,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
     0
@@ -22,14 +22,14 @@ H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FX
     0
     0
     0"
-H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FXuqLCxNDUknYqVUnQA1q5sraMPyUu1B8tbJTaPuF367,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18508210226.0,0.0,0.0,10000000000.0,10000000000.0,1665604687.0,1665604708.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18856060590.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607739.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
     0
     0
     0
     0
     0
     0",,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1000001.0,1.000001,1665604708.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607739.0,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
     0
@@ -45,14 +45,14 @@ H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FX
     0
     0
     0"
-H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FXuqLCxNDUknYqVUnQA1q5sraMPyUu1B8tbJTaPuF367,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18508210226.0,0.0,0.0,10000000000.0,10000000000.0,1665604687.0,1665604708.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18856060590.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607739.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
     0
     0
     0
     0
     0
     0",,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1000001.0,1.000001,1665604708.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607739.0,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
     0
@@ -68,14 +68,14 @@ H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FX
     0
     0
     0"
-H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FXuqLCxNDUknYqVUnQA1q5sraMPyUu1B8tbJTaPuF367,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18508210226.0,0.0,0.0,10000000000.0,10000000000.0,1665604687.0,1665604708.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18856060590.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607739.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
     0
     0
     0
     0
     0
     0",,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1000001.0,1.000001,1665604708.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607739.0,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
     0
@@ -91,14 +91,14 @@ H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FX
     0
     0
     0"
-H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FXuqLCxNDUknYqVUnQA1q5sraMPyUu1B8tbJTaPuF367,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18508210226.0,0.0,0.0,10000000000.0,10000000000.0,1665604687.0,1665604708.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18856060590.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607739.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
     0
     0
     0
     0
     0
     0",,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1000001.0,1.000001,1665604708.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607739.0,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
     0
@@ -114,14 +114,14 @@ H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FX
     0
     0
     0"
-H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FXuqLCxNDUknYqVUnQA1q5sraMPyUu1B8tbJTaPuF367,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18508210226.0,0.0,0.0,10000000000.0,10000000000.0,1665604687.0,1665604708.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18856060590.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607739.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
     0
     0
     0
     0
     0
     0",,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1000001.0,1.000001,1665604708.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607739.0,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
     0
@@ -137,14 +137,14 @@ H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FX
     0
     0
     0"
-H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FXuqLCxNDUknYqVUnQA1q5sraMPyUu1B8tbJTaPuF367,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18508210226.0,0.0,0.0,10000000000.0,10000000000.0,1665604687.0,1665604708.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18856060590.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607739.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
     0
     0
     0
     0
     0
     0",,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1000001.0,1.000001,1665604708.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607739.0,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
     0
@@ -160,14 +160,14 @@ H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FX
     0
     0
     0"
-H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FXuqLCxNDUknYqVUnQA1q5sraMPyUu1B8tbJTaPuF367,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18508210226.0,0.0,0.0,10000000000.0,10000000000.0,1665604687.0,1665604708.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18856060590.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607739.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
     0
     0
     0
     0
     0
     0",,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1000001.0,1.000001,1665604708.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607739.0,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
     0
@@ -183,14 +183,14 @@ H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FX
     0
     0
     0"
-H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FXuqLCxNDUknYqVUnQA1q5sraMPyUu1B8tbJTaPuF367,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18508210226.0,0.0,0.0,10000000000.0,10000000000.0,1665604687.0,1665604708.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18856060590.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607739.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
     0
     0
     0
     0
     0
     0",,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1000001.0,1.000001,1665604708.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607739.0,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
     0
@@ -206,14 +206,14 @@ H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FX
     0
     0
     0"
-H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FXuqLCxNDUknYqVUnQA1q5sraMPyUu1B8tbJTaPuF367,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18508210226.0,0.0,0.0,10000000000.0,10000000000.0,1665604687.0,1665604708.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18856060590.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607739.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
     0
     0
     0
     0
     0
     0",,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1000001.0,1.000001,1665604708.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607739.0,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
     0
@@ -229,14 +229,14 @@ H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FX
     0
     0
     0"
-H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FXuqLCxNDUknYqVUnQA1q5sraMPyUu1B8tbJTaPuF367,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18508210226.0,0.0,0.0,10000000000.0,10000000000.0,1665604687.0,1665604708.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18856060590.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607739.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
     0
     0
     0
     0
     0
     0",,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1000001.0,1.000001,1665604708.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607739.0,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
     0
@@ -252,14 +252,14 @@ H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FX
     0
     0
     0"
-H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FXuqLCxNDUknYqVUnQA1q5sraMPyUu1B8tbJTaPuF367,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18508210226.0,0.0,0.0,10000000000.0,10000000000.0,1665604687.0,1665604708.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18856060590.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607739.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
     0
     0
     0
     0
     0
     0",,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1000001.0,1.000001,1665604708.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607739.0,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
     0
@@ -275,14 +275,14 @@ H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FX
     0
     0
     0"
-H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FXuqLCxNDUknYqVUnQA1q5sraMPyUu1B8tbJTaPuF367,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18508210226.0,0.0,0.0,10000000000.0,10000000000.0,1665604687.0,1665604708.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18856060590.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607739.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
     0
     0
     0
     0
     0
     0",,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1000001.0,1.000001,1665604708.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607739.0,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
     0
@@ -298,14 +298,14 @@ H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FX
     0
     0
     0"
-H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FXuqLCxNDUknYqVUnQA1q5sraMPyUu1B8tbJTaPuF367,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18508210226.0,0.0,0.0,10000000000.0,10000000000.0,1665604687.0,1665604708.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18856060590.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607739.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
     0
     0
     0
     0
     0
     0",,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1000001.0,1.000001,1665604708.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607739.0,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
     0
@@ -321,14 +321,14 @@ H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FX
     0
     0
     0"
-H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FXuqLCxNDUknYqVUnQA1q5sraMPyUu1B8tbJTaPuF367,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18508210226.0,0.0,0.0,10000000000.0,10000000000.0,1665604687.0,1665604708.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18856060590.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607739.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
     0
     0
     0
     0
     0
     0",,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1000001.0,1.000001,1665604708.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607739.0,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
     0
@@ -344,14 +344,14 @@ H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FX
     0
     0
     0"
-H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FXuqLCxNDUknYqVUnQA1q5sraMPyUu1B8tbJTaPuF367,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18508210226.0,0.0,0.0,10000000000.0,10000000000.0,1665604687.0,1665604708.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18856060590.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607739.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
     0
     0
     0
     0
     0
     0",,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1000001.0,1.000001,1665604708.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607739.0,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
     0
@@ -367,14 +367,14 @@ H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FX
     0
     0
     0"
-H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FXuqLCxNDUknYqVUnQA1q5sraMPyUu1B8tbJTaPuF367,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18508210226.0,0.0,0.0,10000000000.0,10000000000.0,1665604687.0,1665604708.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18856060590.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607739.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
     0
     0
     0
     0
     0
     0",,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1000001.0,1.000001,1665604708.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607739.0,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
     0
@@ -390,14 +390,14 @@ H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FX
     0
     0
     0"
-H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FXuqLCxNDUknYqVUnQA1q5sraMPyUu1B8tbJTaPuF367,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18508210226.0,0.0,0.0,10000000000.0,10000000000.0,1665604687.0,1665604708.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18856060590.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607739.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
     0
     0
     0
     0
     0
     0",,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1000001.0,1.000001,1665604708.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607739.0,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
     0
@@ -413,14 +413,14 @@ H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FX
     0
     0
     0"
-H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FXuqLCxNDUknYqVUnQA1q5sraMPyUu1B8tbJTaPuF367,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18508210226.0,0.0,0.0,10000000000.0,10000000000.0,1665604687.0,1665604708.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18856060590.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607739.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
     0
     0
     0
     0
     0
     0",,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1000001.0,1.000001,1665604708.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607739.0,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
     0
@@ -436,14 +436,14 @@ H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FX
     0
     0
     0"
-H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FXuqLCxNDUknYqVUnQA1q5sraMPyUu1B8tbJTaPuF367,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18508210226.0,0.0,0.0,10000000000.0,10000000000.0,1665604687.0,1665604708.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18856060590.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607739.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
     0
     0
     0
     0
     0
     0",,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1000001.0,1.000001,1665604708.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607739.0,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
     0
@@ -459,14 +459,14 @@ H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FX
     0
     0
     0"
-H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FXuqLCxNDUknYqVUnQA1q5sraMPyUu1B8tbJTaPuF367,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18508210226.0,0.0,0.0,10000000000.0,10000000000.0,1665604687.0,1665604708.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18856060590.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607739.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
     0
     0
     0
     0
     0
     0",,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1000001.0,1.000001,1665604708.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607739.0,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
     0
@@ -482,14 +482,14 @@ H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FX
     0
     0
     0"
-H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FXuqLCxNDUknYqVUnQA1q5sraMPyUu1B8tbJTaPuF367,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18508210226.0,0.0,0.0,10000000000.0,10000000000.0,1665604687.0,1665604708.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18856060590.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607739.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
     0
     0
     0
     0
     0
     0",,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1000001.0,1.000001,1665604708.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607739.0,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
     0
@@ -505,14 +505,14 @@ H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FX
     0
     0
     0"
-H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FXuqLCxNDUknYqVUnQA1q5sraMPyUu1B8tbJTaPuF367,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18508210226.0,0.0,0.0,10000000000.0,10000000000.0,1665604687.0,1665604708.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18856060590.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607739.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
     0
     0
     0
     0
     0
     0",,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1000001.0,1.000001,1665604708.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607739.0,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
     0
@@ -528,14 +528,14 @@ H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FX
     0
     0
     0"
-H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FXuqLCxNDUknYqVUnQA1q5sraMPyUu1B8tbJTaPuF367,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18508210226.0,0.0,0.0,10000000000.0,10000000000.0,1665604687.0,1665604708.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18856060590.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607739.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
     0
     0
     0
     0
     0
     0",,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1000001.0,1.000001,1665604708.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607739.0,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
     0
@@ -551,14 +551,14 @@ H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FX
     0
     0
     0"
-H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FXuqLCxNDUknYqVUnQA1q5sraMPyUu1B8tbJTaPuF367,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18508210226.0,0.0,0.0,10000000000.0,10000000000.0,1665604687.0,1665604708.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18856060590.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607739.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
     0
     0
     0
     0
     0
     0",,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1000001.0,1.000001,1665604708.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607739.0,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
     0
@@ -574,14 +574,14 @@ H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FX
     0
     0
     0"
-H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FXuqLCxNDUknYqVUnQA1q5sraMPyUu1B8tbJTaPuF367,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18508210226.0,0.0,0.0,10000000000.0,10000000000.0,1665604687.0,1665604708.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18856060590.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607739.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
     0
     0
     0
     0
     0
     0",,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1000001.0,1.000001,1665604708.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607739.0,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
     0
@@ -597,14 +597,14 @@ H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FX
     0
     0
     0"
-H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FXuqLCxNDUknYqVUnQA1q5sraMPyUu1B8tbJTaPuF367,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18508210226.0,0.0,0.0,10000000000.0,10000000000.0,1665604687.0,1665604708.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18856060590.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607739.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
     0
     0
     0
     0
     0
     0",,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1000001.0,1.000001,1665604708.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607739.0,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
     0
@@ -620,14 +620,14 @@ H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FX
     0
     0
     0"
-H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FXuqLCxNDUknYqVUnQA1q5sraMPyUu1B8tbJTaPuF367,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18508210226.0,0.0,0.0,10000000000.0,10000000000.0,1665604687.0,1665604708.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18856060590.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607739.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
     0
     0
     0
     0
     0
     0",,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1000001.0,1.000001,1665604708.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607739.0,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
     0
@@ -643,14 +643,14 @@ H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FX
     0
     0
     0"
-H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FXuqLCxNDUknYqVUnQA1q5sraMPyUu1B8tbJTaPuF367,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18508210226.0,0.0,0.0,10000000000.0,10000000000.0,1665604687.0,1665604708.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18856060590.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607739.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
     0
     0
     0
     0
     0
     0",,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1000001.0,1.000001,1665604708.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607739.0,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
     0
@@ -666,14 +666,14 @@ H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FX
     0
     0
     0"
-H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FXuqLCxNDUknYqVUnQA1q5sraMPyUu1B8tbJTaPuF367,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18508210226.0,0.0,0.0,10000000000.0,10000000000.0,1665604687.0,1665604708.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18856060590.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607739.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
     0
     0
     0
     0
     0
     0",,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1000001.0,1.000001,1665604708.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607739.0,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
     0
@@ -689,14 +689,14 @@ H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FX
     0
     0
     0"
-H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FXuqLCxNDUknYqVUnQA1q5sraMPyUu1B8tbJTaPuF367,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18508210226.0,0.0,0.0,10000000000.0,10000000000.0,1665604687.0,1665604708.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18856060590.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607739.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
     0
     0
     0
     0
     0
     0",,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1000001.0,1.000001,1665604708.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607739.0,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
     0
@@ -712,14 +712,14 @@ H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FX
     0
     0
     0"
-H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FXuqLCxNDUknYqVUnQA1q5sraMPyUu1B8tbJTaPuF367,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18508210226.0,0.0,0.0,10000000000.0,10000000000.0,1665604687.0,1665604708.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18856060590.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607739.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
     0
     0
     0
     0
     0
     0",,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1000001.0,1.000001,1665604708.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607739.0,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
     0
@@ -735,14 +735,14 @@ H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FX
     0
     0
     0"
-H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FXuqLCxNDUknYqVUnQA1q5sraMPyUu1B8tbJTaPuF367,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18508210226.0,0.0,0.0,10000000000.0,10000000000.0,1665604687.0,1665604708.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18856060590.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607739.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
     0
     0
     0
     0
     0
     0",,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1000001.0,1.000001,1665604708.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607739.0,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
     0
@@ -758,14 +758,14 @@ H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FX
     0
     0
     0"
-H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FXuqLCxNDUknYqVUnQA1q5sraMPyUu1B8tbJTaPuF367,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18508210226.0,0.0,0.0,10000000000.0,10000000000.0,1665604687.0,1665604708.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18856060590.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607739.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
     0
     0
     0
     0
     0
     0",,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1000001.0,1.000001,1665604708.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607739.0,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
     0
@@ -781,14 +781,14 @@ H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FX
     0
     0
     0"
-H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FXuqLCxNDUknYqVUnQA1q5sraMPyUu1B8tbJTaPuF367,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18508210226.0,0.0,0.0,10000000000.0,10000000000.0,1665604687.0,1665604708.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18856060590.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607739.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
     0
     0
     0
     0
     0
     0",,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1000001.0,1.000001,1665604708.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607739.0,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
     0
@@ -804,14 +804,14 @@ H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FX
     0
     0
     0"
-H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FXuqLCxNDUknYqVUnQA1q5sraMPyUu1B8tbJTaPuF367,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18508210226.0,0.0,0.0,10000000000.0,10000000000.0,1665604687.0,1665604708.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18856060590.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607739.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
     0
     0
     0
     0
     0
     0",,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1000001.0,1.000001,1665604708.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607739.0,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
     0
@@ -827,14 +827,14 @@ H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FX
     0
     0
     0"
-H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FXuqLCxNDUknYqVUnQA1q5sraMPyUu1B8tbJTaPuF367,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18508210226.0,0.0,0.0,10000000000.0,10000000000.0,1665604687.0,1665604708.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18856060590.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607739.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
     0
     0
     0
     0
     0
     0",,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1000001.0,1.000001,1665604708.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607739.0,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
     0
@@ -850,14 +850,14 @@ H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FX
     0
     0
     0"
-H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FXuqLCxNDUknYqVUnQA1q5sraMPyUu1B8tbJTaPuF367,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18508210226.0,0.0,0.0,10000000000.0,10000000000.0,1665604687.0,1665604708.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18856060590.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607739.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
     0
     0
     0
     0
     0
     0",,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1000001.0,1.000001,1665604708.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607739.0,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
     0
@@ -873,14 +873,14 @@ H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FX
     0
     0
     0"
-H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FXuqLCxNDUknYqVUnQA1q5sraMPyUu1B8tbJTaPuF367,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18508210226.0,0.0,0.0,10000000000.0,10000000000.0,1665604687.0,1665604708.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18856060590.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607739.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
     0
     0
     0
     0
     0
     0",,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1000001.0,1.000001,1665604708.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607739.0,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
     0
@@ -896,14 +896,14 @@ H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FX
     0
     0
     0"
-H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FXuqLCxNDUknYqVUnQA1q5sraMPyUu1B8tbJTaPuF367,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18508210226.0,0.0,0.0,10000000000.0,10000000000.0,1665604687.0,1665604708.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18856060590.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607739.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
     0
     0
     0
     0
     0
     0",,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1000001.0,1.000001,1665604708.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607739.0,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
     0
@@ -919,14 +919,14 @@ H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FX
     0
     0
     0"
-H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FXuqLCxNDUknYqVUnQA1q5sraMPyUu1B8tbJTaPuF367,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18508210226.0,0.0,0.0,10000000000.0,10000000000.0,1665604687.0,1665604708.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18856060590.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607739.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
     0
     0
     0
     0
     0
     0",,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1000001.0,1.000001,1665604708.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607739.0,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
     0
@@ -942,14 +942,14 @@ H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FX
     0
     0
     0"
-H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FXuqLCxNDUknYqVUnQA1q5sraMPyUu1B8tbJTaPuF367,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18508210226.0,0.0,0.0,10000000000.0,10000000000.0,1665604687.0,1665604708.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18856060590.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607739.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
     0
     0
     0
     0
     0
     0",,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1000001.0,1.000001,1665604708.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607739.0,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
     0
@@ -965,14 +965,14 @@ H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FX
     0
     0
     0"
-H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FXuqLCxNDUknYqVUnQA1q5sraMPyUu1B8tbJTaPuF367,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18508210226.0,0.0,0.0,10000000000.0,10000000000.0,1665604687.0,1665604708.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18856060590.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607739.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
     0
     0
     0
     0
     0
     0",,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1000001.0,1.000001,1665604708.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607739.0,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
     0
@@ -988,14 +988,14 @@ H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FX
     0
     0
     0"
-H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FXuqLCxNDUknYqVUnQA1q5sraMPyUu1B8tbJTaPuF367,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18508210226.0,0.0,0.0,10000000000.0,10000000000.0,1665604687.0,1665604708.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18856060590.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607739.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
     0
     0
     0
     0
     0
     0",,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1000001.0,1.000001,1665604708.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607739.0,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
     0
@@ -1011,14 +1011,14 @@ H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FX
     0
     0
     0"
-H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FXuqLCxNDUknYqVUnQA1q5sraMPyUu1B8tbJTaPuF367,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18508210226.0,0.0,0.0,10000000000.0,10000000000.0,1665604687.0,1665604708.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18856060590.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607739.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
     0
     0
     0
     0
     0
     0",,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1000001.0,1.000001,1665604708.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607739.0,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
     0
@@ -1034,14 +1034,14 @@ H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FX
     0
     0
     0"
-H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FXuqLCxNDUknYqVUnQA1q5sraMPyUu1B8tbJTaPuF367,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18508210226.0,0.0,0.0,10000000000.0,10000000000.0,1665604687.0,1665604708.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18856060590.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607739.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
     0
     0
     0
     0
     0
     0",,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1000001.0,1.000001,1665604708.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607739.0,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
     0
@@ -1057,14 +1057,14 @@ H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FX
     0
     0
     0"
-H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FXuqLCxNDUknYqVUnQA1q5sraMPyUu1B8tbJTaPuF367,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18508210226.0,0.0,0.0,10000000000.0,10000000000.0,1665604687.0,1665604708.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18856060590.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607739.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
     0
     0
     0
     0
     0
     0",,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1000001.0,1.000001,1665604708.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607739.0,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
     0
@@ -1080,14 +1080,14 @@ H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FX
     0
     0
     0"
-H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FXuqLCxNDUknYqVUnQA1q5sraMPyUu1B8tbJTaPuF367,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18508210226.0,0.0,0.0,10000000000.0,10000000000.0,1665604687.0,1665604708.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18856060590.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607739.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
     0
     0
     0
     0
     0
     0",,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1000001.0,1.000001,1665604708.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607739.0,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
     0
@@ -1103,14 +1103,14 @@ H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FX
     0
     0
     0"
-H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FXuqLCxNDUknYqVUnQA1q5sraMPyUu1B8tbJTaPuF367,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18508210226.0,0.0,0.0,10000000000.0,10000000000.0,1665604687.0,1665604708.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18856060590.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607739.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
     0
     0
     0
     0
     0
     0",,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1000001.0,1.000001,1665604708.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607739.0,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
     0
@@ -1126,14 +1126,14 @@ H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FX
     0
     0
     0"
-H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FXuqLCxNDUknYqVUnQA1q5sraMPyUu1B8tbJTaPuF367,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18508210226.0,0.0,0.0,10000000000.0,10000000000.0,1665604687.0,1665604708.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18856060590.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607739.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
     0
     0
     0
     0
     0
     0",,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1000001.0,1.000001,1665604708.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607739.0,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
     0
@@ -1149,14 +1149,14 @@ H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FX
     0
     0
     0"
-H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FXuqLCxNDUknYqVUnQA1q5sraMPyUu1B8tbJTaPuF367,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18508210226.0,0.0,0.0,10000000000.0,10000000000.0,1665604687.0,1665604708.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18856060590.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607739.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
     0
     0
     0
     0
     0
     0",,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1000001.0,1.000001,1665604708.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607739.0,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
     0
@@ -1172,14 +1172,14 @@ H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FX
     0
     0
     0"
-H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FXuqLCxNDUknYqVUnQA1q5sraMPyUu1B8tbJTaPuF367,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18508210226.0,0.0,0.0,10000000000.0,10000000000.0,1665604687.0,1665604708.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18856060590.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607739.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
     0
     0
     0
     0
     0
     0",,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1000001.0,1.000001,1665604708.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607739.0,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
     0
@@ -1195,14 +1195,2475 @@ H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FX
     0
     0
     0"
-H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,FXuqLCxNDUknYqVUnQA1q5sraMPyUu1B8tbJTaPuF367,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18508210226.0,0.0,0.0,10000000000.0,10000000000.0,1665604687.0,1665604708.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18856060590.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607739.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
     0
     0
     0
     0
     0
     0",,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1000001.0,1.000001,1665604708.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607739.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18856060590.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607739.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607739.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18856060590.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607739.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607739.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,18856060590.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607739.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607739.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,115701939693.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607858.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607858.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,115701939693.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607858.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607858.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,115701939693.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607858.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607858.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,115701939693.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607858.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607858.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,115701939693.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607858.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607858.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,115701939693.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607858.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607858.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,115701939693.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607858.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607858.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,115701939693.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607858.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607858.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,134394270049.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665607881.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,305830434216.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665608092.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,307451453125.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665608094.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,309072434510.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665608096.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,309882906442.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665608097.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,311503831544.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665608099.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,313124719124.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665608101.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,314745569184.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665608103.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,316366381724.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665608105.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,317176769235.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665608106.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,318797525497.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665608108.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,320418244242.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665608110.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,322038925470.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665608112.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0"
+H2UEbugHgfbw65x8YJ2ZtEKaySjJWwwVhSf99L1k5d9H,11111111111111111111111111111111,2SwsgpJ3Xzn4hK5ya3p5y2PRJit21WMgxg8ay3bgyck2,8QZ7gRNLkBBTz4qG7gAmZyBByPA8vMw5ezSaP6RDRVLd,10000.0,10000.0,10000.0,10000.0,0.0,0.0,10000.0,0.0,0.0,7.0333847275715e+16,0.0,0.0,322849247326.0,0.0,0.0,10000000000.0,10000000000.0,1665607718.0,1665608113.0,0.0,100.0,10.0,100.0,0.0,1.0,500000.0,1000000.0,1000000.0,0.0,6.0,OracleSource.QuoteAsset(),MarketStatus.Active(),AssetTier.Collateral(),"ListContainer: 
+    0
+    0
+    0
+    0
+    0
+    0",,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1.0,0.0,1.000001,1.000001,1665607881.0,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1000000.0,1000000.0,1000000.0,1000000.0,0.0,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0,0.0,"ListContainer: 
     0
