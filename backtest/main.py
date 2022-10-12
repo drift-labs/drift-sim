@@ -130,82 +130,100 @@ def serialize_perp_market(market: PerpMarket):
 
     return result 
 
-def serialize_perp_market_2(market: PerpMarket):
-    def human_amm_df(df):
-        bool_fields = [ 'last_oracle_valid']
-        enum_fields = ['oracle_source']
-        pure_fields = ['last_update_slot', 'long_intensity_count', 'short_intensity_count', 
-        'curve_update_intensity', 'amm_jit_intensity'
+
+def human_amm_df(df):
+    bool_fields = [ 'last_oracle_valid']
+    enum_fields = ['oracle_source']
+    pure_fields = ['last_update_slot', 'long_intensity_count', 'short_intensity_count', 
+    'curve_update_intensity', 'amm_jit_intensity'
+    ]
+    reserve_fields = [
+        'base_asset_reserve', 'quote_asset_reserve', 'min_base_asset_reserve', 'max_base_asset_reserve', 'sqrt_k',
+        'ask_base_asset_reserve', 'ask_quote_asset_reserve', 'bid_base_asset_reserve', 'bid_quote_asset_reserve',
+        'terminal_quote_asset_reserve', 'base_asset_amount_long', 'base_asset_amount_short', 'base_asset_amount_with_amm', 'base_asset_amount_with_unsettled_lp',
+        'user_lp_shares', 'min_order_size', 'max_position_size',
         ]
-        reserve_fields = [
-            'base_asset_reserve', 'quote_asset_reserve', 'min_base_asset_reserve', 'max_base_asset_reserve', 'sqrt_k',
-            'ask_base_asset_reserve', 'ask_quote_asset_reserve', 'bid_base_asset_reserve', 'bid_quote_asset_reserve',
-            'terminal_quote_asset_reserve', 'base_asset_amount_long', 'base_asset_amount_short', 'base_asset_amount_with_amm', 'base_asset_amount_with_unsettled_lp',
-            'user_lp_shares'
-            ]
-        pct_fields = ['long_spread', 'short_spread', 'concentration_coef',]
-        funding_fields = ['cumulative_funding_rate_long', 'cumulative_funding_rate_short', 'last_funding_rate', 'last_funding_rate_long', 'last_funding_rate_short', 'last24h_avg_funding_rate']
-        quote_asset_fields = ['total_fee', 'total_mm_fee', 'total_exchange_fee', 'total_fee_minus_distributions',
-        'total_fee_withdrawn', 'total_liquidation_fee', 'cumulative_social_loss', 'net_revenue_since_last_funding',
-        'quote_asset_amount_long', 'quote_asset_amount_short', 'quote_entry_amount_long', 'quote_entry_amount_short',
-        'volume24h', 'long_intensity_volume', 'short_intensity_volume',]
-        time_fields = ['last_mark_price_twap_ts', 'last_oracle_price_twap_ts']
-        duration_fields = ['lp_cooldown_time']
-        px_fields = ['last_bid_price_twap', 'last_ask_price_twap', 'last_mark_price_twap', 'last_mark_price_twap5min',
-        'peg_multiplier',
-        'mark_std']
-        balance_fields = ['scaled_balance']
-        
-        for col in df.columns:
-            # if col in enum_fields or col in bool_fields:
-            #     pass
-            # else if col in duration_fields:
-            #     pass
-            # else if col in pure_fields:
-            #     pass
-            if col in reserve_fields:
-                df[col] /= 1e9
-            elif col in funding_fields:
-                df[col] /= 1e9
-            elif col in quote_asset_fields:
-                df[col] /= 1e6
-            elif col in pct_fields:
-                df[col] /= 1e6
-            elif col in px_fields:
-                df[col] /= 1e6
-            # else if col in time_fields:
-            #     pass
-            elif col in balance_fields:
-                df[col] /= 1e9
-                
-        return df
+    pct_fields = ['base_spread','long_spread', 'short_spread', 'max_spread', 'concentration_coef', 'last_oracle_reserve_price_spread_pct',]
+    funding_fields = ['cumulative_funding_rate_long', 'cumulative_funding_rate_short', 'last_funding_rate', 'last_funding_rate_long', 'last_funding_rate_short', 'last24h_avg_funding_rate']
+    quote_asset_fields = ['total_fee', 'total_mm_fee', 'total_exchange_fee', 'total_fee_minus_distributions',
+    'total_fee_withdrawn', 'total_liquidation_fee', 'cumulative_social_loss', 'net_revenue_since_last_funding',
+    'quote_asset_amount_long', 'quote_asset_amount_short', 'quote_entry_amount_long', 'quote_entry_amount_short',
+    'volume24h', 'long_intensity_volume', 'short_intensity_volume',]
+    time_fields = ['last_trade_ts', 'last_mark_price_twap_ts', 'last_oracle_price_twap_ts',]
+    duration_fields = ['lp_cooldown_time', 'funding_period']
+    px_fields = [
+        'last_oracle_normalised_price',
+        'order_tick_size',
+        'last_bid_price_twap', 'last_ask_price_twap', 'last_mark_price_twap', 'last_mark_price_twap5min',
+    'peg_multiplier',
+    'mark_std'
+    'last_oracle_price_twap', 'last_oracle_price_twap5min',
+    
+    ]
+    balance_fields = ['scaled_balance']
+    
+    for col in df.columns:
+        # if col in enum_fields or col in bool_fields:
+        #     pass
+        # else if col in duration_fields:
+        #     pass
+        # else if col in pure_fields:
+        #     pass
+        if col in reserve_fields:
+            df[col] /= 1e9
+        elif col in funding_fields:
+            df[col] /= 1e9
+        elif col in quote_asset_fields:
+            df[col] /= 1e6
+        elif col in pct_fields:
+            df[col] /= 1e6
+        elif col in px_fields:
+            df[col] /= 1e6
+        # else if col in time_fields:
+        #     pass
+        elif col in balance_fields:
+            df[col] /= 1e9
+            
+    return df
 
 
-    def human_market_df(df):
-        enum_fields = ['status', 'contract_tier', '']
-        pure_fields = ['number_of_users', 'market_index', 'next_curve_record_id', 'next_fill_record_id', 'next_funding_rate_record_id']
-        pct_fields = ['imf_factor', 'unrealized_pnl_imf_factor', 'liquidator_fee', 'if_liquidation_fee',
-        'margin_ratio_initial', 'margin_ratio_maintenance']
-        px_fields = ['expiry_price', ]
-        time_fields = ['last_trade_ts', 'expiry_ts']
-        balance_fields = ['scaled_balance']
-        
-        for col in df.columns:
-            # if col in enum_fields:
-            #     pass
-            # else if col in pure_fields:
-            #     pass
-            if col in pct_fields:
-                df[col] /= 1e6
-            elif col in px_fields:
-                df[col] /= 1e6
-            # else if col in time_fields:
-            #     pass
-            elif col in balance_fields:
-                df[col] /= 1e9
-                
-        return df
-        
+def human_market_df(df):
+    enum_fields = ['status', 'contract_tier', '']
+    pure_fields = ['number_of_users', 'market_index', 'next_curve_record_id', 'next_fill_record_id', 'next_funding_rate_record_id']
+    pct_fields = ['imf_factor', 'unrealized_pnl_imf_factor', 'liquidator_fee', 'if_liquidation_fee']
+    wgt_fields = ['unrealized_pnl_initial_asset_weight', 'unrealized_pnl_maintenance_asset_weight']
+    margin_fields = ['margin_ratio_initial', 'margin_ratio_maintenance']
+    px_fields = ['expiry_price', ]
+    time_fields = ['last_trade_ts', 'expiry_ts', 'last_revenue_withdraw_ts']
+    balance_fields = ['scaled_balance']
+    quote_fields = ['unrealized_pnl_max_imbalance', 'quote_settled_insurance', 'quote_max_insurance', 
+    'max_revenue_withdraw_per_period', 'revenue_withdraw_since_last_settle', ]
+    
+    for col in df.columns:
+        # if col in enum_fields:
+        #     pass
+        # elif col in pure_fields:
+        #     pass
+        if col in pct_fields:
+            df[col] /= 1e6
+        elif col in px_fields:
+            df[col] /= 1e6
+        elif col in margin_fields:
+            df[col] /= 1e4
+        elif col in wgt_fields:
+            df[col] /= 1e4
+        # elif col in time_fields:
+        #     pass
+        elif col in quote_fields:
+            df[col] /= 1e6
+        elif col in balance_fields:
+            df[col] /= 1e9
+            
+    return df
+    
+
+
+def serialize_perp_market_2(market: PerpMarket):
 
     market_df = pd.json_normalize(market.__dict__).drop(['amm', 'insurance_claim', 'pnl_pool'],axis=1).pipe(human_market_df)
     market_df.columns = ['market.'+col for col in market_df.columns]
@@ -230,25 +248,81 @@ def serialize_perp_market_2(market: PerpMarket):
     return result_df
 
 
+def serialize_spot_market(spot_market: SpotMarket):
+    spot_market_df = pd.json_normalize(spot_market.__dict__, errors="ignore").drop([
+        'historical_oracle_data', 'historical_index_data',
+        'insurance_fund', # todo
+        'spot_fee_pool', 'revenue_pool'
+        ], axis=1)
+    spot_market_df.columns = ['spot_market.'+col for col in spot_market_df.columns]
+
+    hist_oracle_df= pd.json_normalize(spot_market.historical_oracle_data.__dict__).pipe(human_amm_df)
+    hist_oracle_df.columns = ['spot_market.historical_oracle_data.'+col for col in hist_oracle_df.columns]
+
+    hist_index_df= pd.json_normalize(spot_market.historical_index_data.__dict__).pipe(human_amm_df)
+    hist_index_df.columns = ['spot_market.historical_oracle_data.'+col for col in hist_index_df.columns]
+
+
+    market_pool_df = pd.json_normalize(spot_market.revenue_pool.__dict__).pipe(human_amm_df)
+    market_pool_df.columns = ['market.pnl_pool.'+col for col in market_pool_df.columns]
+
+
+    market_fee_df = pd.json_normalize(spot_market.spot_fee_pool.__dict__).pipe(human_amm_df)
+    market_fee_df.columns = ['market.pnl_pool.'+col for col in market_fee_df.columns]
+
+    result_df = pd.concat([spot_market_df, hist_oracle_df, hist_index_df, market_pool_df, market_fee_df])
+    return result_df
+
+
 async def save_state(program, experiments_folder, event_i, user_chs):
     state: State = await get_state_account(program)
 
+    for spot_market_index in range(0, state.number_of_spot_markets):
+        spot_market: PerpMarket = await get_spot_market_account(program, spot_market_index)
+        print(str(spot_market.status))
+        df = serialize_spot_market(spot_market)
+        outfile = f"./{experiments_folder}/spot_market"+str(spot_market_index)+".csv"
+        if event_i > 0:
+            df.to_csv(outfile, mode="a", index=False, header=False)
+        else:
+            df.to_csv(outfile, index=False)
+
     for market_index in range(0, state.number_of_markets):
         market: PerpMarket = await get_perp_market_account(program, market_index)
-        print(str(market.status))
-        # assert(str(market.status) == str(MarketStatus.Active()))
-
         df = serialize_perp_market_2(market)
-        outfile = f"./{experiments_folder}/result_market"+str(market_index)+".csv"
+        outfile = f"./{experiments_folder}/perp_market"+str(market_index)+".csv"
         if event_i > 0:
             df.to_csv(outfile, mode="a", index=False, header=False)
         else:
             df.to_csv(outfile, index=False)
 
     # all_users = await program.account["User"].all()
+    all_user_stats = {
+        'total_collateral':[],
+        # 'free_collateral':[],
+        # 'leverage':[],
+        # 'get_unrealized_pnl_0':[],
+        # 'get_spot_market_asset_value':[],
+        # 'get_spot_market_liability':[],
+        # 'get_margin_requirement':[],
+        # 'can_be_liquidated':[],
+        # 'get_total_perp_positon':[]
+    }
     for (i, user_ch) in user_chs.items():
         upk = (user_ch.authority)
         user_account: PerpMarket = await get_user_account(program, upk, 0)
+
+        chu = ClearingHouseUser(user_ch, user_ch.authority)
+        all_user_stats['total_collateral'].append(await chu.get_total_collateral())
+        # all_user_stats['free_collateral'].append(chu.get_free_collateral())
+        # all_user_stats['get_unrealized_pnl'].append(chu.get_unrealized_pnl())
+        # all_user_stats['get_spot_market_asset_value'].append(chu.get_spot_market_asset_value())
+        # all_user_stats['get_spot_market_liability'].append(chu.get_spot_market_liability())
+        # all_user_stats['get_margin_requirement'].append(chu.get_margin_requirement())
+        # all_user_stats['can_be_liquidated'].append(chu.can_be_liquidated())
+        # all_user_stats['get_total_perp_positon'].append(chu.get_total_perp_positon())
+        # all_user_stats['leverage'].append(chu.get_leverage())
+
         uu = user_account.__dict__
         uu.pop('orders')
         uu.pop('name')
@@ -259,6 +333,14 @@ async def save_state(program, experiments_folder, event_i, user_chs):
             df.to_csv(outfile, mode="a", index=False, header=False)
         else:
             df.to_csv(outfile, index=False)
+
+    all_user_stats_df = pd.DataFrame([sum(all_user_stats['total_collateral'])],
+         columns=['total_collateral'], index=[0])
+    outfile = f"./{experiments_folder}/all_user_stats.csv"
+    if event_i > 0:
+        all_user_stats_df.to_csv(outfile, mode="a", index=False, header=False)
+    else:
+        all_user_stats_df.to_csv(outfile, index=False)
 
 async def init_user(
     user_chs,
@@ -480,12 +562,14 @@ async def run_trial(protocol_path, events, clearing_houses, trial_outpath, oracl
                 from termcolor import colored
                 print(colored('     *** liquidation successful ***   ', "green"))
             except Exception as e:
-                if "0x1774" in e.args[0]['message']: # sufficient collateral
-                    continue 
-                elif "0x1793" in e.args[0]['message']: # invalid oracle
-                    continue 
-                else: 
-                    raise Exception(e)
+                print(e.args)
+                pass
+                # if "0x1774" in e.args[0]['message']: # sufficient collateral
+                #     continue 
+                # elif "0x1793" in e.args[0]['message']: # invalid oracle
+                #     continue 
+                # else: 
+                #     raise Exception(e)
 
         # try:
         await derisk()
@@ -886,7 +970,7 @@ async def main(protocol_path, experiments_folder):
     # experiments_folder = 'tmp2'
     events = pd.read_csv(f"./{experiments_folder}/events.csv")
     clearing_houses = pd.read_csv(f"./{experiments_folder}/chs.csv")
-    trials = ['no_oracle_guards', 'spread', 'oracle_guards']
+    trials = ['no_oracle_guards', 'spread_250', 'spread_1000', 'oracle_guards',]
 
     setup_run_info(experiments_folder, protocol_path, '')
     
@@ -899,9 +983,14 @@ async def main(protocol_path, experiments_folder):
         trial_guard_rails = None
         spread = None
 
-        if 'spread' in trial:
+        if 'spread_250' in trial:
             print('spread activated')
             spread = 250
+            trial_guard_rails = no_oracle_guard_rails
+        
+        if 'spread_1000' in trial:
+            print('spread activated')
+            spread = 1000
             trial_guard_rails = no_oracle_guard_rails
 
         if 'no_oracle_guards' in trial:
