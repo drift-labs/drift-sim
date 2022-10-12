@@ -143,8 +143,9 @@ def human_amm_df(df):
         'terminal_quote_asset_reserve', 'base_asset_amount_long', 'base_asset_amount_short', 'base_asset_amount_with_amm', 'base_asset_amount_with_unsettled_lp',
         'user_lp_shares', 'min_order_size', 'max_position_size',
         ]
-    pct_fields = ['base_spread','long_spread', 'short_spread', 'max_spread', 'concentration_coef', 'last_oracle_reserve_price_spread_pct',
-    
+    pct_fields = ['base_spread','long_spread', 'short_spread', 'max_spread', 'concentration_coef',
+    'last_oracle_reserve_price_spread_pct',
+    'last_oracle_conf_pct',
     'utilization_twap',
     
     ]
@@ -164,6 +165,7 @@ def human_amm_df(df):
     'peg_multiplier',
     'mark_std',
     'last_oracle_price_twap', 'last_oracle_price_twap5min',
+    'last_oracle_price', 'last_oracle_conf', 
     
     ]
     balance_fields = ['scaled_balance', 'deposit_balance', 'borrow_balance']
@@ -291,13 +293,13 @@ def serialize_spot_market(spot_market: SpotMarket):
 
 
     market_pool_df = pd.json_normalize(spot_market.revenue_pool.__dict__).pipe(human_amm_df)
-    market_pool_df.columns = ['market.pnl_pool.'+col for col in market_pool_df.columns]
+    market_pool_df.columns = ['spot_market.revenue_pool.'+col for col in market_pool_df.columns]
 
 
     market_fee_df = pd.json_normalize(spot_market.spot_fee_pool.__dict__).pipe(human_amm_df)
-    market_fee_df.columns = ['market.pnl_pool.'+col for col in market_fee_df.columns]
+    market_fee_df.columns = ['spot_market.spot_fee_pool.'+col for col in market_fee_df.columns]
 
-    result_df = pd.concat([spot_market_df, hist_oracle_df, hist_index_df, market_pool_df, market_fee_df])
+    result_df = pd.concat([spot_market_df, hist_oracle_df, hist_index_df, market_pool_df, market_fee_df],axis=1)
     return result_df
 
 
@@ -998,7 +1000,7 @@ async def main(protocol_path, experiments_folder):
     events = pd.read_csv(f"./{experiments_folder}/events.csv")
     clearing_houses = pd.read_csv(f"./{experiments_folder}/chs.csv")
     trials = ['no_oracle_guards', 'spread_250', 'spread_1000', 'oracle_guards',]
-    trials = ['spread_1000', 'oracle_guards',]
+    # trials = ['spread_1000', 'oracle_guards',]
 
     setup_run_info(experiments_folder, protocol_path, '')
     
