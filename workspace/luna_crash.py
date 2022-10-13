@@ -153,6 +153,7 @@ settle_tracker = {}
 for (_, user) in ch.users.items(): 
     settle_tracker[user.user_index] = False 
 
+last_oracle_price = -1
 from tqdm import tqdm 
 for x in tqdm(range(len(market.amm.oracle))):
     if x < ch.time:
@@ -180,9 +181,12 @@ for x in tqdm(range(len(market.amm.oracle))):
                 events.append(event_i)
                 clearing_houses.append(copy.deepcopy(ch))
     
-    events.append(
-        oraclePriceEvent(ch.time, 0, market.amm.oracle.get_price(ch.time))
-    )
+    oracle_price = market.amm.oracle.get_price(ch.time)
+    if oracle_price != last_oracle_price:
+        last_oracle_price = oracle_price
+        events.append(
+            oraclePriceEvent(ch.time, 0, oracle_price)
+        )
     ch = ch.change_time(1)
 
 abs_difference, _events, _chs, _mark_prices = collateral_difference(ch, initial_collateral, verbose=False) 
