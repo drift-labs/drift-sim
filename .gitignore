@@ -5,7 +5,8 @@ sim-results/
 examples/
 notes.py 
 struct_outlines.rs 
-#*.csv 
+backtest/*.csv 
+backtest/*.json
 .DS_Store
 
 # Byte-compiled / optimized / DLL files
