@@ -26,7 +26,7 @@ class Oracle:
     def get_timestamp_range(self):
         return int(min(self.timestamps)), int(max(self.timestamps))
 
-    def get_price(self, timestamp):
+    def get_price(self, timestamp) -> float:
         # oracle is price[i] from timestamp[i] to but not including timestamp[i+1]
         # prices = [0, 1, 2]
         # timestapmes = [0, 1, 2]
@@ -39,7 +39,8 @@ class Oracle:
         if time_difference[min_dist_index] > 0: 
             min_dist_index -= 1    
         
-        price = self.prices[min_dist_index]
+        price: float = float(self.prices[min_dist_index])
+        print(price, min_dist_index)
         assert(price >= 0)
         return price 
 
