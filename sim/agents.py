@@ -118,7 +118,7 @@ class OpenClose(Agent):
         return OpenClose(
             start_time=start,
             duration=dur, 
-            direction='long' if np.random.choice([0, 1], p=[short_bias, 1-short_bias]) == 0 else 'short',
+            direction='long' if np.random.choice([0, 1], p=[1 - short_bias, short_bias]) == 0 else 'short',
             quote_amount=quote_amount, 
             deposit_amount=quote_amount//leverage,
             user_index=user_index, 
