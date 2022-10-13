@@ -8,6 +8,7 @@ from driftpy.math.amm import (
     calculate_amm_reserves_after_swap, 
     get_swap_direction
 )
+from driftpy.clearing_house import ClearingHouse as SDKClearingHouse
 from driftpy.math.trade import calculate_trade_slippage, calculate_target_price_trade, calculate_trade_acquired_amounts
 from driftpy.math.positions import calculate_base_asset_value, calculate_position_pnl
 from driftpy.types import PositionDirection
