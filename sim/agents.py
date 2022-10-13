@@ -51,23 +51,16 @@ def default_user_deposit(
 class MultipleAgent(Agent):
     def __init__(
         self, 
-        subagent_type,
+        subagent_init_fcn,
         n_subagents, 
-        max_t, 
-        user_index, 
-        market_index,
     ):
         self.subagents = []
         for _ in range(n_subagents):
             self.subagents.append(
-                subagent_type.random_init(
-                    max_t, user_index, market_index
-                )
+                subagent_init_fcn()
             )
 
-        self.max_t = max_t
-        self.user_index = user_index
-        self.market_index = market_index
+        self.user_index = self.subagents[0].user_index
         self.deposit_amount = sum([agent.deposit_amount for agent in self.subagents])
 
     def setup(self, state_i: ClearingHouse) -> list[Event]: 
@@ -114,7 +107,9 @@ class OpenClose(Agent):
         self.name = 'openclose'
 
     @staticmethod
-    def random_init(max_t, user_index, market_index, leverage=1):
+    def random_init(max_t, user_index, market_index, short_bias, leverage=1):
+        assert short_bias <= 1 and short_bias >= 0, "invalid short bias value"
+        
         start = np.random.randint(0, max_t - 2)
         dur = np.random.randint(0, max_t - start - 1)
         amount = np.random.randint(0, QUOTE_PRECISION * 100)
@@ -123,7 +118,7 @@ class OpenClose(Agent):
         return OpenClose(
             start_time=start,
             duration=dur, 
-            direction='long' if np.random.choice([0, 1]) == 0 else 'short',
+            direction='long' if np.random.choice([0, 1], p=[short_bias, 1-short_bias]) == 0 else 'short',
             quote_amount=quote_amount, 
             deposit_amount=quote_amount//leverage,
             user_index=user_index, 

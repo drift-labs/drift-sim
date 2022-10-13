@@ -100,13 +100,11 @@ for i in range(n_lps):
 # init agents
 agents = []
 max_t = len(market.amm.oracle)
+
 agents += [ 
     MultipleAgent(
-        OpenClose,
+        lambda: OpenClose.random_init(max_t, user_idx, 0, short_bias=0.9),
         20, 
-        max_t, 
-        user_idx, 
-        0
     )
     for user_idx in range(n_traders)
 ]
@@ -114,11 +112,8 @@ agents += [
 n = len(agents)
 agents += [ 
     MultipleAgent(
-        AddRemoveLiquidity,
+        lambda: AddRemoveLiquidity.random_init(max_t, user_idx, 0),
         20, 
-        max_t, 
-        user_idx, 
-        0
     )
     for user_idx in range(n, n + n_lps)
 ]
