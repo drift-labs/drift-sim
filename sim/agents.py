@@ -190,10 +190,10 @@ class AddRemoveLiquidity(Agent):
         self.name = 'liquidity-provider'
 
     @staticmethod
-    def random_init(max_t, user_index, market_index, leverage=1):
+    def random_init(max_t, user_index, market_index, min_token_amount=0, max_token_amount=100 * AMM_RESERVE_PRECISION, leverage=1):
         start = np.random.randint(0, max_t - 2)
         dur = np.random.randint(0, max_t - start - 1)
-        token_amount = np.random.randint(0, 100 * AMM_RESERVE_PRECISION)
+        token_amount = np.random.randint(min_token_amount, max_token_amount)
 
         return AddRemoveLiquidity(
             lp_start_time=start,

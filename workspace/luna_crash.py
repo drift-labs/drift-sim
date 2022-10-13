@@ -112,7 +112,7 @@ agents += [
 n = len(agents)
 agents += [ 
     MultipleAgent(
-        lambda: AddRemoveLiquidity.random_init(max_t, user_idx, 0),
+        lambda: AddRemoveLiquidity.random_init(max_t, user_idx, 0, min_token_amount=100000),
         20, 
     )
     for user_idx in range(n, n + n_lps)

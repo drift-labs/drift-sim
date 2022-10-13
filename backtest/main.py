@@ -343,7 +343,8 @@ async def run_trial(protocol_path, events, clearing_houses, trial_outpath, oracl
 
             ch: SDKClearingHouse = user_chs[event.user_index]
             # todo: update old percisions from backtest folders
-            event.token_amount = int(event.token_amount * AMM_RESERVE_PRECISION / 1e13)
+            # event.token_amount = int(event.token_amount * AMM_RESERVE_PRECISION / 1e13)
+
             await event.run_sdk(ch)
 
         elif event.event_name == removeLiquidityEvent._event_name:
