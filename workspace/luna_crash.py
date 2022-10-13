@@ -153,10 +153,10 @@ from tqdm import tqdm
 for x in tqdm(range(len(market.amm.oracle))):
     if x < ch.time:
         continue
-    
+
+    time_t_events = []
     for i, agent in enumerate(agents):
         events_i = agent.run(ch)
-
         for event_i in events_i:
             # tmp soln 
             # only settle once after another non-settle event (otherwise you get settle spam in the events)
@@ -170,18 +170,23 @@ for x in tqdm(range(len(market.amm.oracle))):
                     settle_tracker[k] = False
             
             if event_i._event_name != 'null':
-                ch = event_i.run(ch)
-                    
-                mark_prices.append(calculate_mark_price(market))    
-                events.append(event_i)
-                clearing_houses.append(copy.deepcopy(ch))
-    
+                time_t_events.append(event_i)
+        
+    # adjust oracle pre events
     oracle_price = market.amm.oracle.get_price(ch.time)
-    if oracle_price != last_oracle_price:
+    if oracle_price != last_oracle_price and len(time_t_events) > 0:
         last_oracle_price = oracle_price
         events.append(
             oraclePriceEvent(ch.time, 0, oracle_price)
         )
+
+    for e in time_t_events:
+        ch = e.run(ch)
+
+        mark_prices.append(calculate_mark_price(market))    
+        events.append(e)
+        clearing_houses.append(copy.deepcopy(ch))
+
     ch = ch.change_time(1)
 
 abs_difference, _events, _chs, _mark_prices = collateral_difference(ch, initial_collateral, verbose=False) 
