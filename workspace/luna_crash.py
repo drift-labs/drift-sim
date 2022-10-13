@@ -179,26 +179,10 @@ for x in tqdm(range(len(market.amm.oracle))):
                 mark_prices.append(calculate_mark_price(market))    
                 events.append(event_i)
                 clearing_houses.append(copy.deepcopy(ch))
-
-                # (abs_difference, _) = collateral_difference(ch, initial_collateral, verbose=False)[0]
-                # differences.append(abs_difference)
-
-                events.append(
-                    oraclePriceEvent(ch.time, 0, market.amm.oracle.get_price(ch.time))
-                )
-        
-            # if abs_difference > 1:
-            #     print('blahhh', abs_difference)
-            #     early_exit = True 
-            #     break 
-
-
-        if early_exit: 
-            break
-
-    if early_exit: 
-        break     
     
+    events.append(
+        oraclePriceEvent(ch.time, 0, market.amm.oracle.get_price(ch.time))
+    )
     ch = ch.change_time(1)
 
 abs_difference, _events, _chs, _mark_prices = collateral_difference(ch, initial_collateral, verbose=False) 
@@ -214,8 +198,8 @@ differences.append(abs_difference)
 # # if abs_difference > 1: 
 # _ = [print(f"{e},") for e in events if e._event_name != 'null']
 
-print('---')
-_ = [print("\t", e._event_name) for e in events if e._event_name != 'null']
+# print('---')
+# _ = [print("\t", e._event_name) for e in events if e._event_name != 'null']
 
 print('---')
 print('number of events:', len(events))

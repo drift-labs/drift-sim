@@ -103,7 +103,8 @@ def close_all_users(clearing_house, verbose=False):
     clearing_houses = []
     events = []
     mark_prices = []
-    clearing_house.time += 1e13 # to settle all the funding
+    # clearing_house.time += 1 # to settle all the funding
+    clearing_house = clearing_house.change_time(1)
 
     # close out all the users 
     for market_index in range(len(clearing_house.markets)):

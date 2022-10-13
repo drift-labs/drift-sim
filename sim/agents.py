@@ -393,13 +393,27 @@ class SettleLP(Agent):
         self.market_index = market_index
         self.every_x_steps = every_x_steps
 
+        self.name = 'settler'
+        self.deposit_amount = 0
+
+    @staticmethod
+    def random_init(max_t, user_index, market_index, leverage=1):
+        if update_every == -1:
+            update_every = np.random.randint(1, max_t // 4)
+
+        return SettleLP(
+            user_index, 
+            market_index, 
+            every_x_steps=update_every, 
+        )
+
     def setup(self, state: ClearingHouse) -> list[Event]:
         event = NullEvent(state.time)
         event = [event]
         return event
 
     def run(self, state: ClearingHouse) -> list[Event]: 
-        event = NullEvent(state.time)
+        events = []
         if state.time % self.every_x_steps == 0: 
             if state.users[self.user_index].positions[self.market_index].lp_shares != 0:
                 # only settle if/when they are an lp 
@@ -408,10 +422,8 @@ class SettleLP(Agent):
                     user_index=self.user_index, 
                     market_index=self.market_index,
                 )
-            else: 
-                event = NullEvent(state.time)
+                events.append(event)
 
-        event = [event]
         return event
 
 class ArbFunding(Agent):

@@ -46,7 +46,7 @@ class Event:
             return json.loads(params)
         except:
             print("ERRRRR")
-            print(self)
+            # print(self)
             return {}
         
     def serialize_to_row(self):

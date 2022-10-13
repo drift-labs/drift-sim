@@ -40,7 +40,7 @@ class Oracle:
             min_dist_index -= 1    
         
         price: float = float(self.prices[min_dist_index])
-        print(price, min_dist_index)
+        # print(price, min_dist_index)
         assert(price >= 0)
         return price 
 
