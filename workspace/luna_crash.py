@@ -85,11 +85,10 @@ ch = setup_ch(
 )
 market: SimulationMarket = ch.markets[0]
 
-n_lps = 3 #int(len(ch.markets[0].amm.oracle) / 100)
-n_trades = 26
+n_lps = 5
+n_traders = 5
 
-sim = RandomSimulation(ch)
-agents = []
+# sim = RandomSimulation(ch)
 
 for i in range(n_lps):
     ch = DepositCollateralEvent(
@@ -98,33 +97,32 @@ for i in range(n_lps):
         timestamp=ch.time,
     ).run(ch)
 
-# these are classic add remove full lps
-agents += [
-    sim.generate_lp(i, 0) for i in range(n_lps)
-]
-# these are classic add remove full lps -- laid on top add/remove will be full or partial
-agents += [
-    sim.generate_lp(i, 0) for i in range(n_lps)
-]
-
-# let the lps settle
-agents += [
-    sim.generate_lp_settler(i, 0) for i in range(n_lps)
-]
-# let the lps trade
-agents += [
-    sim.generate_trade(i, 0) for i in range(n_lps)
+# init agents
+agents = []
+max_t = len(market.amm.oracle)
+agents += [ 
+    MultipleAgent(
+        OpenClose,
+        20, 
+        max_t, 
+        user_idx, 
+        0
+    )
+    for user_idx in range(n_traders)
 ]
 
-leverage = 8
-# normal traders open/close 
-agents += [
-    sim.generate_leveraged_trade(i, 0, leverage) for i in range(n_lps, n_lps+n_trades)
+n = len(agents)
+agents += [ 
+    MultipleAgent(
+        AddRemoveLiquidity,
+        20, 
+        max_t, 
+        user_idx, 
+        0
+    )
+    for user_idx in range(n, n + n_lps)
 ]
-# # random open close == more open close trades of a single trader
-# agents += [
-#     sim.generate_leveraged_trade(i, 0, leverage) for i in range(n_lps, n_lps+n_trades)
-# ]
+
 print('#agents:', len(agents))
 
 mark_prices = []
@@ -220,6 +218,7 @@ print('---')
 _ = [print("\t", e._event_name) for e in events if e._event_name != 'null']
 
 print('---')
+print('number of events:', len(events))
 print(f"seed = {seed}")
 print("abs difference:", abs_difference)
 

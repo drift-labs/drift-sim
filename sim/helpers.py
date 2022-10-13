@@ -178,23 +178,6 @@ class RandomSimulation():
         self.amm_tokens = market.amm.amm_lp_shares
         self.market = market
 
-    def generate_random_lp(self, user_index, market_index) -> Agent:
-        
-        import random
-        token_amount = random.randint(0, self.amm_tokens)
-        n_mints = np.random.randint(0, self.max_t//4)
-        n_burns = np.random.randint(0, self.max_t//4)
-
-        agent = RandomLP(
-            token_amount=token_amount,
-            n_mints=n_mints,
-            n_burns=n_burns,
-            user_index=user_index,
-            market_index=market_index,
-            max_t=self.max_t, 
-        )
-        return agent
-
     def generate_lp_settler(self, user_index, market_index, update_every=-1) -> Agent:
         if update_every == -1:
             update_every = np.random.randint(1, self.max_t // 2)
@@ -204,40 +187,7 @@ class RandomSimulation():
             market_index, 
             every_x_steps=update_every, 
         )
-
-    def generate_lp(self, user_index, market_index) -> Agent:
-        start = np.random.randint(0, self.max_t)
-        dur = np.random.randint(0, self.max_t // 2)
-
-        import random
-        token_amount = random.randint(0, self.amm_tokens)
-
-        return LP(
-            lp_start_time=start,
-            lp_duration=dur, 
-            token_amount=token_amount, 
-            user_index=user_index, 
-            market_index=market_index, 
-        )
     
-    def generate_leveraged_trade(self, user_index, market_index, leverage) -> Agent:
-        start = np.random.randint(0, self.max_t)
-        dur = np.random.randint(0, self.max_t // 2)
-        amount = np.random.randint(0, 
-        QUOTE_PRECISION * 100
-        )
-        quote_amount = amount 
-        
-        return OpenClose(
-            start_time=start,
-            duration=dur, 
-            direction='long' if np.random.choice([0, 1]) == 0 else 'short',
-            quote_amount=quote_amount, 
-            deposit_amount=quote_amount//leverage,
-            user_index=user_index, 
-            market_index=market_index
-        )
-
     def generate_trade(self, user_index, market_index) -> Agent:
         start = np.random.randint(0, self.max_t)
         dur = np.random.randint(0, self.max_t // 2)

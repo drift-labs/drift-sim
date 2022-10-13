@@ -26,11 +26,11 @@ class Agent:
         ''' define params of agent '''
         pass
 
-    def run(self, state_i: ClearingHouse) -> [Event]:
+    def run(self, state_i: ClearingHouse) -> list[Event]:
         ''' returns an event '''
         pass
     
-    def setup(self, state_i: ClearingHouse) -> [Event]: 
+    def setup(self, state_i: ClearingHouse) -> list[Event]: 
         ''' called once at the start of the simulation '''
         pass
     
@@ -39,7 +39,7 @@ def default_user_deposit(
     clearing_house: ClearingHouse,
     deposit_amount:int = 10_000_000 * QUOTE_PRECISION,
     username: str = "u",
-) -> [Event]:
+) -> list[Event]:
     event = DepositCollateralEvent(
         user_index=user_index, 
         deposit_amount=deposit_amount, # $10M
@@ -47,6 +47,45 @@ def default_user_deposit(
         username=username
     )
     return event
+
+class MultipleAgent(Agent):
+    def __init__(
+        self, 
+        subagent_type,
+        n_subagents, 
+        max_t, 
+        user_index, 
+        market_index,
+    ):
+        self.subagents = []
+        for _ in range(n_subagents):
+            self.subagents.append(
+                subagent_type.random_init(
+                    max_t, user_index, market_index
+                )
+            )
+
+        self.max_t = max_t
+        self.user_index = user_index
+        self.market_index = market_index
+        self.deposit_amount = sum([agent.deposit_amount for agent in self.subagents])
+
+    def setup(self, state_i: ClearingHouse) -> list[Event]: 
+        event = default_user_deposit(
+            self.user_index, 
+            state_i, 
+            username=f'multiple-{self.subagents[0].name}', 
+            deposit_amount=self.deposit_amount
+        )
+        event = [event]
+        return event
+
+    def run(self, state_i: ClearingHouse) -> list[Event]:
+        events = []
+        for agent in self.subagents:
+            events += agent.run(state_i)
+        
+        return events
 
 class OpenClose(Agent):
     def __init__(
@@ -71,18 +110,37 @@ class OpenClose(Agent):
         self.deposit_amount = deposit_amount
         if deposit_amount is None: 
             self.deposit_amount = self.quote_amount
+
+        self.name = 'openclose'
+
+    @staticmethod
+    def random_init(max_t, user_index, market_index, leverage=1):
+        start = np.random.randint(0, max_t - 2)
+        dur = np.random.randint(0, max_t - start - 1)
+        amount = np.random.randint(0, QUOTE_PRECISION * 100)
+        quote_amount = amount 
         
-    def setup(self, state_i: ClearingHouse) -> [Event]: 
+        return OpenClose(
+            start_time=start,
+            duration=dur, 
+            direction='long' if np.random.choice([0, 1]) == 0 else 'short',
+            quote_amount=quote_amount, 
+            deposit_amount=quote_amount//leverage,
+            user_index=user_index, 
+            market_index=market_index
+        )
+        
+    def setup(self, state_i: ClearingHouse) -> list[Event]: 
         event = default_user_deposit(
             self.user_index, 
             state_i, 
-            username='openclose', 
+            username=self.name, 
             deposit_amount=self.deposit_amount
         )
         event = [event]
         return event
 
-    def run(self, state_i: ClearingHouse) -> [Event]:
+    def run(self, state_i: ClearingHouse) -> list[Event]:
         now = state_i.time
         
         if (now == self.start_time) or (now > self.start_time and not self.has_opened): 
@@ -112,78 +170,7 @@ class OpenClose(Agent):
         event = [event]
         return event
        
-
-class RandomLP(Agent):
-    def __init__(
-        self,
-        token_amount: int = 0,
-        n_mints: int = 0,
-        n_burns: int = 0,
-        user_index: int = 0,
-        market_index: int = 0,
-        max_t: int = 0, # max time in the simulation
-    ):
-        self.n_mints = n_mints
-        self.n_burns = n_burns
-        self.user_index = user_index
-        self.max_t = max_t
-
-        self.user_index = user_index
-        self.market_index = market_index
-
-        import random
-        self.mint_times = np.random.randint(0, self.max_t, size=(self.n_mints,))
-        self.mint_amounts = [random.randint(0, token_amount) for _ in range(len(self.mint_times))]
-        self.mint_index = 0 
-
-        self.burn_times = np.random.randint(0, self.max_t, size=(self.n_burns,))
-        self.burn_amounts = [random.randint(0, token_amount) for _ in range(len(self.mint_times))]
-        self.burn_index = 0
-
-    def setup(self, state_i: ClearingHouse) -> [Event]:
-        # deposit amount which will be used as LP
-        event = default_user_deposit(
-            self.user_index,
-            state_i,
-            username='rando_LP',
-        )
-        event = [event]
-        return event
-
-    def run(self, state_i: ClearingHouse) -> [Event]:
-        now = state_i.time 
-        events = []
-
-        if state_i.time in self.mint_times:
-            if self.mint_index != len(self.mint_amounts) - 1:
-                event = addLiquidityEvent(
-                    timestamp=now, 
-                    market_index=self.market_index, 
-                    user_index=self.user_index, 
-                    token_amount=self.mint_amounts[self.mint_index]
-                )
-                self.mint_index += 1 
-                events.append(event)
-
-        if state_i.time in self.burn_times: 
-            if self.burn_index != len(self.burn_amounts) - 1:
-                lp_shares = state_i.users[self.user_index].positions[self.market_index].lp_shares
-                burn_amount = self.burn_amounts[self.burn_index]
-                burn_amount = min(lp_shares, burn_amount) 
-
-                event = removeLiquidityEvent(
-                    timestamp=now, 
-                    market_index=self.market_index, 
-                    user_index=self.user_index, 
-                    lp_token_amount=burn_amount
-                ) 
-                self.burn_index += 1 
-                events.append(event)
-
-        return events
-
-
-class LP(Agent):
+class AddRemoveLiquidity(Agent):
     def __init__(
         self, 
         lp_start_time: int = 0, 
@@ -202,13 +189,32 @@ class LP(Agent):
         
         self.has_deposited = False 
         self.deposit_start = None
+
+        # TODO match margin req: 
+        self.deposit_amount = 10_000_000 * QUOTE_PRECISION
+        self.name = 'liquidity-provider'
+
+    @staticmethod
+    def random_init(max_t, user_index, market_index, leverage=1):
+        start = np.random.randint(0, max_t - 2)
+        dur = np.random.randint(0, max_t - start - 1)
+        token_amount = np.random.randint(0, 100 * AMM_RESERVE_PRECISION)
+
+        return AddRemoveLiquidity(
+            lp_start_time=start,
+            lp_duration=dur, 
+            token_amount=token_amount, 
+            user_index=user_index, 
+            market_index=market_index, 
+        )
         
-    def setup(self, state_i: ClearingHouse) -> [Event]: 
+    def setup(self, state_i: ClearingHouse) -> list[Event]: 
         # deposit amount which will be used as LP 
         event = default_user_deposit(
             self.user_index,
             state_i,
             username='LP',
+            deposit_amount=self.deposit_amount
         )
         
         # # TODO: update this to meet margin requirements
@@ -217,7 +223,7 @@ class LP(Agent):
         event = [event]
         return event
     
-    def run(self, state_i: ClearingHouse) -> [Event]:
+    def run(self, state_i: ClearingHouse) -> list[Event]:
         now = state_i.time
         
         if (now == self.lp_start_time) or (now > self.lp_start_time and not self.has_deposited): 
@@ -261,12 +267,12 @@ class Arb(Agent):
         self.intensity = intensity
         self.lookahead = lookahead # default to looking at oracle at 0
         
-    def setup(self, state_i: ClearingHouse) -> [Event]: 
+    def setup(self, state_i: ClearingHouse) -> list[Event]: 
         event = default_user_deposit(self.user_index, state_i, username='arb')
         event = [event]
         return event
         
-    def run(self, state_i: ClearingHouse) -> [Event]:
+    def run(self, state_i: ClearingHouse) -> list[Event]:
         market_index = self.market_index
         user_index = self.user_index
         intensity = self.intensity
@@ -356,12 +362,12 @@ class Noise(Agent):
         self.lookahead = lookahead # default to looking at oracle at 0 
         self.size = size
         
-    def setup(self, state_i: ClearingHouse) -> [Event]: 
+    def setup(self, state_i: ClearingHouse) -> list[Event]: 
         event = default_user_deposit(self.user_index, state_i, username='noise')
         event = [event]
         return event
 
-    def run(self, state_i: ClearingHouse) -> [Event]:
+    def run(self, state_i: ClearingHouse) -> list[Event]:
         market_index = self.market_index
         user_index = self.user_index
         intensity = self.intensity  
@@ -387,12 +393,12 @@ class SettleLP(Agent):
         self.market_index = market_index
         self.every_x_steps = every_x_steps
 
-    def setup(self, state: ClearingHouse) -> [Event]:
+    def setup(self, state: ClearingHouse) -> list[Event]:
         event = NullEvent(state.time)
         event = [event]
         return event
 
-    def run(self, state: ClearingHouse) -> [Event]: 
+    def run(self, state: ClearingHouse) -> list[Event]: 
         event = NullEvent(state.time)
         if state.time % self.every_x_steps == 0: 
             if state.users[self.user_index].positions[self.market_index].lp_shares != 0:
@@ -417,12 +423,12 @@ class ArbFunding(Agent):
         self.market_index = market_index
         self.lookahead = lookahead # default to looking at oracle at 0
         
-    def setup(self, state_i: ClearingHouse) -> [Event]: 
+    def setup(self, state_i: ClearingHouse) -> list[Event]: 
         event = default_user_deposit(self.user_index, state_i, username='arbfund',)
         event = [event]
         return event
         
-    def run(self, state_i: ClearingHouse) -> [Event]:
+    def run(self, state_i: ClearingHouse) -> list[Event]:
         market_index = self.market_index
         user_index = self.user_index
         intensity = self.intensity

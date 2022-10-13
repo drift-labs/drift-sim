@@ -207,6 +207,8 @@ mark_prices += _mark_prices
 if len(clearing_houses) > 0:
     ch = clearing_houses[-1]
 
+print('Number of events:', len(events))
+
 differences.append(abs_difference)
 
 # # if abs_difference > 1: 
