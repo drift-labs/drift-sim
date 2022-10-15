@@ -130,7 +130,7 @@ def load_hist_oracle(market, outfile):
 
     luna_oracle_df = pd.concat(oracle_prices)
     luna_oracle_df.columns = ['timestamp', 'price']
-    luna_oracle_df['price']/=1e10
+    luna_oracle_df['price']/=1e10 # old price precision
     # luna_oracle_df.tail(10000).plot()
     luna_oracle_df['timestamp'] = luna_oracle_df['timestamp'].diff()\
     .apply(lambda x: x+1 if x==0 else x).fillna(0).cumsum()
@@ -300,7 +300,7 @@ class DriftSim:
             # save oracle data for rust/ts reprod 
             max_t = int(max(oracle.timestamps))
             all_timestamps = list(range(max_t))
-            all_prices = [int(oracle.get_price(t) * 1e10) for t in all_timestamps]
+            all_prices = [int(oracle.get_price(t) * PRICE_PRECISION) for t in all_timestamps]
             oracle_df = pd.DataFrame({'timestamp': all_timestamps, 'price': all_prices})
             oracle_df.to_csv(SIM_NAME+"/all_oracle_prices.csv", index=False)
 

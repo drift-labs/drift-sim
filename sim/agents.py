@@ -276,6 +276,7 @@ class Arb(Agent):
         market = state_i.markets[market_index]
         oracle: Oracle = market.amm.oracle
         oracle_price = oracle.get_price(now)
+        # print('ORACLE PRICE', oracle_price)
 
         cur_mark = calculate_mark_price(market, oracle_price)
         target_mark = oracle.get_price(now + self.lookahead)
@@ -286,6 +287,8 @@ class Arb(Agent):
 
         #account for exchange fee in arb price
         exchange_fee = float(state_i.fee_structure.numerator)/state_i.fee_structure.denominator
+
+        print(target_mark, exchange_fee)
         # print(exchange_fee)
         if target_mark < cur_mark*(1+exchange_fee) and target_mark > cur_mark*(1-exchange_fee):
             target_mark = cur_mark
@@ -299,20 +302,23 @@ class Arb(Agent):
             target_mark = cur_mark
         
         unit = AssetType.QUOTE
-
-        direction, trade_size, entry_price, target_price = \
-            calculate_target_price_trade(
-                market, 
-                int(target_mark * PRICE_PRECISION), 
-                unit, 
-                use_spread=True,
-                oracle_price=oracle_price
-            )
-        
-        trade_size = int(abs(trade_size)) # whole numbers only 
+        if target_mark > cur_mark:
+            direction = PositionDirection.LONG
+        else:
+            direction = PositionDirection.SHORT
+        # direction, trade_size, entry_price, target_price = \
+        #     calculate_target_price_trade(
+        #         market, 
+        #         int(target_mark * PRICE_PRECISION), 
+        #         unit, 
+        #         use_spread=True,
+        #         oracle_price=oracle_price
+        #     )
+        # print("direction, trade_size, entry_price, target_price:", direction, trade_size, entry_price, target_price)
+        trade_size = int(abs(QUOTE_PRECISION)) # whole numbers only 
+        entry_price = (target_mark+cur_mark)/2
         # if trade_size:
-        #     print('NOW: ', now)
-        #     print("direction, trade_size, entry_price, target_price:", direction, trade_size, entry_price, target_price)
+            # print('NOW: ', now)
         quote_asset_reserve = (
             trade_size 
             * AMM_TIMES_PEG_TO_QUOTE_PRECISION_RATIO 
@@ -331,15 +337,23 @@ class Arb(Agent):
             direction = 'short'
 
         # arb is from 0 - x (intensity)
-        # if trade_size != 0 and entry_price != 0:
-        #     trade_size = max(self.intensity*100, 
-        #                         min(trade_size*entry_price/(1e13), self.intensity*10000)
-        #                         )/(entry_price) * 1e13
+        if trade_size != 0 and entry_price != 0:
+            trade_size = QUOTE_PRECISION
+            # trade_size = max(self.intensity*100, 
+            #                     min(trade_size*entry_price/(1e13), self.intensity)
+            #                     )/(entry_price) * 1e13
         
         if trade_size == 0:
             event = NullEvent(timestamp=now)
         else: 
-            event = OpenPositionEvent(now, self.user_index, direction, int(trade_size), market_index)
+            # event = OpenPositionEvent(now, self.user_index, direction, int(trade_size), market_index)
+            event = OpenPositionEvent(
+                timestamp=now, 
+                direction=direction,
+                market_index=market_index, 
+                user_index=self.user_index, 
+                quote_amount=int(trade_size)
+            )
             # print(direction, trade_size/1e6, 'LUNA-PERP @', entry_price, '(',target_price/1e10,')')
 
 

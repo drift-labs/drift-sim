@@ -44,13 +44,16 @@ class Event:
                 indent=4
             )
             return json.loads(params)
-        except:
+        except Exception as e:
+            print(e)
             print("ERRRRR")
-            # print(self)
+            print(self.__dict__)
+            print([(x, type(x)) for key,x in self.__dict__.items()])
             return {}
         
     def serialize_to_row(self):
         parameters = self.serialize_parameters()
+        # print(parameters)
         timestamp = parameters.pop("timestamp")
         event_name = parameters.pop("_event_name")
         row = {

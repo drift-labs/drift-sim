@@ -6,6 +6,7 @@ sim-results/
 examples/
 notes.py 
 struct_outlines.rs 
+backtest/dogeMoonCycle/chs.csv
 # backtest/*/*.csv 
 # backtest/*/*.json
 .DS_Store

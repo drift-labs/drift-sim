@@ -305,10 +305,25 @@ async def save_state(program, experiments_folder, event_i, user_chs):
         # all_user_stats['leverage'].append(chu.get_leverage())
 
         uu = user_account.__dict__
+        uu['spot_positions'] = uu['spot_positions'].__dict__
+        uu['perp_positions'] = uu['perp_positions'].__dict__
+
+        perps = pd.json_normalize([x.__dict__ for x in uu['perp_positions']])
+        spots = pd.json_normalize([x.__dict__ for x in uu['spot_positions']])
+        orders = pd.json_normalize([x.__dict__ for x in uu['orders']])
+        ddf1 = pd.concat({'perp': perps, 'spot': spots, 'order': orders},axis=1).unstack().swaplevel(i=1,j=2)
+        ddf1.index = [".".join([str(x) for x in col]).strip() for col in ddf1.index.values]
+        ddf1 = ddf1.loc[[x for x in ddf1.index if '.padding' not in x]]
+
+        pd.json_normalize(uu)
+        uu.pop('spot_positions')
+        uu.pop('perp_positions')
         uu.pop('orders')
         uu.pop('name')
         uu.pop('padding')
         df = pd.DataFrame(uu, index=list(range(8))).head(1) #todo show all positions
+        df = pd.concat([df, pd.DataFrame(ddf1).T],axis=1)
+
         outfile = f"./{experiments_folder}/result_user_"+str(i)+".csv"
         if event_i > 0:
             df.to_csv(outfile, mode="a", index=False, header=False)

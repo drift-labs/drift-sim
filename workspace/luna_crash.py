@@ -244,7 +244,7 @@ import pandas as pd
 path = pathlib.Path('../backtest/lunaCrash')
 path.mkdir(exist_ok=True, parents=True)
 print(str(path.absolute()))
-
+print(events)
 #%%
 json_events = [e.serialize_to_row() for e in events if e._event_name != 'null']
 df = pd.DataFrame(json_events)

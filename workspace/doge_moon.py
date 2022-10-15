@@ -47,7 +47,7 @@ from sim.events import *
 from sim.agents import * 
 
 def setup_ch(base_spread=0, strategies='', n_steps=100, n_users=2):
-    oracle_df = pd.read_csv('../backtest/dogeMoonCycle/oracle.csv', index_col=[0])
+    oracle_df = pd.read_csv('../backtest/dogeMoonCycle/oracle.csv', index_col=['blockchainTimestamp'])
     prices = oracle_df.values
     timestamps = (oracle_df.index-oracle_df.index[0])
     # print(timestamps-1)
@@ -58,7 +58,7 @@ def setup_ch(base_spread=0, strategies='', n_steps=100, n_users=2):
         oracle=oracle, 
         base_asset_reserve=367_621 * AMM_RESERVE_PRECISION,
         quote_asset_reserve=367_621 * AMM_RESERVE_PRECISION,
-        funding_period=3600,
+        funding_period=60,
         peg_multiplier=int(oracle.get_price(0)*PEG_PRECISION),
         base_spread=base_spread,
         strategies=strategies,
@@ -80,15 +80,14 @@ random.seed(seed)
 
 print('seed', seed)
 ch = setup_ch(
-    n_steps=100,
+    n_steps=1000,
     base_spread=0,
+    strategies='PrePeg_OracleRetreat_InventorySkew'
 )
 market: SimulationMarket = ch.markets[0]
 
 n_lps = 5
 n_traders = 5
-
-# sim = RandomSimulation(ch)
 
 for i in range(n_lps):
     ch = DepositCollateralEvent(
@@ -98,30 +97,14 @@ for i in range(n_lps):
     ).run(ch)
 
 # init agents
-agents = []
-max_t = len(market.amm.oracle)
-agents += [ 
-    MultipleAgent(
-        OpenClose,
-        20, 
-        max_t, 
-        user_idx, 
-        0
-    )
-    for user_idx in range(n_traders)
-]
+arb_agent = Arb(
+                intensity=1, 
+                market_index=0,
+                user_index=0, 
+                lookahead=40,
+            )
+agents = [arb_agent]
 
-n = len(agents)
-agents += [ 
-    MultipleAgent(
-        AddRemoveLiquidity,
-        20, 
-        max_t, 
-        user_idx, 
-        0
-    )
-    for user_idx in range(n, n + n_lps)
-]
 
 print('#agents:', len(agents))
 
@@ -154,13 +137,15 @@ for (_, user) in ch.users.items():
     settle_tracker[user.user_index] = False 
 
 from tqdm import tqdm 
+ch.time = int(market.amm.oracle.timestamps[0])
 for x in tqdm(range(len(market.amm.oracle))):
+    print('TIME', x, ch.time)
     if x < ch.time:
         continue
     
     for i, agent in enumerate(agents):
         events_i = agent.run(ch)
-
+        print(events_i)
         for event_i in events_i:
             # tmp soln 
             # only settle once after another non-settle event (otherwise you get settle spam in the events)
@@ -175,7 +160,7 @@ for x in tqdm(range(len(market.amm.oracle))):
             
             if event_i._event_name != 'null':
                 ch = event_i.run(ch)
-                    
+                print(event_i)
                 mark_prices.append(calculate_mark_price(market))    
                 events.append(event_i)
                 clearing_houses.append(copy.deepcopy(ch))
@@ -185,19 +170,7 @@ for x in tqdm(range(len(market.amm.oracle))):
 
                 events.append(
                     oraclePriceEvent(ch.time, 0, market.amm.oracle.get_price(ch.time))
-                )
-        
-            # if abs_difference > 1:
-            #     print('blahhh', abs_difference)
-            #     early_exit = True 
-            #     break 
-
-
-        if early_exit: 
-            break
-
-    if early_exit: 
-        break     
+                ) 
     
     ch = ch.change_time(1)
 
@@ -255,7 +228,8 @@ import pandas as pd
 
 path = pathlib.Path('../backtest/dogeMoonCycle')
 path.mkdir(exist_ok=True, parents=True)
-print(str(path.absolute()))
+# print(str(path.absolute()))
+# print(events)
 
 #%%
 json_events = [e.serialize_to_row() for e in events if e._event_name != 'null']
