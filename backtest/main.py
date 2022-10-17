@@ -6,7 +6,6 @@ from tqdm.utils import ObjectWrapper
 
 sys.path.insert(0, '../')
 sys.path.insert(0, '../driftpy/src/')
-sys.path.insert(0, './driftpy/src/')
 
 import pandas as pd 
 import numpy as np 
@@ -112,7 +111,7 @@ def create_workspace(
         if file.stem == 'mock_usdc_faucet':
             continue
 
-        with open(f'../driftpy/protocol-v2/programs/{file.stem}/src/lib.rs', 'r') as f:
+        with open(project_root/f'programs/{file.stem}/src/lib.rs', 'r') as f:
             data = f.read()
         import re 
         re_result = re.search('\[cfg\(not\(feature = \"mainnet-beta\"\)\)\]\ndeclare_id!\(\"(.*)\"\)', data)
@@ -144,6 +143,7 @@ async def run_trial(protocol_path, events, clearing_houses, trial_outpath, oracl
 
     print('> init peg', init_state.m0_peg_multiplier / PEG_PRECISION)
     oracle = await mock_oracle(workspace["pyth"], init_state.m0_peg_multiplier / PEG_PRECISION, -7)
+    last_oracle_price = init_state.m0_peg_multiplier / PEG_PRECISION
     init_leverage = 11
     await admin_clearing_house.initialize_perp_market(
         oracle, 
@@ -424,6 +424,7 @@ async def run_trial(protocol_path, events, clearing_houses, trial_outpath, oracl
             event = Event.deserialize_from_row(oraclePriceEvent, event)
             event.slot = (await provider.connection.get_slot())['result']
             print(f'=> adjusting oracle: {event.price}')
+            last_oracle_price = event.price
             await event.run_sdk(program, oracle_program)
 
         elif event.event_name == 'liquidate':
@@ -536,15 +537,23 @@ async def run_trial(protocol_path, events, clearing_houses, trial_outpath, oracl
     routines = []
     success = False
     attempt = -1
-    user_count = 0
     user_withdraw_count = 0
     n_users = len(list(user_chs.keys()))
     while not success:
         attempt += 1
         success = True
-        print(f'attempt {attempt}')
+        user_count = 0
+        user_withdraw_count = 0
+
+        print(colored(f' =>>>>>> attempt {attempt}', "blue"))
         for (i, ch) in user_chs.items():
             position = await ch.get_user_position(0)
+
+            # dont let oracle go stale
+            slot = (await provider.connection.get_slot())['result']
+            market = await get_perp_market_account(program, 0)
+            await set_price_feed_detailed(oracle_program, market.amm.oracle, last_oracle_price, 0, slot)
+
             if position is None: 
                 user_count += 1
             else:
@@ -563,7 +572,7 @@ async def run_trial(protocol_path, events, clearing_houses, trial_outpath, oracl
                         print(colored(f'     *** settle expired position failed... ***   ', "red"))
                         print(e.args)
                         success = False
-                    elif "0x17C0" in e.args[0]['message']: # pool doesnt have enough 
+                    elif "0x17c0" in e.args[0]['message']: # pool doesnt have enough 
                         print(colored(f'     *** settle expired position failed InsufficientCollateralForSettlingPNL... ***   ', "red"))
                         print(e.args)
                         success = False
