@@ -7,6 +7,7 @@ examples/
 notes.py 
 struct_outlines.rs 
 backtest/dogeMoonCycle/chs.csv
+backtest/dogeMoonCycle/**/*.csv
 # backtest/*/*.csv 
 # backtest/*/*.json
 .DS_Store
