@@ -258,7 +258,7 @@ class OpenPositionEvent(Event):
         if baa == 0: 
             print('warning: baa too small -> rounding up')
             baa = market.amm.base_asset_amount_step_size
-        
+        is_ioc = False
         direction = {
             "long": PositionDirection.LONG(),
             "short": PositionDirection.SHORT(),
@@ -280,6 +280,17 @@ class OpenPositionEvent(Event):
             print('get_feed_data oracle price:', price, data)
             user = await clearing_house.get_user()
             collateral = user.spot_positions[0].scaled_balance # todo: use clearing house user sdk fcns 
+
+            pos = None
+            for position in user.perp_positions:
+                # print(position)
+                if position.market_index == self.market_index and (position.base_asset_amount!=0 or position.quote_asset_amount!=0):
+                    pos = position
+
+            if pos is not None:
+                if pos.open_orders > 15:
+                    return await clearing_house.cancel_orders()
+
             max_baa = collateral * init_leverage / price
             # update 
             baa = int(min(max_baa, baa))
@@ -294,12 +305,14 @@ class OpenPositionEvent(Event):
             return await clearing_house.open_position(
                 direction,
                 baa,
-                self.market_index
+                self.market_index,
+                ioc=is_ioc
             )
         except Exception as e:
             print(e.args)
             from termcolor import colored
             print(colored('open position failed...', "red"))
+            return ''
                 
 @dataclass
 class ClosePositionEvent(Event): 

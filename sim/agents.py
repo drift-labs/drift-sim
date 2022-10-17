@@ -288,7 +288,7 @@ class Arb(Agent):
         #account for exchange fee in arb price
         exchange_fee = float(state_i.fee_structure.numerator)/state_i.fee_structure.denominator
 
-        print(target_mark, exchange_fee)
+        # print(target_mark, exchange_fee)
         # print(exchange_fee)
         if target_mark < cur_mark*(1+exchange_fee) and target_mark > cur_mark*(1-exchange_fee):
             target_mark = cur_mark
@@ -315,7 +315,7 @@ class Arb(Agent):
         #         oracle_price=oracle_price
         #     )
         # print("direction, trade_size, entry_price, target_price:", direction, trade_size, entry_price, target_price)
-        trade_size = int(abs(QUOTE_PRECISION)) # whole numbers only 
+        trade_size = int(abs(QUOTE_PRECISION * 10_000)) # whole numbers only 
         entry_price = (target_mark+cur_mark)/2
         # if trade_size:
             # print('NOW: ', now)

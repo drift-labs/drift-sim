@@ -202,7 +202,7 @@ async def run_trial(protocol_path, events, clearing_houses, trial_outpath, oracl
         # routines.append(routine)
         await routine
         await save_state(program, trial_outpath, df_row_index, user_chs)
-        df_row_index += 1
+        # df_row_index += 1
         # track collateral 
         init_total_collateral += deposit_amount
 
@@ -325,6 +325,7 @@ async def run_trial(protocol_path, events, clearing_houses, trial_outpath, oracl
 
             ch: SDKClearingHouse = user_chs[event.user_index]
             sig = await event.run_sdk(ch, init_leverage, oracle_program, adjust_oracle_pre_trade=False)
+            # await view_logs(sig, ch.program.provider)
 
         elif event.event_name == ClosePositionEvent._event_name: 
             # dont close so we have stuff to settle 
@@ -671,7 +672,7 @@ async def main(protocol_path, experiments_folder):
     events = pd.read_csv(f"./{experiments_folder}/events.csv")
     clearing_houses = pd.read_csv(f"./{experiments_folder}/chs.csv")
     trials = ['no_oracle_guards', 'spread_250', 'spread_1000', 'oracle_guards',]
-    # trials = ['spread_1000', 'oracle_guards',]
+    trials = ['spread_250']
 
     setup_run_info(experiments_folder, protocol_path, '')
     

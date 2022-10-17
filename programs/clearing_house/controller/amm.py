@@ -157,7 +157,7 @@ def calculate_quote_swap_output_with_spread(
         oracle_price
     )
 
-    print('calculate_swap_output', quote_asset_reserve_amount, quote_asset_reserve_with_spread)
+    # print('calculate_swap_output', quote_asset_reserve_amount, quote_asset_reserve_with_spread)
     
     new_base_asset_reserve_with_spread, _ = calculate_swap_output(
         quote_asset_reserve_amount, 

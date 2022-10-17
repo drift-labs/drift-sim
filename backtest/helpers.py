@@ -305,8 +305,6 @@ async def save_state(program, experiments_folder, event_i, user_chs):
         # all_user_stats['leverage'].append(chu.get_leverage())
 
         uu = user_account.__dict__
-        uu['spot_positions'] = uu['spot_positions'].__dict__
-        uu['perp_positions'] = uu['perp_positions'].__dict__
 
         perps = pd.json_normalize([x.__dict__ for x in uu['perp_positions']])
         spots = pd.json_normalize([x.__dict__ for x in uu['spot_positions']])
@@ -314,6 +312,7 @@ async def save_state(program, experiments_folder, event_i, user_chs):
         ddf1 = pd.concat({'perp': perps, 'spot': spots, 'order': orders},axis=1).unstack().swaplevel(i=1,j=2)
         ddf1.index = [".".join([str(x) for x in col]).strip() for col in ddf1.index.values]
         ddf1 = ddf1.loc[[x for x in ddf1.index if '.padding' not in x]]
+        # import pdb; pdb.set_trace()
 
         pd.json_normalize(uu)
         uu.pop('spot_positions')
@@ -321,8 +320,8 @@ async def save_state(program, experiments_folder, event_i, user_chs):
         uu.pop('orders')
         uu.pop('name')
         uu.pop('padding')
-        df = pd.DataFrame(uu, index=list(range(8))).head(1) #todo show all positions
-        df = pd.concat([df, pd.DataFrame(ddf1).T],axis=1)
+        df_1 = pd.DataFrame(uu, index=list(range(8))).head(1) #todo show all positions
+        df = pd.concat([df_1, pd.DataFrame(ddf1).dropna().T],axis=1)
 
         outfile = f"./{experiments_folder}/result_user_"+str(i)+".csv"
         if event_i > 0:
@@ -438,13 +437,16 @@ async def setup_bank(
     return clearing_house, usdc_mint
 
 async def view_logs(
-    sig,
+    sig: str,
     provider: Provider
 ):
     provider.connection._commitment = commitment.Confirmed 
+    logs = ''
     try: 
         await provider.connection.confirm_transaction(sig, commitment.Confirmed)
         logs = (await provider.connection.get_transaction(sig))["result"]["meta"]["logMessages"]
+    # except Exception as e:
+    #     print(e)
     finally:
         provider.connection._commitment = commitment.Processed 
     pprint.pprint(logs)

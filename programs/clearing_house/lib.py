@@ -606,6 +606,7 @@ class ClearingHouse:
         user_index, 
         quote_amount, 
         market_index, 
+        ioc: bool = False
     ):
         if (quote_amount == 0):
             return self 
