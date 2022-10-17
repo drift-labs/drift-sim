@@ -2,3 +2,6 @@
 	path = driftpy
 	url = https://github.com/drift-labs/driftpy.git
 	branch = bigz/drift-sim
+[submodule "solana-accountsdb-plugin-postgres"]
+	path = solana-accountsdb-plugin-postgres
+	url = https://github.com/0xNineteen/solana-accountsdb-plugin-postgres.git
