@@ -4,7 +4,6 @@ from typing import final
 
 from tqdm.utils import ObjectWrapper
 
-from driftpy import admin
 sys.path.insert(0, '../')
 sys.path.insert(0, '../driftpy/src/')
 sys.path.insert(0, './driftpy/src/')
@@ -375,7 +374,7 @@ async def run_trial(protocol_path, events, clearing_houses, trial_outpath, oracl
         event = events.iloc[i]
 
         if event.event_name == DepositCollateralEvent._event_name:
-            pass
+            continue
 
         elif event.event_name == OpenPositionEvent._event_name: 
             event = Event.deserialize_from_row(OpenPositionEvent, event)
