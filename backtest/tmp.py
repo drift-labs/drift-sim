@@ -7,6 +7,14 @@ leverages = pd.read_csv('tmp.csv')
 leverages.plot()
 
 #%%
+with open('../driftpy/protocol-v2/programs/clearing_house/src/lib.rs', 'r') as f:
+    data = f.read()
+import re 
+result = re.search('\[cfg\(not\(feature = \"mainnet-beta\"\)\)\]\ndeclare_id!\(\"(.*)\"\)', data)
+id = result.group(1)
+id
+
+#%%
 events = pd.read_csv('lunaCrash/events.csv')
 
 event_names = list(events['event_name'].unique())
