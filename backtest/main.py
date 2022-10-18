@@ -368,11 +368,24 @@ async def run_trial(protocol_path, events, clearing_houses, trial_outpath, oracl
 
     # todo 
     #   calculate margin requirements of user same as js sdk 
+    def parse_ix_args(ix, layout, identifier):
+        data = ix.data
+        args = layout.parse(data.split(identifier)[1])
+        dargs = dict(args)
+        dargs.pop('_io')
+        return dargs
 
-    df_rows = {}
+    from solana.transaction import TransactionInstruction
+    from client.instructions.place_order import layout
+    ixs_log = []
+    slot_log = []
+    err_log = []
+    ix_name_log = []
+
     for i in tqdm(range(len(events))):
         event = events.iloc[i]
 
+        ix: TransactionInstruction
         if event.event_name == DepositCollateralEvent._event_name:
             continue
 
@@ -382,8 +395,15 @@ async def run_trial(protocol_path, events, clearing_houses, trial_outpath, oracl
             assert event.user_index in user_chs, 'user doesnt exist'
 
             ch: SDKClearingHouse = user_chs[event.user_index]
-            sig = await event.run_sdk(ch, init_leverage, oracle_program, adjust_oracle_pre_trade=False)
+            ix = await event.run_sdk(ch, init_leverage, oracle_program, adjust_oracle_pre_trade=False)
             # await view_logs(sig, ch.program.provider)
+
+            from client.instructions.place_and_take import layout
+            identifier = b"P\xfb\x17\xf1\x93\xed\x87\x92"
+            ix_args = parse_ix_args(ix, layout, identifier)
+            order_params = dict(ix_args.pop('params'))
+            order_params.pop('_io')
+            ix_args['params'] = order_params
 
         elif event.event_name == ClosePositionEvent._event_name: 
             # dont close so we have stuff to settle 
@@ -404,7 +424,11 @@ async def run_trial(protocol_path, events, clearing_houses, trial_outpath, oracl
             # todo: update old percisions from backtest folders
             # event.token_amount = int(event.token_amount * AMM_RESERVE_PRECISION / 1e13)
 
-            await event.run_sdk(ch)
+            ix = await event.run_sdk(ch)
+
+            from client.instructions.add_perp_lp_shares import layout
+            identifier = b"8\xd18\xc5w\xfe\xbcu"
+            ix_args = parse_ix_args(ix, layout, identifier)
 
         elif event.event_name == removeLiquidityEvent._event_name:
             event = Event.deserialize_from_row(removeLiquidityEvent, event)
@@ -413,13 +437,21 @@ async def run_trial(protocol_path, events, clearing_houses, trial_outpath, oracl
             event.lp_token_amount = -1
 
             ch: SDKClearingHouse = user_chs[event.user_index]
-            await event.run_sdk(ch)
+            ix = await event.run_sdk(ch)
+
+            from client.instructions.remove_perp_lp_shares import layout
+            identifier = b"\xd5Y\xd9\x12\xa075\x8d"
+            ix_args = parse_ix_args(ix, layout, identifier)
 
         elif event.event_name == SettleLPEvent._event_name: 
             event = Event.deserialize_from_row(SettleLPEvent, event)
             print(f'=> {event.user_index} settle lp...')
             ch: SDKClearingHouse = user_chs[event.user_index]
-            await event.run_sdk(ch)
+            ix = await event.run_sdk(ch)
+
+            from client.instructions.settle_lp import layout
+            identifier = b"\x9b\xe7tqa\xe5\x8b\x8d"
+            ix_args = parse_ix_args(ix, layout, identifier)
         
         elif event.event_name == oraclePriceEvent._event_name: 
             event = Event.deserialize_from_row(oraclePriceEvent, event)
@@ -431,6 +463,7 @@ async def run_trial(protocol_path, events, clearing_houses, trial_outpath, oracl
         elif event.event_name == 'liquidate':
             print('=> liquidating...')
             await try_liquidate()
+            continue
         
         elif event.event_name == NullEvent._event_name: 
             continue
@@ -438,6 +471,34 @@ async def run_trial(protocol_path, events, clearing_houses, trial_outpath, oracl
         # important to run this twice, one pass for liqs and another one to resolve bankruptcy
         await try_liquidate()
         await try_liquidate()
+
+        if ix_args is not None:
+            slot = (await provider.connection.get_slot())['result']
+            ixs_log.append(ix_args)
+            slot_log.append(slot)
+            ix_name_log.append(event._event_name)
+
+            from solana.rpc.core import RPCException
+            from anchorpy.error import ProgramError
+            from anchorpy.program.core import _parse_idl_errors
+            idl_errors = _parse_idl_errors(program.idl)
+
+            from termcolor import colored
+            try:
+                await ch.send_ixs(ix)
+                err_log.append('')
+            except RPCException as e:
+                err_info = e.args[0]
+                translated_err = ProgramError.parse(err_info, idl_errors)
+                if translated_err is not None:
+                    err_log.append(translated_err)
+                    # raise translated_err from e
+                else:
+                    # raise
+                    err_log.append('')
+
+                print(e.args)
+                print(colored(f'{event._event_name} failed...', "red"))
 
         # track market state after event
         # await save_state(program, trial_outpath, df_row_index, user_chs)
@@ -456,6 +517,13 @@ async def run_trial(protocol_path, events, clearing_houses, trial_outpath, oracl
         # for l, i in zip(leverages, indexs):
         #     k = f"user_{i}"
         #     df_rows[k] = df_rows.get(k, []) + [l / 10_000]
+
+    pd.DataFrame({
+        'slot': slot_log,
+        'ix_name': ix_name_log,
+        'ix_args': ixs_log,
+        'errors': err_log,
+    }).to_csv(f"./{trial_outpath}/ix_logs.csv", index=False)
 
     print('delisting market...')
     # get
