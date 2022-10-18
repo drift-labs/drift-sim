@@ -45,7 +45,7 @@ chu = ClearingHouseUser(ch, pubkey)
 
 #%%
 user = await chu.get_user_account()
-bt = user.spot_positions[0].scaled_balance / QUOTE_PRECISION
+bt = user.spot_positions[0].scaled.scaled_balance/ QUOTE_PRECISION
 f"{bt:,.0f}"
 
 #%%
@@ -58,7 +58,7 @@ spot_market = await get_spot_market_account(
     chu.program, 0
 )
 spot_token_value = get_token_amount(
-    position.balance, 
+    position.scaled.scaled_balance 
     spot_market, 
     position.balance_type
 )

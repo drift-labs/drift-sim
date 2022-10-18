@@ -4,10 +4,8 @@ from typing import final
 
 from tqdm.utils import ObjectWrapper
 
-from driftpy import admin
 sys.path.insert(0, '../')
 sys.path.insert(0, '../driftpy/src/')
-sys.path.insert(0, './driftpy/src/')
 
 import pandas as pd 
 import numpy as np 
@@ -46,8 +44,9 @@ import time
 import signal
 
 class LocalValidator:
-    def __init__(self, protocol_path) -> None:
+    def __init__(self, protocol_path, db_path) -> None:
         self.protocol_path = protocol_path
+        self.db_path = db_path
         
     def start(self):
         """
@@ -60,9 +59,12 @@ class LocalValidator:
         process = Popen("anchor build".split(' '), cwd=self.protocol_path)
         process.wait()
 
+        process = Popen("bash setup.sh".split(' '), cwd=self.db_path)
+        process.wait()
+
         print('starting validator...')
         self.proc = Popen(
-            'anchor localnet'.split(' '), 
+            'bash localnet.sh'.split(' '), 
             stdout=self.log_file, 
             preexec_fn=os.setsid, 
             cwd=self.protocol_path
@@ -73,6 +75,52 @@ class LocalValidator:
         self.log_file.close()
         os.killpg(os.getpgid(self.proc.pid), signal.SIGTERM)  
 
+# copypastad from anchorpy
+from typing import Optional, Union, cast, Dict
+import json
+from pathlib import Path
+from solana.publickey import PublicKey
+from anchorpy.program.core import Program
+from anchorpy.provider import Provider
+from anchorpy.idl import Idl, _Metadata
+
+WorkspaceType = Dict[str, Program]
+
+def create_workspace(
+    path: Optional[Union[Path, str]] = None, url: Optional[str] = None
+) -> WorkspaceType:
+    result = {}
+    project_root = Path.cwd() if path is None else Path(path)
+    idl_folder = project_root / "target/idl"
+    keypair_folder = project_root / 'target/deploy/'
+
+    from solana.rpc.async_api import AsyncClient
+    from anchorpy.provider import Wallet
+    client = AsyncClient()
+    
+    with open(project_root/'anchor.json', 'r') as f: secret = json.load(f) 
+    kp = Keypair.from_secret_key(bytes(secret))
+    wallet = Wallet(kp)
+    provider = Provider(client, wallet)
+
+    for file in idl_folder.iterdir():
+        with file.open() as f:
+            idl_dict = json.load(f)
+        idl = Idl.from_json(idl_dict)
+
+        if file.stem == 'mock_usdc_faucet':
+            continue
+
+        with open(project_root/f'programs/{file.stem}/src/lib.rs', 'r') as f:
+            data = f.read()
+        import re 
+        re_result = re.search('\[cfg\(not\(feature = \"mainnet-beta\"\)\)\]\ndeclare_id!\(\"(.*)\"\)', data)
+        id = PublicKey(re_result.group(1))
+        
+        program = Program(idl, id, provider)
+        result[idl.name] = program
+        
+    return result
 
 async def run_trial(protocol_path, events, clearing_houses, trial_outpath, oracle_guard_rails=None, spread=None):
     print('trial_outpath:', trial_outpath)
@@ -95,6 +143,7 @@ async def run_trial(protocol_path, events, clearing_houses, trial_outpath, oracl
 
     print('> init peg', init_state.m0_peg_multiplier / PEG_PRECISION)
     oracle = await mock_oracle(workspace["pyth"], init_state.m0_peg_multiplier / PEG_PRECISION, -7)
+    last_oracle_price = init_state.m0_peg_multiplier / PEG_PRECISION
     init_leverage = 11
     await admin_clearing_house.initialize_perp_market(
         oracle, 
@@ -160,6 +209,14 @@ async def run_trial(protocol_path, events, clearing_houses, trial_outpath, oracl
         user, tx_sig = await _airdrop_user(provider)
         users[user_index] = (user, tx_sig)
 
+    # save user pks for later 
+    json_users = {}
+    kp: Keypair
+    for u, (kp, _) in users.items():
+        json_users[str(u)] = str(kp.public_key)
+    with open(f'{trial_outpath}/users.json', 'w') as f:
+        json.dump(json_users, f)
+
     for i, (user, tx_sig) in tqdm(users.items()):
         await provider.connection.confirm_transaction(tx_sig, sleep_seconds=0.1)
 
@@ -199,14 +256,15 @@ async def run_trial(protocol_path, events, clearing_houses, trial_outpath, oracl
             user_kp
         )
 
-        # routines.append(routine)
-        await routine
-        await save_state(program, trial_outpath, df_row_index, user_chs)
-        # df_row_index += 1
+        routines.append(routine)
+        # await routine
+        # await save_state(program, trial_outpath, df_row_index, user_chs)
+
+        df_row_index += 1
         # track collateral 
         init_total_collateral += deposit_amount
 
-    # await asyncio.gather(*routines)
+    await asyncio.gather(*routines)
 
     liquidator_clearing_house: ClearingHouse = user_chs[liquidator_index]
 
@@ -316,7 +374,7 @@ async def run_trial(protocol_path, events, clearing_houses, trial_outpath, oracl
         event = events.iloc[i]
 
         if event.event_name == DepositCollateralEvent._event_name:
-            pass
+            continue
 
         elif event.event_name == OpenPositionEvent._event_name: 
             event = Event.deserialize_from_row(OpenPositionEvent, event)
@@ -367,6 +425,7 @@ async def run_trial(protocol_path, events, clearing_houses, trial_outpath, oracl
             event = Event.deserialize_from_row(oraclePriceEvent, event)
             event.slot = (await provider.connection.get_slot())['result']
             print(f'=> adjusting oracle: {event.price}')
+            last_oracle_price = event.price
             await event.run_sdk(program, oracle_program)
 
         elif event.event_name == 'liquidate':
@@ -381,7 +440,7 @@ async def run_trial(protocol_path, events, clearing_houses, trial_outpath, oracl
         await try_liquidate()
 
         # track market state after event
-        await save_state(program, trial_outpath, df_row_index, user_chs)
+        # await save_state(program, trial_outpath, df_row_index, user_chs)
         df_row_index += 1
 
         # # track metrics
@@ -479,15 +538,23 @@ async def run_trial(protocol_path, events, clearing_houses, trial_outpath, oracl
     routines = []
     success = False
     attempt = -1
-    user_count = 0
     user_withdraw_count = 0
     n_users = len(list(user_chs.keys()))
     while not success:
         attempt += 1
         success = True
-        print(f'attempt {attempt}')
+        user_count = 0
+        user_withdraw_count = 0
+
+        print(colored(f' =>>>>>> attempt {attempt}', "blue"))
         for (i, ch) in user_chs.items():
             position = await ch.get_user_position(0)
+
+            # dont let oracle go stale
+            slot = (await provider.connection.get_slot())['result']
+            market = await get_perp_market_account(program, 0)
+            await set_price_feed_detailed(oracle_program, market.amm.oracle, last_oracle_price, 0, slot)
+
             if position is None: 
                 user_count += 1
             else:
@@ -506,7 +573,7 @@ async def run_trial(protocol_path, events, clearing_houses, trial_outpath, oracl
                         print(colored(f'     *** settle expired position failed... ***   ', "red"))
                         print(e.args)
                         success = False
-                    elif "0x17C0" in e.args[0]['message']: # pool doesnt have enough 
+                    elif "0x17c0" in e.args[0]['message']: # pool doesnt have enough 
                         print(colored(f'     *** settle expired position failed InsufficientCollateralForSettlingPNL... ***   ', "red"))
                         print(e.args)
                         success = False
@@ -614,7 +681,6 @@ async def run_trial(protocol_path, events, clearing_houses, trial_outpath, oracl
         'spot_fee_pool:', usdc_spot_market.spot_fee_pool.scaled_balance,
     )
 
-
     market = await get_perp_market_account(program, 0)
     market_collateral = 0 
     market_collateral += market.amm.total_fee_minus_distributions
@@ -665,7 +731,7 @@ async def run_trial(protocol_path, events, clearing_houses, trial_outpath, oracl
     await close_workspace(workspace)
 
 
-async def main(protocol_path, experiments_folder):
+async def main(protocol_path, experiments_folder, db_path):
     # e.g.
     # protocol_path = "../driftpy/protocol-v2/"#
     # experiments_folder = 'tmp2'
@@ -699,24 +765,27 @@ async def main(protocol_path, experiments_folder):
             print('no_oracle_guard_rails activated')
             trial_guard_rails = no_oracle_guard_rails
 
-        val = LocalValidator(protocol_path)
+        val = LocalValidator(protocol_path, db_path)
         val.start()
         try:
             print(trial_guard_rails)
             await run_trial(protocol_path, events, clearing_houses, f"./{experiments_folder}/trial_{trial}", trial_guard_rails, spread)
         finally:
             val.stop()
+        
+        return 
 
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('--events', type=str, required=True)
     parser.add_argument('--protocol', type=str, required=True)
+    parser.add_argument('--db', type=str, required=True)
     args = parser.parse_args()
 
     try: 
         import asyncio
-        asyncio.run(main(args.protocol, args.events))
+        asyncio.run(main(args.protocol, args.events, args.db))
     finally:
         pass
 
