@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from dataclasses import dataclass, field
+from driftpy.constants.numeric_constants import AMM_TIMES_PEG_TO_QUOTE_PRECISION_RATIO, PRICE_PRECISION as PRICE_PRECISION, PEG_PRECISION, QUOTE_PRECISION
 import os
 
 @dataclass
@@ -52,7 +53,7 @@ class Oracle:
 
         max_t = max(self.timestamps)
         all_timestamps = list(range(max_t))
-        all_prices = [int(self.get_price(t) * 1e10) for t in all_timestamps]
+        all_prices = [int(self.get_price(t) * PRICE_PRECISION) for t in all_timestamps]
 
         # save to file -- easier to cross reference with per-timestamp prices  
         oracle_df = pd.DataFrame({'timestamp': all_timestamps, 'price': all_prices})

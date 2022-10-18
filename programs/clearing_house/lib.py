@@ -362,10 +362,11 @@ class ClearingHouse:
         return base_amount_acquired, quote_asset_amount_surplus
     
 
-    def repeg(self, market: SimulationMarket, new_peg: int):
-        cost, mark_delta = calculate_repeg_cost(market, new_peg)
-        market.amm.peg_multiplier = new_peg
-        market.amm.total_fee_minus_distributions -= cost*1e6
+    def repeg(self, amm: SimulationAMM, new_peg: int):
+        # print(amm, new_peg)
+        cost = calculate_repeg_cost(amm, new_peg)
+        amm.peg_multiplier = new_peg
+        amm.total_fee_minus_distributions -= cost*QUOTE_PRECISION
 
         # market.total_fees -= cost*1e6
         # market.total_mm_fees -= cost*1e6
@@ -605,6 +606,7 @@ class ClearingHouse:
         user_index, 
         quote_amount, 
         market_index, 
+        ioc: bool = False
     ):
         if (quote_amount == 0):
             return self 
@@ -620,7 +622,7 @@ class ClearingHouse:
 
         mark_price_before = calculate_mark_price(market)
 
-        fee_pool = (market.amm.total_fee_minus_distributions/1e6) - (market.amm.total_fee/1e6)/2
+        fee_pool = (market.amm.total_fee_minus_distributions/QUOTE_PRECISION) - (market.amm.total_fee/QUOTE_PRECISION)/2
         budget_cost = max(0, fee_pool)
         # print('BUDGET_COST', budget_cost)
 
@@ -637,14 +639,14 @@ class ClearingHouse:
             market.amm.peg_multiplier = new_peg  
             market.amm.sqrt_k = np.sqrt(market.amm.base_asset_reserve * market.amm.quote_asset_reserve)
             market.amm.terminal_quote_asset_reserve = market.amm.sqrt_k**2 / (market.amm.base_asset_reserve+market.amm.base_asset_amount_with_amm)
-            market.amm.total_fee_minus_distributions -= int(freepeg_cost*1e6)
+            market.amm.total_fee_minus_distributions -= int(freepeg_cost*QUOTE_PRECISION)
             # print('new price:', calculate_mark_price(market))
             # print('post fpeg:', market.amm.base_asset_reserve, market.amm.quote_asset_reserve)
         elif 'PrePeg' in market.amm.strategies:
             new_peg = calculate_peg_multiplier(market.amm, oracle_price, now, budget_cost=budget_cost)
             if new_peg != market.amm.peg_multiplier:
                 print('repegging', market.amm.peg_multiplier, '->', new_peg)
-                self.repeg(market, new_peg)        
+                self.repeg(market.amm, new_peg)        
         
         mark_price_before_2 = calculate_mark_price(market)
         update_mark_price_std(market.amm, self.time, abs(mark_price_before-mark_price_before_2))
@@ -705,14 +707,14 @@ class ClearingHouse:
         user.collateral += fee 
         user.positions[market.market_index].market_fee_payments += fee 
 
-        fee_slice = fee * 1e13 / market.amm.total_lp_shares
+        fee_slice = fee * AMM_RESERVE_PRECISION / market.amm.total_lp_shares
         
         # print('-- new fee payment --')
         # print('total fee:', fee)
         # print('market fee:', fee_slice / 1e13 * market.amm.amm_lp_shares)
         # print('other lp fee:', fee_slice / 1e13 * (market.amm.total_lp_shares - market.amm.amm_lp_shares))
 
-        market.amm.total_fee_minus_distributions -= fee_slice / 1e13 * market.amm.amm_lp_shares
+        market.amm.total_fee_minus_distributions -= fee_slice / AMM_RESERVE_PRECISION * market.amm.amm_lp_shares
         market.amm.cumulative_fee_per_lp -= fee_slice
 
         market.amm.total_fee -= fee 
