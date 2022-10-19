@@ -226,7 +226,6 @@ def serialize_perp_market_2(market: PerpMarket):
     market_pool_df = pd.json_normalize(market.pnl_pool.__dict__).pipe(human_amm_df)
     market_pool_df.columns = ['market.pnl_pool.'+col for col in market_pool_df.columns]
 
-
     result_df = pd.concat([market_df, amm_df, amm_hist_oracle_df, market_amm_pool_df, market_if_df, market_pool_df],axis=1)
     return result_df
 

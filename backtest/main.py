@@ -385,6 +385,7 @@ async def run_trial(protocol_path, events, clearing_houses, trial_outpath, oracl
     for i in tqdm(range(len(events))):
         event = events.iloc[i]
 
+        ix_args = None
         ix: TransactionInstruction
         if event.event_name == DepositCollateralEvent._event_name:
             continue
@@ -400,7 +401,7 @@ async def run_trial(protocol_path, events, clearing_houses, trial_outpath, oracl
 
             from client.instructions.place_and_take import layout
             identifier = b"P\xfb\x17\xf1\x93\xed\x87\x92"
-            ix_args = parse_ix_args(ix, layout, identifier)
+            ix_args = parse_ix_args(ix[1], layout, identifier) # [1] bc we increase the compute too
             order_params = dict(ix_args.pop('params'))
             order_params.pop('_io')
             ix_args['params'] = order_params
@@ -438,6 +439,8 @@ async def run_trial(protocol_path, events, clearing_houses, trial_outpath, oracl
 
             ch: SDKClearingHouse = user_chs[event.user_index]
             ix = await event.run_sdk(ch)
+            if ix is None: 
+                continue
 
             from client.instructions.remove_perp_lp_shares import layout
             identifier = b"\xd5Y\xd9\x12\xa075\x8d"

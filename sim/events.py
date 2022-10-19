@@ -216,7 +216,7 @@ class removeLiquidityEvent(Event):
 
             self.lp_token_amount = position.lp_shares
             if position.lp_shares == 0:
-                return clearing_house
+                return None
 
             # assert self.lp_token_amount > 0, 'trying to burn full zero tokens'
 
