@@ -62,12 +62,18 @@ class LocalValidator:
         process = Popen("bash setup.sh".split(' '), cwd=self.db_path)
         process.wait()
 
-        print('starting validator...')
+        # print('starting validator...')
+        # self.proc = Popen(
+        #     'bash localnet.sh'.split(' '), 
+        #     stdout=self.log_file, 
+        #     preexec_fn=os.setsid, 
+        #     cwd=self.protocol_path
+        # )
+
         self.proc = Popen(
-            'bash localnet.sh'.split(' '), 
+            f'bash localnet.sh {self.protocol_path} {self.db_path}'.split(' '), 
             stdout=self.log_file, 
             preexec_fn=os.setsid, 
-            cwd=self.protocol_path
         )
         time.sleep(5)
 
@@ -92,13 +98,13 @@ def create_workspace(
     result = {}
     project_root = Path.cwd() if path is None else Path(path)
     idl_folder = project_root / "target/idl"
-    keypair_folder = project_root / 'target/deploy/'
+    # keypair_folder = project_root / 'target/deploy/'
 
     from solana.rpc.async_api import AsyncClient
     from anchorpy.provider import Wallet
     client = AsyncClient()
     
-    with open(project_root/'anchor.json', 'r') as f: secret = json.load(f) 
+    with open('./anchor.json', 'r') as f: secret = json.load(f) 
     kp = Keypair.from_secret_key(bytes(secret))
     wallet = Wallet(kp)
     provider = Provider(client, wallet)
