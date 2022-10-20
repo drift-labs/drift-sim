@@ -24,7 +24,7 @@ from driftpy.clearing_house_user import ClearingHouseUser
 from driftpy.accounts import get_perp_market_account, get_spot_market_account, get_user_account, get_state_account
 
 from anchorpy import Provider, Program, create_workspace, WorkspaceType
-from programs.clearing_house.state.market import SimulationAMM, SimulationMarket
+from sim.driftsim.clearing_house.state.market import SimulationAMM, SimulationMarket
 import pprint
 import os
 import json
@@ -389,7 +389,6 @@ async def init_user(
     routine = provider.send(tx,  user_clearing_house.signers + [provider.wallet.payer, user_clearing_house.usdc_ata])
 
     return await routine
-
 
 
 async def setup_market(

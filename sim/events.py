@@ -1,35 +1,14 @@
-#%%
-import sys 
-import driftpy
-
 from driftpy.accounts import get_perp_market_account, get_user_account
-from driftpy.math.amm import (
-    calculate_swap_output, 
-    calculate_amm_reserves_after_swap, 
-    get_swap_direction
-)
 from driftpy.clearing_house import ClearingHouse as SDKClearingHouse
-from driftpy.math.trade import calculate_trade_slippage, calculate_target_price_trade, calculate_trade_acquired_amounts
-from driftpy.math.positions import calculate_base_asset_value, calculate_position_pnl
-from driftpy.types import PositionDirection
-from driftpy.math.market import calculate_mark_price
-from driftpy.constants.numeric_constants import AMM_TIMES_PEG_TO_QUOTE_PRECISION_RATIO, PEG_PRECISION
-
-from solana.publickey import PublicKey
-
-import json 
-# import matplotlib.pyplot as plt 
-import numpy as np 
-import pandas as pd
-from dataclasses import dataclass, field
-
-from programs.clearing_house.state import Oracle, User
-from programs.clearing_house.lib import ClearingHouse
-from backtest.helpers import adjust_oracle_pretrade, set_price_feed, set_price_feed_detailed
-from driftpy.setup.helpers import get_feed_data, get_set_price_feed_detailed_ix
+from driftpy.setup.helpers import get_feed_data
 from driftpy.math.amm import calculate_price
 from driftpy.constants.numeric_constants import AMM_RESERVE_PRECISION, QUOTE_PRECISION
 from driftpy.clearing_house import ClearingHouse as ClearingHouseSDK
+
+import json 
+from dataclasses import dataclass
+from backtest.helpers import adjust_oracle_pretrade, set_price_feed_detailed
+from sim.driftsim.clearing_house.lib import ClearingHouse
 
 @dataclass
 class Event:     
@@ -118,23 +97,16 @@ class DepositCollateralEvent(Event):
         )    
         return clearing_house
 
-    async def run_sdk(self, provider, program, usdc_mint, user_keypair, is_initialized) -> ClearingHouse:
+    async def run_sdk(self, provider, program, usdc_mint, user_keypair, is_initialized):
         # if not initialized .. initialize ... // mint + deposit ix 
         user_clearing_house = SDKClearingHouse(program, user_keypair)
 
         if not is_initialized:
             await user_clearing_house.intialize_user()
 
-        await user_clearing_house.deposit(self.deposit_amount, 0, user_keypair.public_key)
+        sig = await user_clearing_house.deposit(self.deposit_amount, 0, user_keypair.public_key)
+        return sig
         
-        # return await setup_new_user(
-        #     provider, 
-        #     program, 
-        #     usdc_mint, 
-        #     user_kp,
-        #     self.deposit_amount,
-        # )
-
 @dataclass 
 class oraclePriceEvent(Event):
     market_index: int = 0 

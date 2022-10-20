@@ -14,10 +14,10 @@ import copy
 import pandas as pd
 import numpy as np
 
-from programs.clearing_house.state import Oracle, User, user
-from programs.clearing_house.lib import ClearingHouse
+from sim.driftsim.clearing_house.state import Oracle, User, user
+from sim.driftsim.clearing_house.lib import ClearingHouse
 from sim.events import *
-from programs.clearing_house.state import User 
+from sim.driftsim.clearing_house.state import User 
 
 ''' Agents ABC '''
 

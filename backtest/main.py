@@ -27,12 +27,21 @@ from driftpy.accounts import get_perp_market_account, get_spot_market_account, g
 from driftpy.math.amm import calculate_mark_price_amm
 
 from anchorpy import Provider, Program, create_workspace, close_workspace
-from programs.clearing_house.state.market import SimulationAMM, SimulationMarket
+from sim.driftsim.clearing_house.state.market import SimulationAMM, SimulationMarket
 from helpers import setup_run_info, init_user, setup_bank, setup_market, view_logs, save_state
 from tqdm import tqdm
 from driftpy.setup.helpers import _create_user_usdc_ata_tx
 from driftpy.clearing_house_user import ClearingHouseUser
 from solana.keypair import Keypair
+
+from typing import Optional, Union, cast, Dict
+import json
+from pathlib import Path
+from solana.publickey import PublicKey
+from anchorpy.program.core import Program
+from anchorpy.provider import Provider
+from anchorpy.idl import Idl, _Metadata
+WorkspaceType = Dict[str, Program]
 
 from subprocess import Popen
 import os 
@@ -58,14 +67,6 @@ class LocalValidator:
         process = Popen("bash setup.sh".split(' '), cwd=self.db_path)
         process.wait()
 
-        # print('starting validator...')
-        # self.proc = Popen(
-        #     'bash localnet.sh'.split(' '), 
-        #     stdout=self.log_file, 
-        #     preexec_fn=os.setsid, 
-        #     cwd=self.protocol_path
-        # )
-
         self.proc = Popen(
             f'bash localnet.sh {self.protocol_path} {self.db_path}'.split(' '), 
             stdout=self.log_file, 
@@ -78,16 +79,6 @@ class LocalValidator:
         os.killpg(os.getpgid(self.proc.pid), signal.SIGTERM)  
 
 # copypastad from anchorpy
-from typing import Optional, Union, cast, Dict
-import json
-from pathlib import Path
-from solana.publickey import PublicKey
-from anchorpy.program.core import Program
-from anchorpy.provider import Provider
-from anchorpy.idl import Idl, _Metadata
-
-WorkspaceType = Dict[str, Program]
-
 def create_workspace(
     path: Optional[Union[Path, str]] = None, url: Optional[str] = None
 ) -> WorkspaceType:
@@ -400,7 +391,6 @@ async def run_trial(protocol_path, events, clearing_houses, experiments_folder, 
     ix_name_log = []
 
     for i in tqdm(range(len(events))):
-    # for i in range(len(events)):
         sys.stdout.flush()
         event = events.iloc[i]
 
@@ -837,10 +827,10 @@ async def main(protocol_path, experiments_folder, db_path):
     # experiments_folder = 'tmp2'
     events = pd.read_csv(f"./{experiments_folder}/events.csv")
     clearing_houses = pd.read_csv(f"./{experiments_folder}/chs.csv")
+    setup_run_info(experiments_folder, protocol_path, '')
+
     trials = ['no_oracle_guards', 'spread_250', 'spread_1000', 'oracle_guards',]
     trials = ['spread_250']
-
-    setup_run_info(experiments_folder, protocol_path, '')
     
     for trial in trials:
         no_oracle_guard_rails = OracleGuardRails(
@@ -865,11 +855,21 @@ async def main(protocol_path, experiments_folder, db_path):
             print('no_oracle_guard_rails activated')
             trial_guard_rails = no_oracle_guard_rails
 
+        output_path = f"./{experiments_folder}/trial_{trial}"
+
         val = LocalValidator(protocol_path, db_path)
         val.start()
         try:
             print(trial_guard_rails)
-            await run_trial(protocol_path, events, clearing_houses, experiments_folder, f"./{experiments_folder}/trial_{trial}", trial_guard_rails, spread)
+            await run_trial(
+                protocol_path, 
+                events, 
+                clearing_houses, 
+                experiments_folder, 
+                output_path, 
+                trial_guard_rails, 
+                spread
+            )
         finally:
             val.stop()
         
