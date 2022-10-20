@@ -394,7 +394,6 @@ async def run_trial(protocol_path, events, clearing_houses, experiments_folder, 
 
     from solana.transaction import TransactionInstruction
     from client.instructions.place_order import layout
-
     ixs_log = []
     slot_log = []
     err_log = []
