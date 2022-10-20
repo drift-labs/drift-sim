@@ -26,7 +26,7 @@ from dataclasses import dataclass, field
 from programs.clearing_house.state import Oracle, User
 from programs.clearing_house.lib import ClearingHouse
 from backtest.helpers import adjust_oracle_pretrade, set_price_feed, set_price_feed_detailed
-from driftpy.setup.helpers import get_feed_data
+from driftpy.setup.helpers import get_feed_data, get_set_price_feed_detailed_ix
 from driftpy.math.amm import calculate_price
 from driftpy.constants.numeric_constants import AMM_RESERVE_PRECISION, QUOTE_PRECISION
 from driftpy.clearing_house import ClearingHouse as ClearingHouseSDK
@@ -151,7 +151,9 @@ class oraclePriceEvent(Event):
             program,
             self.market_index
         )
-        return await set_price_feed_detailed(oracle_program, market.amm.oracle, self.price, self.conf, self.slot)
+        return await set_price_feed_detailed(
+            oracle_program, market.amm.oracle, self.price, self.conf, self.slot
+        )
 
 @dataclass 
 class addLiquidityEvent(Event):
@@ -172,11 +174,16 @@ class addLiquidityEvent(Event):
         )
         return clearing_house
 
-    async def run_sdk(self, clearing_house): 
-        return await clearing_house.add_liquidity(
+    async def run_sdk(self, clearing_house: ClearingHouseSDK): 
+        return await clearing_house.get_add_liquidity_ix(
             self.token_amount, 
             self.market_index
         )
+
+        # return await clearing_house.add_liquidity(
+        #     self.token_amount, 
+        #     self.market_index
+        # )
 
 @dataclass
 class removeLiquidityEvent(Event):
@@ -197,7 +204,7 @@ class removeLiquidityEvent(Event):
         )    
         return clearing_house
     
-    async def run_sdk(self, clearing_house) -> ClearingHouse:
+    async def run_sdk(self, clearing_house: ClearingHouseSDK):
         if self.lp_token_amount == -1: 
             user = await get_user_account(clearing_house.program, clearing_house.authority)
             position = None 
@@ -209,14 +216,15 @@ class removeLiquidityEvent(Event):
 
             self.lp_token_amount = position.lp_shares
             if position.lp_shares == 0:
-                return clearing_house
+                return None
 
             # assert self.lp_token_amount > 0, 'trying to burn full zero tokens'
 
-        await clearing_house.remove_liquidity(
+        ix = await clearing_house.get_remove_liquidity_ix(
             self.lp_token_amount, 
             self.market_index
         )
+        return ix
     
 @dataclass
 class OpenPositionEvent(Event): 
@@ -264,7 +272,6 @@ class OpenPositionEvent(Event):
             "short": PositionDirection.SHORT(),
         }[self.direction]
 
-
         if adjust_oracle_pre_trade: 
             assert oracle_program is not None
             await adjust_oracle_pretrade(
@@ -300,19 +307,26 @@ class OpenPositionEvent(Event):
             return 
 
         print(f'opening baa: {baa} {direction} {self.market_index}')
+
+        return await clearing_house.get_open_position_ix(
+            direction, 
+            baa, 
+            self.market_index, 
+            ioc=is_ioc
+        )
         
-        try:
-            return await clearing_house.open_position(
-                direction,
-                baa,
-                self.market_index,
-                ioc=is_ioc
-            )
-        except Exception as e:
-            print(e.args)
-            from termcolor import colored
-            print(colored('open position failed...', "red"))
-            return ''
+        # try:
+        #     return await clearing_house.open_position(
+        #         direction,
+        #         baa,
+        #         self.market_index,
+        #         ioc=is_ioc
+        #     )
+        # except Exception as e:
+        #     print(e.args)
+        #     from termcolor import colored
+        #     print(colored('open position failed...', "red"))
+        #     return ''
                 
 @dataclass
 class ClosePositionEvent(Event): 
@@ -375,8 +389,8 @@ class SettleLPEvent(Event):
         
         return clearing_house
 
-    async def run_sdk(self, clearing_house):
-        return await clearing_house.settle_lp(
+    async def run_sdk(self, clearing_house: ClearingHouseSDK):
+        return await clearing_house.get_settle_lp_ix(
             clearing_house.authority, 
             self.market_index
         )
