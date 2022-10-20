@@ -16,7 +16,7 @@ def get_lp_metrics(
 
     # give them portion of fees since deposit 
     change_in_fees = market.amm.cumulative_fee_per_lp - position.last_cumulative_fee_per_lp
-    assert change_in_fees >= 0, f"lp loses money: {market.amm.cumulative_fee_per_lp} {position.last_cumulative_fee_per_lp}"
+    # assert change_in_fees >= 0, f"lp loses money: {market.amm.cumulative_fee_per_lp} {position.last_cumulative_fee_per_lp}"
     fee_payment = change_in_fees * lp_token_amount / 1e13
 
     # give them portion of funding since deposit

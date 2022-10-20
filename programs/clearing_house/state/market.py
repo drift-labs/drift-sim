@@ -111,6 +111,8 @@ class SimulationMarket(Market):
         
         market_dict = copy.deepcopy(self.__dict__)
         market_dict.pop("amm")
+        market_dict.pop("pubkey")
+        market_dict.pop("pnl_pool")
         
         amm_dict = copy.deepcopy(self.amm.__dict__)
         amm_dict.pop("oracle")

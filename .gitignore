@@ -1,13 +1,10 @@
 **/node.txt
+**/log.txt
 test-ledger/
 .tmp
-backtest/*.ipynb
 sim-results/
-examples/
-notes.py 
-struct_outlines.rs 
-backtest/**.csv 
-backtest/**.json
+backtest/**/*.csv 
+backtest/**/*.json
 .DS_Store
 
 # Byte-compiled / optimized / DLL files

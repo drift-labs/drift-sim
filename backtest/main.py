@@ -1,9 +1,5 @@
 #%%
 import sys
-from typing import final
-
-from tqdm.utils import ObjectWrapper
-
 sys.path.insert(0, '../')
 sys.path.insert(0, '../driftpy/src/')
 
@@ -128,7 +124,7 @@ def create_workspace(
         
     return result
 
-async def run_trial(protocol_path, events, clearing_houses, trial_outpath, oracle_guard_rails=None, spread=None):
+async def run_trial(protocol_path, events, clearing_houses, experiments_folder, trial_outpath, oracle_guard_rails=None, spread=None):
     print('trial_outpath:', trial_outpath)
     os.makedirs(trial_outpath, exist_ok=True)
 
@@ -142,25 +138,34 @@ async def run_trial(protocol_path, events, clearing_houses, trial_outpath, oracl
     admin_clearing_house, usdc_mint = await setup_bank(program)
 
     # read and load initial clearing house state (thats all we use chs.csv for...)
-    init_state = clearing_houses.iloc[0]
-    init_reserves = int(init_state.m0_base_asset_reserve) / 1e13 * AMM_RESERVE_PRECISION # 200 * 1e13
-    print('> initial reserves:', init_reserves)
-    print('> initial reserves log:', np.log10(init_reserves))
 
-    print('> init peg', init_state.m0_peg_multiplier / PEG_PRECISION)
-    oracle = await mock_oracle(workspace["pyth"], init_state.m0_peg_multiplier / PEG_PRECISION, -7)
-    last_oracle_price = init_state.m0_peg_multiplier / PEG_PRECISION
+    with open(f'{experiments_folder}/chs_json.csv', 'r') as f:
+        markets = json.load(f)
+
+    n_markets = len(markets) 
     init_leverage = 11
-    await admin_clearing_house.initialize_perp_market(
-        oracle, 
-        int(init_reserves), 
-        int(init_reserves), 
-        int(60), 
-        int(init_state.m0_peg_multiplier), 
-        OracleSource.PYTH(), 
-        # default is 5x
-        margin_ratio_initial=MARGIN_PRECISION // init_leverage if init_leverage else 2000
-    )
+    for i, market in enumerate(markets):
+        print(f"=> init market {i}")
+
+        init_reserves = int(market['base_asset_reserve']) / 1e13 * AMM_RESERVE_PRECISION 
+        peg = market['peg_multiplier']
+        oracle = await mock_oracle(workspace["pyth"], peg / PEG_PRECISION, -7)
+        await admin_clearing_house.initialize_perp_market(
+            oracle, 
+            int(init_reserves), 
+            int(init_reserves), 
+            int(60), 
+            int(peg), 
+            OracleSource.PYTH(), 
+            # default is 5x
+            margin_ratio_initial=MARGIN_PRECISION // init_leverage if init_leverage else 2000
+        )
+        
+        last_oracle_price = peg / PEG_PRECISION
+
+        print('> initial reserves:', init_reserves)
+        print('> initial reserves log:', np.log10(init_reserves))
+        print('> init peg', peg / PEG_PRECISION)
 
     # update durations
     if oracle_guard_rails is not None:
@@ -170,12 +175,10 @@ async def run_trial(protocol_path, events, clearing_houses, trial_outpath, oracl
         await admin_clearing_house.update_perp_market_curve_update_intensity(0, 100)
         await admin_clearing_house.update_perp_market_base_spread(0, spread)
 
-    # await admin_clearing_house.
     await admin_clearing_house.update_perp_auction_duration(0)
     await admin_clearing_house.update_lp_cooldown_time(0, 0)
     await admin_clearing_house.update_perp_market_max_fill_reserve_fraction(0, 1)
     await admin_clearing_house.update_perp_market_step_size_and_tick_size(0, int(AMM_RESERVE_PRECISION/1e4), 1)
-
 
     initial_state: State = await get_state_account(program)
     initial_state_d = initial_state.__dict__
@@ -277,43 +280,47 @@ async def run_trial(protocol_path, events, clearing_houses, trial_outpath, oracl
     async def try_liquidate():
         ch: ClearingHouse
         promises = []
+        user = []
+
         for ch in user_chs.values(): 
-            authority = ch.authority
-            if authority == liquidator_clearing_house.authority: 
-                continue
-            position = await ch.get_user_position(0)
-            if position and position.base_asset_amount != 0:
-                promise = liquidator_clearing_house.liquidate_perp(
-                    authority, 
-                    0,
-                    abs(position.base_asset_amount) # take it fully on
-                )
-                promises.append(promise)
+            for i in range(n_markets):
+                authority = ch.authority
+                if authority == liquidator_clearing_house.authority: 
+                    continue
+                position = await ch.get_user_position(i)
 
-            if position and position.base_asset_amount == 0 and position.quote_asset_amount < 0:
-                promise = liquidator_clearing_house.liquidate_perp_pnl_for_deposit(
-                    authority,
-                    0,
-                    0,
-                    abs(position.quote_asset_amount) # take it fully on
-                )
-                promises.append(promise)
+                if position and position.base_asset_amount != 0:
+                    promise = liquidator_clearing_house.liquidate_perp(
+                        authority, 
+                        i,
+                        abs(position.base_asset_amount) # take it fully on
+                    )
+                    promises.append(promise)
 
+                if position and position.base_asset_amount == 0 and position.quote_asset_amount < 0:
+                    promise = liquidator_clearing_house.liquidate_perp_pnl_for_deposit(
+                        authority,
+                        i,
+                        0,
+                        abs(position.quote_asset_amount) # take it fully on
+                    )
+                    promises.append(promise)
 
         for promise in promises:
             try:
-                await promise
+                sig = await promise
+                # await view_logs(sig, provider)
                 from termcolor import colored
                 print(colored('     *** liquidation successful ***   ', "green"))
             except Exception as e:
-                # print(e.args)
-                pass
-                # if "0x1774" in e.args[0]['message']: # sufficient collateral
-                #     continue 
+                if "0x1774" in e.args[0]['message']: # sufficient collateral
+                    continue 
                 # elif "0x1793" in e.args[0]['message']: # invalid oracle
                 #     continue 
                 # else: 
                 #     raise Exception(e)
+
+                print(e.args)
 
         # try:
         await derisk()
@@ -325,6 +332,7 @@ async def run_trial(protocol_path, events, clearing_houses, trial_outpath, oracl
     async def resolve_bankruptcies():
         ch: ClearingHouse
         user_promises = []
+        chs = []
         did_resolve = False
         for ch in user_chs.values(): 
             authority = ch.authority
@@ -332,15 +340,20 @@ async def run_trial(protocol_path, events, clearing_houses, trial_outpath, oracl
                 continue
             user = ch.get_user()
             user_promises.append(user)
+            chs.append(ch)
         users = await asyncio.gather(*user_promises)
+
         promises = []
         user: User
-        for user in users:
+        for ch, user in zip(chs, users):
             if user.is_bankrupt:
-                promise = liquidator_clearing_house.resolve_perp_bankruptcy(
-                    user.authority,  0
-                )
-                promises.append(promise)
+                for i in range(n_markets):
+                    position = await ch.get_user_position(i)
+                    if not is_available(position):
+                        promise = liquidator_clearing_house.resolve_perp_bankruptcy(
+                            user.authority, i
+                        )
+                        promises.append(promise)
 
         for promise in promises:
             await promise
@@ -372,8 +385,6 @@ async def run_trial(protocol_path, events, clearing_houses, trial_outpath, oracl
             except:
                 pass
 
-    # todo 
-    #   calculate margin requirements of user same as js sdk 
     def parse_ix_args(ix, layout, identifier):
         data = ix.data
         args = layout.parse(data.split(identifier)[1])
@@ -389,6 +400,8 @@ async def run_trial(protocol_path, events, clearing_houses, trial_outpath, oracl
     ix_name_log = []
 
     for i in tqdm(range(len(events))):
+    # for i in range(len(events)):
+        sys.stdout.flush()
         event = events.iloc[i]
 
         ix_args = None
@@ -404,6 +417,9 @@ async def run_trial(protocol_path, events, clearing_houses, trial_outpath, oracl
             ch: SDKClearingHouse = user_chs[event.user_index]
             ix = await event.run_sdk(ch, init_leverage, oracle_program, adjust_oracle_pre_trade=False)
             # await view_logs(sig, ch.program.provider)
+
+            if ix is None:
+                continue
 
             from client.instructions.place_and_take import layout
             identifier = b"P\xfb\x17\xf1\x93\xed\x87\x92"
@@ -452,6 +468,12 @@ async def run_trial(protocol_path, events, clearing_houses, trial_outpath, oracl
             identifier = b"\xd5Y\xd9\x12\xa075\x8d"
             ix_args = parse_ix_args(ix, layout, identifier)
 
+        elif event.event_name == SettlePnLEvent._event_name:
+            event = Event.deserialize_from_row(SettlePnLEvent, event)
+            print(f'=> {event.user_index} settle pnl...')
+            ch: SDKClearingHouse = user_chs[event.user_index]
+            ix = await event.run_sdk(ch)
+
         elif event.event_name == SettleLPEvent._event_name: 
             event = Event.deserialize_from_row(SettleLPEvent, event)
             print(f'=> {event.user_index} settle lp...')
@@ -466,7 +488,6 @@ async def run_trial(protocol_path, events, clearing_houses, trial_outpath, oracl
             event = Event.deserialize_from_row(oraclePriceEvent, event)
             event.slot = (await provider.connection.get_slot())['result']
             print(f'=> adjusting oracle: {event.price}')
-            last_oracle_price = event.price
             await event.run_sdk(program, oracle_program)
 
         elif event.event_name == 'liquidate':
@@ -476,6 +497,8 @@ async def run_trial(protocol_path, events, clearing_houses, trial_outpath, oracl
         
         elif event.event_name == NullEvent._event_name: 
             continue
+        else:
+            raise NotImplementedError
         
         # important to run this twice, one pass for liqs and another one to resolve bankruptcy
         await try_liquidate()
@@ -494,20 +517,16 @@ async def run_trial(protocol_path, events, clearing_houses, trial_outpath, oracl
 
             from termcolor import colored
             try:
-                await ch.send_ixs(ix)
-                err_log.append('')
-            except RPCException as e:
-                err_info = e.args[0]
-                translated_err = ProgramError.parse(err_info, idl_errors)
-                if translated_err is not None:
-                    err_log.append(translated_err)
-                    # raise translated_err from e
+                if event._event_name == SettleLPEvent._event_name:
+                    await ch.send_ixs(ix, signers=[])
                 else:
-                    # raise
-                    err_log.append('')
+                    await ch.send_ixs(ix)
+                err_log.append('')
 
+            except RPCException as e:
+                err_log.append(e.args)
+                print(colored(f'\n\n {event._event_name} failed... \n\n', "red"))
                 print(e.args)
-                print(colored(f'{event._event_name} failed...', "red"))
 
         # track market state after event
         # await save_state(program, trial_outpath, df_row_index, user_chs)
@@ -541,38 +560,41 @@ async def run_trial(protocol_path, events, clearing_houses, trial_outpath, oracl
 
     # + N seconds
     seconds_time = 2
-    await admin_clearing_house.update_perp_market_expiry(0, time + seconds_time)
+    for i in range(n_markets):
+        await admin_clearing_house.update_perp_market_expiry(i, time + seconds_time)
     
     # close out all the LPs 
     routines = []
-    for (i, ch) in user_chs.items():
-        position = await ch.get_user_position(0)
-        if position is None: 
-            continue
-        if position.lp_shares > 0:
-            print(f'removing {position.lp_shares} lp shares...')
-            routines.append(
-                ch.remove_liquidity(position.lp_shares, position.market_index)
-            )
+    for i in range(n_markets):
+        for (_, ch) in user_chs.items():
+            position = await ch.get_user_position(i)
+            if position is None: 
+                continue
+            if position.lp_shares > 0:
+                print(f'removing {position.lp_shares} lp shares...')
+                routines.append(
+                    ch.remove_liquidity(position.lp_shares, position.market_index)
+                )
     await asyncio.gather(*routines)
 
     # settle expired market
     import time 
     time.sleep(seconds_time)
-    await admin_clearing_house.settle_expired_market(0)
+    for i in range(n_markets):
+        await admin_clearing_house.settle_expired_market(i)
     await save_state(program, trial_outpath, df_row_index, user_chs)
     df_row_index+=1
 
-    market = await get_perp_market_account(
-        program, 0
-    )
-    print(
-        'market expiry_price vs twap/price', 
-        market.expiry_price, 
-        market.amm.historical_oracle_data.last_oracle_price_twap,
-        market.amm.historical_oracle_data.last_oracle_price
-    )
-
+    for i in range(n_markets):
+        market = await get_perp_market_account(
+            program, i
+        )
+        print(
+            'market expiry_price vs twap/price', 
+            market.expiry_price, 
+            market.amm.historical_oracle_data.last_oracle_price_twap,
+            market.amm.historical_oracle_data.last_oracle_price
+        )
 
     # liquidate em + resolve bankrupts
     await try_liquidate()
@@ -595,105 +617,106 @@ async def run_trial(protocol_path, events, clearing_houses, trial_outpath, oracl
     # settle expired positions 
     print('settling expired positions')
 
-    number_positions = 0
-    for (i, ch) in user_chs.items():
-        position = await ch.get_user_position(0)
-        if position is None: 
-            continue
-        number_positions += 1
-    print('number of positions:', number_positions)
+    for i in range(n_markets):
+        number_positions = 0
+        for (_, ch) in user_chs.items():
+            position = await ch.get_user_position(i)
+            if position is None: 
+                continue
+            number_positions += 1
+        print('number of positions:', number_positions)
 
-    market = await get_perp_market_account(program, 0)
-    print(
-        'net long/short',
-        market.amm.base_asset_amount_long, 
-        market.amm.base_asset_amount_short, 
-        market.number_of_users, 
-    )
+        market = await get_perp_market_account(program, i)
+        print(
+            'net long/short',
+            market.amm.base_asset_amount_long, 
+            market.amm.base_asset_amount_short, 
+            market.number_of_users, 
+        )
 
     from termcolor import colored
-    routines = []
-    success = False
-    attempt = -1
-    user_withdraw_count = 0
-    n_users = len(list(user_chs.keys()))
-    while not success:
-        attempt += 1
-        success = True
-        user_count = 0
+    for i in range(n_markets):
+        routines = []
+        success = False
+        attempt = -1
         user_withdraw_count = 0
+        n_users = len(list(user_chs.keys()))
 
-        print(colored(f' =>>>>>> attempt {attempt}', "blue"))
-        for (i, ch) in user_chs.items():
-            position = await ch.get_user_position(0)
+        while not success:
+            attempt += 1
+            success = True
+            user_count = 0
+            user_withdraw_count = 0
 
-            # dont let oracle go stale
-            slot = (await provider.connection.get_slot())['result']
-            market = await get_perp_market_account(program, 0)
-            await set_price_feed_detailed(oracle_program, market.amm.oracle, last_oracle_price, 0, slot)
+            print(colored(f' =>>>>>> attempt {attempt}', "blue"))
+            for (_, ch) in user_chs.items():
+                position = await ch.get_user_position(i)
 
-            if position is None: 
-                user_count += 1
-            else:
-                try:
-                    settling_position = await ch.get_user_position(0)
-                    scaled_balance = (await ch.get_user()).spot_positions[0].scaled_balance
-                    print('user', i, str(ch.authority), ': ', '$',scaled_balance/SPOT_BALANCE_PRECISION)
-                    print('settling position:', settling_position)
-                    await ch.settle_pnl(ch.authority, 0)
+                # dont let oracle go stale
+                slot = (await provider.connection.get_slot())['result']
+                market = await get_perp_market_account(program, i)
+                await set_price_feed_detailed(oracle_program, market.amm.oracle, last_oracle_price, 0, slot)
+
+                if position is None: 
                     user_count += 1
-                    print(colored(f'     *** settle expired position successful {user_count}/{n_users} ***   ', "green"))
+                else:
+                    try:
+                        settling_position = await ch.get_user_position(i)
+                        scaled_balance = (await ch.get_user()).spot_positions[0].scaled_balance
+                        print('user', i, str(ch.authority), ': ', '$',scaled_balance/SPOT_BALANCE_PRECISION)
+                        print('settling position:', settling_position)
+                        await ch.settle_pnl(ch.authority, i)
+                        user_count += 1
+                        print(colored(f'     *** settle expired position successful {user_count}/{n_users} ***   ', "green"))
+                        await save_state(program, trial_outpath, df_row_index, user_chs)
+                        df_row_index+=1
+                    except Exception as e:
+                        if "0x17e2" in e.args[0]['message']: # pool doesnt have enough 
+                            print(colored(f'     *** settle expired position failed... ***   ', "red"))
+                            print(e.args)
+                            success = False
+                        elif "0x17c0" in e.args[0]['message']: # pool doesnt have enough 
+                            print(colored(f'     *** settle expired position failed InsufficientCollateralForSettlingPNL... ***   ', "red"))
+                            print(e.args)
+                            success = False
+                        else: 
+                            raise Exception(e)
+
+                try:
+                    # try to withdraw all you can
+                    print(f'=> user {i} withdrawing...')
+                    await ch.withdraw(
+                        int(1e10 * 1e6), 
+                        0, 
+                        ch.usdc_ata.public_key,
+                        True
+                    )
+                    print(colored(f'     *** user withdraw successful {user_withdraw_count}/{n_users} ***   ', "green"))
+                    user_withdraw_count+=1
                     await save_state(program, trial_outpath, df_row_index, user_chs)
-                    df_row_index+=1
                 except Exception as e:
-                    if "0x17e2" in e.args[0]['message']: # pool doesnt have enough 
-                        print(colored(f'     *** settle expired position failed... ***   ', "red"))
-                        print(e.args)
-                        success = False
-                    elif "0x17c0" in e.args[0]['message']: # pool doesnt have enough 
-                        print(colored(f'     *** settle expired position failed InsufficientCollateralForSettlingPNL... ***   ', "red"))
-                        print(e.args)
-                        success = False
-                    else: 
-                        raise Exception(e)
-
-            try:
-                # try to withdraw all you can
-                print(f'=> user {i} withdrawing...')
-                await ch.withdraw(
-                    int(1e10 * 1e6), 
-                    0, 
-                    ch.usdc_ata.public_key,
-                    True
+                    print(e)
+                    print(colored(f'     *** user withdraw failed {user_withdraw_count}/{n_users} ***   ', "red"))
+                    pass
+                
+                market = await get_perp_market_account(program, i)
+                print(
+                    'net long/short',
+                    market.amm.base_asset_amount_long, 
+                    market.amm.base_asset_amount_short, 
+                    market.number_of_users, 
                 )
-                print(colored(f'     *** user withdraw successful {user_withdraw_count}/{n_users} ***   ', "green"))
-                user_withdraw_count+=1
-                await save_state(program, trial_outpath, df_row_index, user_chs)
-            except Exception as e:
-                print(e)
-                print(colored(f'     *** user withdraw failed {user_withdraw_count}/{n_users} ***   ', "red"))
-                pass
-            
-            market = await get_perp_market_account(program, 0)
-            print(
-                'net long/short',
-                market.amm.base_asset_amount_long, 
-                market.amm.base_asset_amount_short, 
-                market.number_of_users, 
-            )
-
-    for (i, ch) in user_chs.items():
-        position = await ch.get_user_position(0)
-        if position is None: 
-            continue
-        print(position)
+    for i in range(n_markets):
+        for (_, ch) in user_chs.items():
+            position = await ch.get_user_position(i)
+            if position is None: 
+                continue
+            print(position)
 
     # skip for now
     # await admin_clearing_house.settle_expired_market_pools_to_revenue_pool(0)
 
-    market = await get_perp_market_account(
-        program, 0
-    )
+    market = await get_perp_market_account(program, i)
     print(market.status)
 
     # df = pd.DataFrame(df_rows)
@@ -846,7 +869,7 @@ async def main(protocol_path, experiments_folder, db_path):
         val.start()
         try:
             print(trial_guard_rails)
-            await run_trial(protocol_path, events, clearing_houses, f"./{experiments_folder}/trial_{trial}", trial_guard_rails, spread)
+            await run_trial(protocol_path, events, clearing_houses, experiments_folder, f"./{experiments_folder}/trial_{trial}", trial_guard_rails, spread)
         finally:
             val.stop()
         

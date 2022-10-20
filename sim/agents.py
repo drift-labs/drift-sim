@@ -396,17 +396,55 @@ class Noise(Agent):
         event = [event]
         return event
 
+class SettlePnL(Agent):
+    def __init__(self, user_index: int, market_index: int, every_x_steps: int = 1) -> None:
+        self.user_index = user_index
+        self.market_index = market_index
+        self.every_x_steps = every_x_steps
+
+        self.name = 'settler_pnl'
+        self.deposit_amount = 0
+
+    @staticmethod
+    def random_init(max_t, user_index, market_index, update_every=-1):
+        if update_every == -1:
+            update_every = np.random.randint(1, max_t // 4)
+
+        return SettlePnL(
+            user_index, 
+            market_index, 
+            every_x_steps=update_every, 
+        )
+
+    def setup(self, state: ClearingHouse) -> list[Event]:
+        event = NullEvent(state.time)
+        event = [event]
+        return event
+
+    def run(self, state: ClearingHouse) -> list[Event]: 
+        events = []
+        if state.time % self.every_x_steps == 0: 
+            # only settle if/when they are an lp 
+            event = SettlePnLEvent(
+                timestamp=state.time, 
+                user_index=self.user_index, 
+                market_index=self.market_index,
+            )
+            events.append(event)
+
+        return events
+
 class SettleLP(Agent):
     def __init__(self, user_index: int, market_index: int, every_x_steps: int = 1) -> None:
         self.user_index = user_index
         self.market_index = market_index
         self.every_x_steps = every_x_steps
 
-        self.name = 'settler'
+        self.name = 'settler_lp'
         self.deposit_amount = 0
 
     @staticmethod
-    def random_init(max_t, user_index, market_index, leverage=1):
+    def random_init(max_t, user_index, market_index, update_every=-1):
         if update_every == -1:
             update_every = np.random.randint(1, max_t // 4)
 
@@ -433,7 +471,7 @@ class SettleLP(Agent):
                 )
                 events.append(event)
 
-        return event
+        return events
 
 class ArbFunding(Agent):
     ''' arbitrage a single market to oracle'''
