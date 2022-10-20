@@ -49,9 +49,9 @@ import time
 import signal
 
 class LocalValidator:
-    def __init__(self, protocol_path, db_path) -> None:
+    def __init__(self, protocol_path, geyser_path) -> None:
         self.protocol_path = protocol_path
-        self.db_path = db_path
+        self.geyser_path = geyser_path
         
     def start(self):
         """
@@ -64,11 +64,11 @@ class LocalValidator:
         process = Popen("anchor build".split(' '), cwd=self.protocol_path)
         process.wait()
 
-        process = Popen("bash setup.sh".split(' '), cwd=self.db_path)
+        process = Popen("bash setup.sh".split(' '), cwd=self.geyser_path)
         process.wait()
 
         self.proc = Popen(
-            f'bash localnet.sh {self.protocol_path} {self.db_path}'.split(' '), 
+            f'bash localnet.sh {self.protocol_path} {self.geyser_path}'.split(' '), 
             stdout=self.log_file, 
             preexec_fn=os.setsid, 
         )
@@ -115,12 +115,39 @@ def create_workspace(
         
     return result
 
-async def run_trial(protocol_path, events, clearing_houses, experiments_folder, trial_outpath, oracle_guard_rails=None, spread=None):
+class ObjectEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, object):
+            return obj.__dict__
+        # Let the base class default method raise the TypeError
+        return json.JSONEncoder.default(self, obj)
+
+async def save_state(program, trial_outpath):
+    initial_state: State = await get_state_account(program)
+    initial_state_d = initial_state.__dict__
+
+    for x in ['admin', 'whitelist_mint', 'discount_mint', 'signer', 'srm_vault', 'exchange_status']:
+        initial_state_d[x] = str(initial_state_d[x])
+
+    for x in ['oracle_guard_rails', 'spot_fee_structure', 'perp_fee_structure']:
+        initial_state_d[x] = initial_state_d[x].__dict__
+
+    state_outfile = f"{trial_outpath}/init_state.json"
+    with open(state_outfile, "w") as outfile:
+        json.dump(
+            initial_state_d, 
+            outfile, 
+            sort_keys=True, 
+            cls=ObjectEncoder,
+            skipkeys=True,
+            indent=4
+        )
+
+async def run_trial(protocol_path, events, markets, trial_outpath, oracle_guard_rails=None, spread=None):
     print('trial_outpath:', trial_outpath)
-    os.makedirs(trial_outpath, exist_ok=True)
+    print('protocol path:', protocol_path)
 
     df_row_index = 0
-    print('creating workspace: %s' % protocol_path)
     workspace = create_workspace(protocol_path)
     program: Program = workspace["clearing_house"]
     oracle_program: Program = workspace["pyth"]
@@ -128,73 +155,51 @@ async def run_trial(protocol_path, events, clearing_houses, experiments_folder, 
 
     admin_clearing_house, usdc_mint = await setup_bank(program)
 
-    # read and load initial clearing house state (thats all we use chs.csv for...)
+    # state modification
+    await admin_clearing_house.update_perp_auction_duration(0)
+    await admin_clearing_house.update_lp_cooldown_time(0)
 
-    with open(f'{experiments_folder}/chs_json.csv', 'r') as f:
-        markets = json.load(f)
-
-    n_markets = len(markets) 
+    # setup the markets
     init_leverage = 11
+    n_markets = len(markets) 
+    last_oracle_prices = []
     for i, market in enumerate(markets):
         print(f"=> init market {i}")
-
-        init_reserves = int(market['base_asset_reserve']) / 1e13 * AMM_RESERVE_PRECISION 
+        init_reserves = int(int(market['base_asset_reserve']) / 1e13 * AMM_RESERVE_PRECISION)
         peg = market['peg_multiplier']
-        oracle = await mock_oracle(workspace["pyth"], peg / PEG_PRECISION, -7)
+        oracle_price = peg / PEG_PRECISION
+
+        oracle = await mock_oracle(workspace["pyth"], oracle_price, -7)
         await admin_clearing_house.initialize_perp_market(
             oracle, 
-            int(init_reserves), 
-            int(init_reserves), 
-            int(60), 
+            init_reserves, 
+            init_reserves, 
+            60, 
             int(peg), 
             OracleSource.PYTH(), 
             # default is 5x
             margin_ratio_initial=MARGIN_PRECISION // init_leverage if init_leverage else 2000
         )
-        
-        last_oracle_price = peg / PEG_PRECISION
+        last_oracle_prices.append(oracle_price)
 
-        print('> initial reserves:', init_reserves)
-        print('> initial reserves log:', np.log10(init_reserves))
-        print('> init peg', peg / PEG_PRECISION)
+        print('\t> initial reserves:', init_reserves)
+        print('\t> initial reserves log:', np.log10(init_reserves))
+        print('\t> init peg / oracle price:', oracle_price)
 
-    # update durations
-    if oracle_guard_rails is not None:
-        await admin_clearing_house.update_oracle_guard_rails(oracle_guard_rails)
+        # update market defaults
+        if oracle_guard_rails is not None:
+            await admin_clearing_house.update_oracle_guard_rails(oracle_guard_rails)
 
-    if spread is not None:
-        await admin_clearing_house.update_perp_market_curve_update_intensity(0, 100)
-        await admin_clearing_house.update_perp_market_base_spread(0, spread)
+        if spread is not None:
+            await admin_clearing_house.update_perp_market_curve_update_intensity(0, 100)
+            await admin_clearing_house.update_perp_market_base_spread(i, spread)
 
-    await admin_clearing_house.update_perp_auction_duration(0)
-    await admin_clearing_house.update_lp_cooldown_time(0, 0)
-    await admin_clearing_house.update_perp_market_max_fill_reserve_fraction(0, 1)
-    await admin_clearing_house.update_perp_market_step_size_and_tick_size(0, int(AMM_RESERVE_PRECISION/1e4), 1)
+        await admin_clearing_house.update_perp_market_max_fill_reserve_fraction(i, 1)
+        await admin_clearing_house.update_perp_market_step_size_and_tick_size(i, int(AMM_RESERVE_PRECISION/1e4), 1)
 
-    initial_state: State = await get_state_account(program)
-    initial_state_d = initial_state.__dict__
-
-    for x in ['admin', 'whitelist_mint', 'discount_mint', 'signer', 'srm_vault', 'exchange_status']:
-        initial_state_d[x] = str(initial_state_d[x])
-
-    class ComplexEncoder(json.JSONEncoder):
-         def default(self, obj):
-            if isinstance(obj, object):
-                 return obj.__dict__
-             # Let the base class default method raise the TypeError
-            return json.JSONEncoder.default(self, obj)
-
-    for x in ['oracle_guard_rails', 'spot_fee_structure', 'perp_fee_structure']:
-        initial_state_d[x] = initial_state_d[x].__dict__
-
-    state_outfile = f"{trial_outpath}/init_state.json"
-    with open(state_outfile, "w") as outfile:
-        json_string = json.dumps(initial_state_d,
-            sort_keys=True, 
-            cls=ComplexEncoder,
-            skipkeys=True,
-            indent=4)
-        json.dump(json_string, outfile)
+    # save initial state 
+    await save_state(program, trial_outpath)
+    return
 
     # fast init for users - airdrop takes a bit to finalize
     print('airdropping sol to users...')
@@ -820,72 +825,71 @@ async def run_trial(protocol_path, events, clearing_houses, experiments_folder, 
     await provider.close()
     await close_workspace(workspace)
 
+async def main(protocol_path, experiments_folder, geyser_path, trial):
+    events = pd.read_csv(f"{experiments_folder}/events.csv")
 
-async def main(protocol_path, experiments_folder, db_path):
-    # e.g.
-    # protocol_path = "../driftpy/protocol-v2/"#
-    # experiments_folder = 'tmp2'
-    events = pd.read_csv(f"./{experiments_folder}/events.csv")
-    clearing_houses = pd.read_csv(f"./{experiments_folder}/chs.csv")
-    setup_run_info(experiments_folder, protocol_path, '')
+    no_oracle_guard_rails = OracleGuardRails(
+        price_divergence=PriceDivergenceGuardRails(1, 1), 
+        validity=ValidityGuardRails(10, 10, 100, 100),
+        use_for_liquidations=True
+    )
 
-    trials = ['no_oracle_guards', 'spread_250', 'spread_1000', 'oracle_guards',]
-    trials = ['spread_250']
+    trial_guard_rails = None
+    spread = None
+
+    if 'spread_250' in trial:
+        print('spread activated')
+        spread = 250
+        trial_guard_rails = no_oracle_guard_rails
     
-    for trial in trials:
-        no_oracle_guard_rails = OracleGuardRails(
-            price_divergence=PriceDivergenceGuardRails(1, 1), 
-            validity=ValidityGuardRails(10, 10, 100, 100),
-        use_for_liquidations=True)
-        
-        trial_guard_rails = None
-        spread = None
+    if 'spread_1000' in trial:
+        print('spread activated')
+        spread = 1000
+        trial_guard_rails = no_oracle_guard_rails
 
-        if 'spread_250' in trial:
-            print('spread activated')
-            spread = 250
-            trial_guard_rails = no_oracle_guard_rails
-        
-        if 'spread_1000' in trial:
-            print('spread activated')
-            spread = 1000
-            trial_guard_rails = no_oracle_guard_rails
+    if 'no_oracle_guards' in trial:
+        print('no_oracle_guard_rails activated')
+        trial_guard_rails = no_oracle_guard_rails
 
-        if 'no_oracle_guards' in trial:
-            print('no_oracle_guard_rails activated')
-            trial_guard_rails = no_oracle_guard_rails
+    # read and load initial clearing house state (thats all we use chs.csv for...)
+    with open(f'{experiments_folder}/markets_json.csv', 'r') as f:
+        markets = json.load(f)
 
-        output_path = f"./{experiments_folder}/trial_{trial}"
+    experiment_name = Path(experiments_folder).stem
+    output_path = Path(f'{experiments_folder}/../../results/{experiment_name}/trial_{trial}')
+    output_path.mkdir(exist_ok=True, parents=True)
 
-        val = LocalValidator(protocol_path, db_path)
-        val.start()
-        try:
-            print(trial_guard_rails)
-            await run_trial(
-                protocol_path, 
-                events, 
-                clearing_houses, 
-                experiments_folder, 
-                output_path, 
-                trial_guard_rails, 
-                spread
-            )
-        finally:
-            val.stop()
-        
-        return 
+    setup_run_info(str(output_path), protocol_path, '')
+
+    val = LocalValidator(protocol_path, geyser_path)
+    val.start()
+    try:
+        await run_trial(
+            protocol_path, 
+            events, 
+            markets, 
+            output_path, 
+            trial_guard_rails, 
+            spread
+        )
+    finally:
+        val.stop()
 
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('--events', type=str, required=True)
-    parser.add_argument('--protocol', type=str, required=True)
-    parser.add_argument('--db', type=str, required=True)
+    parser.add_argument('--protocol', type=str, required=False, default='../driftpy/protocol-v2')
+    parser.add_argument('--geyser', type=str, required=False, default='../solana-accountsdb-plugin-postgres')
+
+    # trials = ['no_oracle_guards', 'spread_250', 'spread_1000', 'oracle_guards',]
+    parser.add_argument('-t', '--trial', type=str, required=False, default='')
+
     args = parser.parse_args()
 
     try: 
         import asyncio
-        asyncio.run(main(args.protocol, args.events, args.db))
+        asyncio.run(main(args.protocol, args.events, args.geyser, args.trial))
     finally:
         pass
 

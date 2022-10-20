@@ -4,6 +4,7 @@ from driftpy.setup.helpers import get_feed_data
 from driftpy.math.amm import calculate_price
 from driftpy.constants.numeric_constants import AMM_RESERVE_PRECISION, QUOTE_PRECISION
 from driftpy.clearing_house import ClearingHouse as ClearingHouseSDK
+from driftpy.types import PositionDirection
 
 import json 
 from dataclasses import dataclass

@@ -9,15 +9,14 @@ import pandas as pd
 pd.options.plotting.backend = "plotly"
 
 import sys
-sys.path.insert(0, './driftpy/src/')
-sys.path.insert(0, '../driftpy/src/')
-sys.path.insert(0, '../')
+# sys.path.insert(0, './driftpy/src/')
+sys.path.insert(0, '../../driftpy/src/')
+sys.path.insert(0, '../../')
 
 import driftpy
 import os 
 import datetime
 import math 
-from sim.agents import * 
 import numpy as np 
 
 from tqdm.notebook import tqdm 
@@ -31,17 +30,16 @@ from driftpy.types import *
 from driftpy.constants.numeric_constants import *
 
 import json 
-import matplotlib.pyplot as plt 
 import numpy as np 
 import pandas as pd
-from dataclasses import dataclass, field
 
 from sim.helpers import *
+from sim.agents import * 
 
-from driftsim.clearing_house.math.pnl import *
-from driftsim.clearing_house.math.amm import *
-from driftsim.clearing_house.state import *
-from driftsim.clearing_house.lib import *
+from sim.driftsim.clearing_house.math.pnl import *
+from sim.driftsim.clearing_house.math.amm import *
+from sim.driftsim.clearing_house.state import *
+from sim.driftsim.clearing_house.lib import *
 
 from sim.events import * 
 from sim.agents import * 
@@ -49,7 +47,7 @@ from sim.agents import *
 import pathlib 
 import pandas as pd 
 
-path = pathlib.Path('../backtest/multi_market')
+path = pathlib.Path('../../experiments/multi_market')
 path.mkdir(exist_ok=True, parents=True)
 print(str(path.absolute()))
 
@@ -86,7 +84,7 @@ def setup_ch(base_spread=0, strategies='', n_steps=100, n_users=2):
     markets = [market, market2]
     json_markets = [m.to_json(0) for m in markets]
 
-    with open(path/'chs_json.csv', 'w') as f:
+    with open(path/'markets_json.csv', 'w') as f:
         json.dump(json_markets, f)
 
     fee_structure = FeeStructure(numerator=1, denominator=1000)
