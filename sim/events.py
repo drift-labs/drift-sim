@@ -395,5 +395,22 @@ class SettleLPEvent(Event):
             self.market_index
         )
          
+@dataclass
+class SettlePnLEvent(Event): 
+    user_index: int 
+    market_index: int
+    _event_name: str = "settle_pnl"
+    
+    def run(self, clearing_house: ClearingHouse, verbose=False) -> ClearingHouse:
+        pass 
+        # not implemented yet... 
+        return clearing_house
+
+    async def run_sdk(self, clearing_house: ClearingHouseSDK):
+        return await clearing_house.get_settle_pnl_ix(
+            clearing_house.authority, 
+            self.market_index
+        )
+         
 
 # %%
