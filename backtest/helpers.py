@@ -336,18 +336,19 @@ async def save_state(program, experiments_folder, event_i, user_chs):
     else:
         all_user_stats_df.to_csv(outfile, index=False)
 
+from solana.transaction import Transaction
 async def init_user(
     user_chs,
     user_chus,
     user_index, 
-    program, 
+    program: Program, 
     usdc_mint, 
-    provider,
     deposit_amount, 
     user_kp
 ):
     # rough draft
     instructions = []
+    provider = program.provider
 
     # initialize user 
     user_clearing_house = SDKClearingHouse(program, user_kp)
@@ -383,13 +384,11 @@ async def init_user(
         )
     ]
 
-    from solana.transaction import Transaction
     tx = Transaction()
     [tx.add(ix) for ix in instructions]
     routine = provider.send(tx,  user_clearing_house.signers + [provider.wallet.payer, user_clearing_house.usdc_ata])
 
     return await routine
-
 
 async def setup_market(
     clearing_house: Admin,
