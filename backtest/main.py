@@ -131,7 +131,7 @@ class ObjectEncoder(json.JSONEncoder):
         # Let the base class default method raise the TypeError
         return json.JSONEncoder.default(self, obj)
 
-async def save_state(program, trial_outpath):
+async def save_state_account(program, trial_outpath):
     """dumps state struct to a json to trial_outpath/init_state.json
     """
     initial_state: State = await get_state_account(program)
@@ -325,17 +325,17 @@ class Liquidator:
         
     async def derisk(self):
         ch = self.liq_ch
-        position = await ch.get_user_position(0)
-        if position is None or position.base_asset_amount == 0: 
-            return
-
         provider = self.liq_ch.program.provider
-        slot = (await provider.connection.get_slot())['result']
-        liq_time = (await provider.connection.get_block_time(slot))['result']
-        print(f'=> liquidator derisking {position.base_asset_amount} baa in market status:', market.status)
 
         for i in range(self.n_markets):
-            market = await get_perp_market_account(ch.program, i)
+            position = await ch.get_user_position(i)
+            if position is None or position.base_asset_amount == 0: 
+                continue
+
+            market = await get_perp_market_account(self.liq_ch.program, i)
+            slot = (await provider.connection.get_slot())['result']
+            liq_time = (await provider.connection.get_block_time(slot))['result']
+            print(f'=> liquidator derisking {position.base_asset_amount} baa in market status:', market.status)
 
             if str(market.status) == "MarketStatus.Settlement()" or market.expiry_ts >= liq_time:
                 try:
@@ -410,7 +410,6 @@ async def setup_market(
     market: dict, 
     market_index: int,
     init_leverage: int, 
-    oracle_guard_rails, 
     spread
 ):
     i = market_index
@@ -443,6 +442,32 @@ async def setup_market(
 
     return oracle_price
 
+class Logger:
+    def __init__(self, export_path) -> None:
+        self.ix_names = []
+        self.ixs_args = []
+        self.slots = []
+        self.errs = []
+        self.export_path = export_path
+    
+    def log(self, slot, ix_name, ix_arg, err):
+        self.ix_names.append(ix_name)
+        self.slots.append(slot)
+        self.ixs_args.append(ix_arg)
+        self.errs.append(err)
+
+    def export(self):
+        pd.DataFrame({
+            'slot': self.slots,
+            'ix_name': self.ix_names,
+            'ix_args': self.ixs_args,
+            'error': self.errs,
+        }).to_csv(self.export_path, index=False)
+
+# set inside run_trail()
+LOGGER = None
+from solana.rpc.core import RPCException
+
 async def run_trial(protocol_path, events, markets, trial_outpath, oracle_guard_rails=None, spread=None):
     print('trial_outpath:', trial_outpath)
     print('protocol path:', protocol_path)
@@ -474,26 +499,46 @@ async def run_trial(protocol_path, events, markets, trial_outpath, oracle_guard_
             market, 
             i,
             init_leverage, 
-            oracle_guard_rails, 
             spread
         )
         last_oracle_prices.append(oracle_price)
 
     # save initial state 
-    await save_state(program, trial_outpath)
+    await save_state_account(program, trial_outpath)
 
     start = time.time()
 
     # initialize users + deposits
     users, liquidator_index = await airdrop_sol_users(provider, events, trial_outpath)
-    user_chs, _user_chus, init_total_collateral = await setup_usdc_deposits(events, program, usdc_mint, users, liquidator_index)
+    user_chs, _user_chus, _init_total_collateral = await setup_usdc_deposits(events, program, usdc_mint, users, liquidator_index)
+
+    # compute init collatearl 
+    async def get_token_amount(usdc_ata: Keypair):
+        return (await provider.connection.get_token_account_balance(usdc_ata.public_key))['result']['value']['uiAmount']
+    async def get_collateral_amount(chu: ClearingHouseUser):
+        return (await chu.get_total_collateral()) / QUOTE_PRECISION
+    async def compute_collateral_amount():
+        promises = []
+        ch: ClearingHouse
+        for (i, ch) in user_chs.items():
+            chu: ClearingHouseUser = _user_chus[i]
+            # get it all in $ amounts
+            user_collateral = get_collateral_amount(chu)
+            token_amount = get_token_amount(ch.usdc_ata)
+            promises.append(user_collateral)
+            promises.append(token_amount)
+        all_user_collateral = sum(await asyncio.gather(*promises))
+
+        return all_user_collateral
+
+    init_total_collateral = await compute_collateral_amount()
+    print(f'> initial collateral: {init_total_collateral}')
+    assert int(init_total_collateral) == int(_init_total_collateral/QUOTE_PRECISION)
 
     liquidator = Liquidator(user_chs, n_markets, liquidator_index)
 
-    ixs_log = []
-    slot_log = []
-    err_log = []
-    ix_name_log = []
+    global LOGGER
+    LOGGER = Logger(f'{trial_outpath}/ix_logs.csv')
 
     # process events 
     for i in tqdm(range(len(events))):
@@ -540,9 +585,6 @@ async def run_trial(protocol_path, events, markets, trial_outpath, oracle_guard_
             assert event.user_index in user_chs, 'user doesnt exist'
 
             ch: SDKClearingHouse = user_chs[event.user_index]
-            # todo: update old percisions from backtest folders
-            # event.token_amount = int(event.token_amount * AMM_RESERVE_PRECISION / 1e13)
-
             ix = await event.run_sdk(ch)
 
             from client.instructions.add_perp_lp_shares import layout
@@ -596,42 +638,25 @@ async def run_trial(protocol_path, events, markets, trial_outpath, oracle_guard_
         else:
             raise NotImplementedError
 
-        # try to liquidate traders after each timestep 
-        await liquidator.liquidate_loop()
-
         if ix_args is not None:
             slot = (await provider.connection.get_slot())['result']
-            ixs_log.append(ix_args)
-            slot_log.append(slot)
-            ix_name_log.append(event._event_name)
-
-            from solana.rpc.core import RPCException
-            from anchorpy.error import ProgramError
-            from anchorpy.program.core import _parse_idl_errors
-            idl_errors = _parse_idl_errors(program.idl)
-
-            from termcolor import colored
+            err = None
             try:
                 if event._event_name == SettleLPEvent._event_name:
                     await ch.send_ixs(ix, signers=[])
                 else:
                     await ch.send_ixs(ix)
-                err_log.append('')
-
             except RPCException as e:
-                err_log.append(e.args)
+                err = e.args
                 print(colored(f'\n\n {event._event_name} failed... \n\n', "red"))
                 print(e.args)
-
-    pd.DataFrame({
-        'slot': slot_log,
-        'ix_name': ix_name_log,
-        'ix_args': ixs_log,
-        'errors': err_log,
-    }).to_csv(f"./{trial_outpath}/ix_logs.csv", index=False)
+            
+            LOGGER.log(slot, event._event_name, ix_args, err)
+        
+        # try to liquidate traders after each timestep 
+        await liquidator.liquidate_loop()
 
     print('delisting market...')
-    # get
     slot = (await provider.connection.get_slot())['result']
     dtime: int = (await provider.connection.get_block_time(slot))['result']
 
@@ -658,8 +683,6 @@ async def run_trial(protocol_path, events, markets, trial_outpath, oracle_guard_
     time.sleep(seconds_time)
     for i in range(n_markets):
         await admin_clearing_house.settle_expired_market(i)
-    await save_state(program, trial_outpath, df_row_index, user_chs)
-    df_row_index+=1
 
     for i in range(n_markets):
         market = await get_perp_market_account(
@@ -683,10 +706,6 @@ async def run_trial(protocol_path, events, markets, trial_outpath, oracle_guard_
             routines.append(
                 ch.cancel_order()
             )
-
-    await save_state(program, trial_outpath, df_row_index, user_chs)
-    df_row_index += 1
-
     await asyncio.gather(*routines)
 
     # settle expired positions 
@@ -709,7 +728,6 @@ async def run_trial(protocol_path, events, markets, trial_outpath, oracle_guard_
             market.number_of_users, 
         )
 
-    from termcolor import colored
     for i in range(n_markets):
         routines = []
         success = False
@@ -741,19 +759,16 @@ async def run_trial(protocol_path, events, markets, trial_outpath, oracle_guard_
                         scaled_balance = (await ch.get_user()).spot_positions[0].scaled_balance
                         print('user', i, str(ch.authority), ': ', '$',scaled_balance/SPOT_BALANCE_PRECISION)
                         print('settling position:', settling_position)
+
                         await ch.settle_pnl(ch.authority, i)
                         user_count += 1
                         print(colored(f'     *** settle expired position successful {user_count}/{n_users} ***   ', "green"))
-                        await save_state(program, trial_outpath, df_row_index, user_chs)
-                        df_row_index+=1
                     except Exception as e:
                         if "0x17e2" in e.args[0]['message']: # pool doesnt have enough 
                             print(colored(f'     *** settle expired position failed... ***   ', "red"))
-                            print(e.args)
                             success = False
                         elif "0x17c0" in e.args[0]['message']: # pool doesnt have enough 
                             print(colored(f'     *** settle expired position failed InsufficientCollateralForSettlingPNL... ***   ', "red"))
-                            print(e.args)
                             success = False
                         else: 
                             raise Exception(e)
@@ -768,8 +783,6 @@ async def run_trial(protocol_path, events, markets, trial_outpath, oracle_guard_
                         True
                     )
                     print(colored(f'     *** user withdraw successful {user_withdraw_count}/{n_users} ***   ', "green"))
-                    user_withdraw_count+=1
-                    await save_state(program, trial_outpath, df_row_index, user_chs)
                 except Exception as e:
                     print(e)
                     print(colored(f'     *** user withdraw failed {user_withdraw_count}/{n_users} ***   ', "red"))
@@ -782,6 +795,7 @@ async def run_trial(protocol_path, events, markets, trial_outpath, oracle_guard_
                     market.amm.base_asset_amount_short, 
                     market.number_of_users, 
                 )
+
     for i in range(n_markets):
         for (_, ch) in user_chs.items():
             position = await ch.get_user_position(i)
@@ -821,29 +835,10 @@ async def run_trial(protocol_path, events, markets, trial_outpath, oracle_guard_
     #             await ch.close_position(position.market_index)
 
     # compute total collateral at end of sim
-    end_total_collateral = 0 
-    for (i, ch) in user_chs.items():
-        user = await get_user_account(
-            program, 
-            ch.authority, 
-        )
-        balance = user.spot_positions[0].scaled_balance / SPOT_BALANCE_PRECISION * QUOTE_PRECISION
-        position = await ch.get_user_position(0)
-
-        if position is None: 
-            end_total_collateral += balance
-            continue
-
-        upnl = position.quote_asset_amount
-        total_user_collateral = balance + upnl
-
-        print(
-            f'user {i}  :', 
-            user.perp_positions[0].base_asset_amount, 
-            user.perp_positions[0].quote_asset_amount, 
-            total_user_collateral
-        )
-        end_total_collateral += total_user_collateral
+    end_total_collateral = await compute_collateral_amount()
+    market = await get_perp_market_account(program, 0)
+    market_collateral = market.amm.total_fee_minus_distributions / 1e6
+    end_total_collateral += market_collateral
 
     print('---')
 
@@ -856,11 +851,6 @@ async def run_trial(protocol_path, events, markets, trial_outpath, oracle_guard_
         'revenue_pool:', usdc_spot_market.revenue_pool.scaled_balance,
         'spot_fee_pool:', usdc_spot_market.spot_fee_pool.scaled_balance,
     )
-
-    market = await get_perp_market_account(program, 0)
-    market_collateral = 0 
-    market_collateral += market.amm.total_fee_minus_distributions
-    end_total_collateral += market_collateral 
 
     print('market $:', market_collateral)
     print(f'difference in $ {(end_total_collateral - init_total_collateral) / QUOTE_PRECISION:,}')
@@ -919,17 +909,17 @@ async def main(protocol_path, experiments_folder, geyser_path, trial):
     spread = None
 
     if 'spread_250' in trial:
-        print('spread 250 activated')
+        print('=> spread 250 activated')
         spread = 250
         trial_guard_rails = no_oracle_guard_rails
    
     if 'spread_1000' in trial:
-        print('spread 1000 activated')
+        print('=> spread 1000 activated')
         spread = 1000
         trial_guard_rails = no_oracle_guard_rails
 
     if 'no_oracle_guards' in trial:
-        print('no_oracle_guard_rails activated')
+        print('=> no_oracle_guard_rails activated')
         trial_guard_rails = no_oracle_guard_rails
 
     # read and load initial clearing house state (thats all we use chs.csv for...)
