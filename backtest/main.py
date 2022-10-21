@@ -131,7 +131,7 @@ class ObjectEncoder(json.JSONEncoder):
         # Let the base class default method raise the TypeError
         return json.JSONEncoder.default(self, obj)
 
-async def save_state_account(program, trial_outpath):
+async def save_state_account(program, state_path):
     """dumps state struct to a json to trial_outpath/init_state.json
     """
     initial_state: State = await get_state_account(program)
@@ -143,8 +143,7 @@ async def save_state_account(program, trial_outpath):
     for x in ['oracle_guard_rails', 'spot_fee_structure', 'perp_fee_structure']:
         initial_state_d[x] = initial_state_d[x].__dict__
 
-    state_outfile = f"{trial_outpath}/init_state.json"
-    with open(state_outfile, "w") as outfile:
+    with open(state_path, "w") as outfile:
         json.dump(
             initial_state_d, 
             outfile, 
@@ -154,7 +153,7 @@ async def save_state_account(program, trial_outpath):
             indent=4
         )
 
-async def airdrop_sol_users(provider, events, trial_outpath):
+async def airdrop_sol_users(provider, events, user_path):
     """airdrops sol to all users in a sim and saves their kps to the outpath 
 
     Args:
@@ -183,7 +182,7 @@ async def airdrop_sol_users(provider, events, trial_outpath):
     kp: Keypair
     for u, (kp, _) in users.items():
         json_users[str(u)] = str(kp.public_key)
-    with open(f'{trial_outpath}/users.json', 'w') as f:
+    with open(user_path, 'w') as f:
         json.dump(json_users, f)
 
     for user, tx_sig in tqdm(users.values()):
@@ -472,7 +471,6 @@ async def run_trial(protocol_path, events, markets, trial_outpath, oracle_guard_
     print('trial_outpath:', trial_outpath)
     print('protocol path:', protocol_path)
 
-    df_row_index = 0
     workspace = create_workspace(protocol_path)
     program: Program = workspace["clearing_house"]
     oracle_program: Program = workspace["pyth"]
@@ -503,16 +501,18 @@ async def run_trial(protocol_path, events, markets, trial_outpath, oracle_guard_
         )
         last_oracle_prices.append(oracle_price)
 
-    # save initial state 
-    await save_state_account(program, trial_outpath)
+    # save initial state
+    state_path = f'{trial_outpath}/init_state.json' 
+    await save_state_account(program, state_path)
 
     start = time.time()
 
     # initialize users + deposits
-    users, liquidator_index = await airdrop_sol_users(provider, events, trial_outpath)
+    user_path = f'{trial_outpath}/users.json'
+    users, liquidator_index = await airdrop_sol_users(provider, events, user_path)
     user_chs, _user_chus, _init_total_collateral = await setup_usdc_deposits(events, program, usdc_mint, users, liquidator_index)
 
-    # compute init collatearl 
+    # compute init collateral 
     async def get_token_amount(usdc_ata: Keypair):
         return (await provider.connection.get_token_account_balance(usdc_ata.public_key))['result']['value']['uiAmount']
     async def get_collateral_amount(chu: ClearingHouseUser):
@@ -834,6 +834,9 @@ async def run_trial(protocol_path, events, markets, trial_outpath, oracle_guard_
     #         if position.base_asset_amount != 0: 
     #             await ch.close_position(position.market_index)
 
+    # save logs
+    LOGGER.export()
+
     # compute total collateral at end of sim
     end_total_collateral = await compute_collateral_amount()
     market = await get_perp_market_account(program, 0)
@@ -895,6 +898,16 @@ async def run_trial(protocol_path, events, markets, trial_outpath, oracle_guard_
     
     await provider.close()
     await close_workspace(workspace)
+
+    # export state over time with geyser to trail_outpath
+    # run script with -- output path flags etc.
+    import extract
+    extract.main(
+        protocol_path, 
+        trial_outpath, 
+        user_path, 
+        state_path,
+    )
 
 async def main(protocol_path, experiments_folder, geyser_path, trial):
     events = pd.read_csv(f"{experiments_folder}/events.csv")
