@@ -3,41 +3,50 @@ import typing
 from solana.publickey import PublicKey
 from solana.transaction import TransactionInstruction, AccountMeta
 import borsh_construct as borsh
+from .. import types
 from ..program_id import PROGRAM_ID
 
 
-class AddPerpLpSharesArgs(typing.TypedDict):
-    n_shares: int
-    market_index: int
+class PlaceAndMakePerpOrderArgs(typing.TypedDict):
+    params: types.order_params.OrderParams
+    taker_order_id: int
 
 
-layout = borsh.CStruct("n_shares" / borsh.U64, "market_index" / borsh.U16)
+layout = borsh.CStruct(
+    "params" / types.order_params.OrderParams.layout, "taker_order_id" / borsh.U32
+)
 
 
-class AddPerpLpSharesAccounts(typing.TypedDict):
+class PlaceAndMakePerpOrderAccounts(typing.TypedDict):
     state: PublicKey
     user: PublicKey
+    user_stats: PublicKey
+    taker: PublicKey
+    taker_stats: PublicKey
     authority: PublicKey
 
 
-def add_perp_lp_shares(
-    args: AddPerpLpSharesArgs,
-    accounts: AddPerpLpSharesAccounts,
+def place_and_make_perp_order(
+    args: PlaceAndMakePerpOrderArgs,
+    accounts: PlaceAndMakePerpOrderAccounts,
     program_id: PublicKey = PROGRAM_ID,
     remaining_accounts: typing.Optional[typing.List[AccountMeta]] = None,
 ) -> TransactionInstruction:
     keys: list[AccountMeta] = [
         AccountMeta(pubkey=accounts["state"], is_signer=False, is_writable=False),
         AccountMeta(pubkey=accounts["user"], is_signer=False, is_writable=True),
+        AccountMeta(pubkey=accounts["user_stats"], is_signer=False, is_writable=True),
+        AccountMeta(pubkey=accounts["taker"], is_signer=False, is_writable=True),
+        AccountMeta(pubkey=accounts["taker_stats"], is_signer=False, is_writable=True),
         AccountMeta(pubkey=accounts["authority"], is_signer=True, is_writable=False),
     ]
     if remaining_accounts is not None:
         keys += remaining_accounts
-    identifier = b"8\xd18\xc5w\xfe\xbcu"
+    identifier = b"\x95u\x0b\xed/_Y\xed"
     encoded_args = layout.build(
         {
-            "n_shares": args["n_shares"],
-            "market_index": args["market_index"],
+            "params": args["params"].to_encodable(),
+            "taker_order_id": args["taker_order_id"],
         }
     )
     data = identifier + encoded_args

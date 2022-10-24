@@ -13,7 +13,6 @@ import borsh_construct as borsh
 
 
 class OrderJSON(typing.TypedDict):
-    ts: int
     slot: int
     price: int
     base_asset_amount: int
@@ -22,6 +21,7 @@ class OrderJSON(typing.TypedDict):
     trigger_price: int
     auction_start_price: int
     auction_end_price: int
+    max_ts: int
     oracle_price_offset: int
     order_id: int
     market_index: int
@@ -37,14 +37,12 @@ class OrderJSON(typing.TypedDict):
     trigger_condition: order_trigger_condition.OrderTriggerConditionJSON
     triggered: bool
     auction_duration: int
-    time_in_force: int
     padding: list[int]
 
 
 @dataclass
 class Order:
     layout: typing.ClassVar = borsh.CStruct(
-        "ts" / borsh.I64,
         "slot" / borsh.U64,
         "price" / borsh.U64,
         "base_asset_amount" / borsh.U64,
@@ -53,6 +51,7 @@ class Order:
         "trigger_price" / borsh.U64,
         "auction_start_price" / borsh.U64,
         "auction_end_price" / borsh.U64,
+        "max_ts" / borsh.I64,
         "oracle_price_offset" / borsh.I32,
         "order_id" / borsh.U32,
         "market_index" / borsh.U16,
@@ -68,10 +67,8 @@ class Order:
         "trigger_condition" / order_trigger_condition.layout,
         "triggered" / borsh.Bool,
         "auction_duration" / borsh.U8,
-        "time_in_force" / borsh.U8,
-        "padding" / borsh.U8[1],
+        "padding" / borsh.U8[2],
     )
-    ts: int
     slot: int
     price: int
     base_asset_amount: int
@@ -80,6 +77,7 @@ class Order:
     trigger_price: int
     auction_start_price: int
     auction_end_price: int
+    max_ts: int
     oracle_price_offset: int
     order_id: int
     market_index: int
@@ -95,13 +93,11 @@ class Order:
     trigger_condition: order_trigger_condition.OrderTriggerConditionKind
     triggered: bool
     auction_duration: int
-    time_in_force: int
     padding: list[int]
 
     @classmethod
     def from_decoded(cls, obj: Container) -> "Order":
         return cls(
-            ts=obj.ts,
             slot=obj.slot,
             price=obj.price,
             base_asset_amount=obj.base_asset_amount,
@@ -110,6 +106,7 @@ class Order:
             trigger_price=obj.trigger_price,
             auction_start_price=obj.auction_start_price,
             auction_end_price=obj.auction_end_price,
+            max_ts=obj.max_ts,
             oracle_price_offset=obj.oracle_price_offset,
             order_id=obj.order_id,
             market_index=obj.market_index,
@@ -129,13 +126,11 @@ class Order:
             ),
             triggered=obj.triggered,
             auction_duration=obj.auction_duration,
-            time_in_force=obj.time_in_force,
             padding=obj.padding,
         )
 
     def to_encodable(self) -> dict[str, typing.Any]:
         return {
-            "ts": self.ts,
             "slot": self.slot,
             "price": self.price,
             "base_asset_amount": self.base_asset_amount,
@@ -144,6 +139,7 @@ class Order:
             "trigger_price": self.trigger_price,
             "auction_start_price": self.auction_start_price,
             "auction_end_price": self.auction_end_price,
+            "max_ts": self.max_ts,
             "oracle_price_offset": self.oracle_price_offset,
             "order_id": self.order_id,
             "market_index": self.market_index,
@@ -159,13 +155,11 @@ class Order:
             "trigger_condition": self.trigger_condition.to_encodable(),
             "triggered": self.triggered,
             "auction_duration": self.auction_duration,
-            "time_in_force": self.time_in_force,
             "padding": self.padding,
         }
 
     def to_json(self) -> OrderJSON:
         return {
-            "ts": self.ts,
             "slot": self.slot,
             "price": self.price,
             "base_asset_amount": self.base_asset_amount,
@@ -174,6 +168,7 @@ class Order:
             "trigger_price": self.trigger_price,
             "auction_start_price": self.auction_start_price,
             "auction_end_price": self.auction_end_price,
+            "max_ts": self.max_ts,
             "oracle_price_offset": self.oracle_price_offset,
             "order_id": self.order_id,
             "market_index": self.market_index,
@@ -189,14 +184,12 @@ class Order:
             "trigger_condition": self.trigger_condition.to_json(),
             "triggered": self.triggered,
             "auction_duration": self.auction_duration,
-            "time_in_force": self.time_in_force,
             "padding": self.padding,
         }
 
     @classmethod
     def from_json(cls, obj: OrderJSON) -> "Order":
         return cls(
-            ts=obj["ts"],
             slot=obj["slot"],
             price=obj["price"],
             base_asset_amount=obj["base_asset_amount"],
@@ -205,6 +198,7 @@ class Order:
             trigger_price=obj["trigger_price"],
             auction_start_price=obj["auction_start_price"],
             auction_end_price=obj["auction_end_price"],
+            max_ts=obj["max_ts"],
             oracle_price_offset=obj["oracle_price_offset"],
             order_id=obj["order_id"],
             market_index=obj["market_index"],
@@ -224,6 +218,5 @@ class Order:
             ),
             triggered=obj["triggered"],
             auction_duration=obj["auction_duration"],
-            time_in_force=obj["time_in_force"],
             padding=obj["padding"],
         )

@@ -3,50 +3,49 @@ import typing
 from solana.publickey import PublicKey
 from solana.transaction import TransactionInstruction, AccountMeta
 import borsh_construct as borsh
-from .. import types
 from ..program_id import PROGRAM_ID
 
 
-class PlaceAndMakeArgs(typing.TypedDict):
-    params: types.order_params.OrderParams
-    taker_order_id: int
+class FillPerpOrderArgs(typing.TypedDict):
+    order_id: typing.Optional[int]
+    maker_order_id: typing.Optional[int]
 
 
 layout = borsh.CStruct(
-    "params" / types.order_params.OrderParams.layout, "taker_order_id" / borsh.U32
+    "order_id" / borsh.Option(borsh.U32), "maker_order_id" / borsh.Option(borsh.U32)
 )
 
 
-class PlaceAndMakeAccounts(typing.TypedDict):
+class FillPerpOrderAccounts(typing.TypedDict):
     state: PublicKey
+    authority: PublicKey
+    filler: PublicKey
+    filler_stats: PublicKey
     user: PublicKey
     user_stats: PublicKey
-    taker: PublicKey
-    taker_stats: PublicKey
-    authority: PublicKey
 
 
-def place_and_make(
-    args: PlaceAndMakeArgs,
-    accounts: PlaceAndMakeAccounts,
+def fill_perp_order(
+    args: FillPerpOrderArgs,
+    accounts: FillPerpOrderAccounts,
     program_id: PublicKey = PROGRAM_ID,
     remaining_accounts: typing.Optional[typing.List[AccountMeta]] = None,
 ) -> TransactionInstruction:
     keys: list[AccountMeta] = [
         AccountMeta(pubkey=accounts["state"], is_signer=False, is_writable=False),
+        AccountMeta(pubkey=accounts["authority"], is_signer=True, is_writable=False),
+        AccountMeta(pubkey=accounts["filler"], is_signer=False, is_writable=True),
+        AccountMeta(pubkey=accounts["filler_stats"], is_signer=False, is_writable=True),
         AccountMeta(pubkey=accounts["user"], is_signer=False, is_writable=True),
         AccountMeta(pubkey=accounts["user_stats"], is_signer=False, is_writable=True),
-        AccountMeta(pubkey=accounts["taker"], is_signer=False, is_writable=True),
-        AccountMeta(pubkey=accounts["taker_stats"], is_signer=False, is_writable=True),
-        AccountMeta(pubkey=accounts["authority"], is_signer=True, is_writable=False),
     ]
     if remaining_accounts is not None:
         keys += remaining_accounts
-    identifier = b"^\xfd)\x81\x85\xbb\xde\xbd"
+    identifier = b"\r\xbc\xf8g\x86\xd9j\xf0"
     encoded_args = layout.build(
         {
-            "params": args["params"].to_encodable(),
-            "taker_order_id": args["taker_order_id"],
+            "order_id": args["order_id"],
+            "maker_order_id": args["maker_order_id"],
         }
     )
     data = identifier + encoded_args

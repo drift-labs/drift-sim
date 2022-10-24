@@ -8,6 +8,7 @@ from ..program_id import PROGRAM_ID
 class UpdateSpotMarketCumulativeInterestAccounts(typing.TypedDict):
     state: PublicKey
     spot_market: PublicKey
+    oracle: PublicKey
 
 
 def update_spot_market_cumulative_interest(
@@ -18,6 +19,7 @@ def update_spot_market_cumulative_interest(
     keys: list[AccountMeta] = [
         AccountMeta(pubkey=accounts["state"], is_signer=False, is_writable=False),
         AccountMeta(pubkey=accounts["spot_market"], is_signer=False, is_writable=True),
+        AccountMeta(pubkey=accounts["oracle"], is_signer=False, is_writable=False),
     ]
     if remaining_accounts is not None:
         keys += remaining_accounts

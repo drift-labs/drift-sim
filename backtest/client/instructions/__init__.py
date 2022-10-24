@@ -7,7 +7,11 @@ from .transfer_deposit import (
     TransferDepositArgs,
     TransferDepositAccounts,
 )
-from .place_order import place_order, PlaceOrderArgs, PlaceOrderAccounts
+from .place_perp_order import (
+    place_perp_order,
+    PlacePerpOrderArgs,
+    PlacePerpOrderAccounts,
+)
 from .cancel_order import cancel_order, CancelOrderArgs, CancelOrderAccounts
 from .cancel_order_by_user_id import (
     cancel_order_by_user_id,
@@ -15,8 +19,16 @@ from .cancel_order_by_user_id import (
     CancelOrderByUserIdAccounts,
 )
 from .cancel_orders import cancel_orders, CancelOrdersArgs, CancelOrdersAccounts
-from .place_and_take import place_and_take, PlaceAndTakeArgs, PlaceAndTakeAccounts
-from .place_and_make import place_and_make, PlaceAndMakeArgs, PlaceAndMakeAccounts
+from .place_and_take_perp_order import (
+    place_and_take_perp_order,
+    PlaceAndTakePerpOrderArgs,
+    PlaceAndTakePerpOrderAccounts,
+)
+from .place_and_make_perp_order import (
+    place_and_make_perp_order,
+    PlaceAndMakePerpOrderArgs,
+    PlaceAndMakePerpOrderAccounts,
+)
 from .place_spot_order import (
     place_spot_order,
     PlaceSpotOrderArgs,
@@ -63,7 +75,7 @@ from .update_user_delegate import (
     UpdateUserDelegateAccounts,
 )
 from .delete_user import delete_user, DeleteUserAccounts
-from .fill_order import fill_order, FillOrderArgs, FillOrderAccounts
+from .fill_perp_order import fill_perp_order, FillPerpOrderArgs, FillPerpOrderAccounts
 from .fill_spot_order import fill_spot_order, FillSpotOrderArgs, FillSpotOrderAccounts
 from .trigger_order import trigger_order, TriggerOrderArgs, TriggerOrderAccounts
 from .settle_pnl import settle_pnl, SettlePnlArgs, SettlePnlAccounts
@@ -307,6 +319,11 @@ from .update_oracle_guard_rails import (
     UpdateOracleGuardRailsArgs,
     UpdateOracleGuardRailsAccounts,
 )
+from .update_state_settlement_duration import (
+    update_state_settlement_duration,
+    UpdateStateSettlementDurationArgs,
+    UpdateStateSettlementDurationAccounts,
+)
 from .update_perp_market_oracle import (
     update_perp_market_oracle,
     UpdatePerpMarketOracleArgs,
@@ -351,6 +368,11 @@ from .update_perp_market_max_fill_reserve_fraction import (
     update_perp_market_max_fill_reserve_fraction,
     UpdatePerpMarketMaxFillReserveFractionArgs,
     UpdatePerpMarketMaxFillReserveFractionAccounts,
+)
+from .update_perp_market_max_open_interest import (
+    update_perp_market_max_open_interest,
+    UpdatePerpMarketMaxOpenInterestArgs,
+    UpdatePerpMarketMaxOpenInterestAccounts,
 )
 from .update_admin import update_admin, UpdateAdminArgs, UpdateAdminAccounts
 from .update_whitelist_mint import (

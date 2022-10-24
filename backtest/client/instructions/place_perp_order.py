@@ -7,43 +7,36 @@ from .. import types
 from ..program_id import PROGRAM_ID
 
 
-class PlaceAndTakeArgs(typing.TypedDict):
+class PlacePerpOrderArgs(typing.TypedDict):
     params: types.order_params.OrderParams
-    maker_order_id: typing.Optional[int]
 
 
-layout = borsh.CStruct(
-    "params" / types.order_params.OrderParams.layout,
-    "maker_order_id" / borsh.Option(borsh.U32),
-)
+layout = borsh.CStruct("params" / types.order_params.OrderParams.layout)
 
 
-class PlaceAndTakeAccounts(typing.TypedDict):
+class PlacePerpOrderAccounts(typing.TypedDict):
     state: PublicKey
     user: PublicKey
-    user_stats: PublicKey
     authority: PublicKey
 
 
-def place_and_take(
-    args: PlaceAndTakeArgs,
-    accounts: PlaceAndTakeAccounts,
+def place_perp_order(
+    args: PlacePerpOrderArgs,
+    accounts: PlacePerpOrderAccounts,
     program_id: PublicKey = PROGRAM_ID,
     remaining_accounts: typing.Optional[typing.List[AccountMeta]] = None,
 ) -> TransactionInstruction:
     keys: list[AccountMeta] = [
         AccountMeta(pubkey=accounts["state"], is_signer=False, is_writable=False),
         AccountMeta(pubkey=accounts["user"], is_signer=False, is_writable=True),
-        AccountMeta(pubkey=accounts["user_stats"], is_signer=False, is_writable=True),
         AccountMeta(pubkey=accounts["authority"], is_signer=True, is_writable=False),
     ]
     if remaining_accounts is not None:
         keys += remaining_accounts
-    identifier = b"P\xfb\x17\xf1\x93\xed\x87\x92"
+    identifier = b"E\xa1]\xcax~L\xb9"
     encoded_args = layout.build(
         {
             "params": args["params"].to_encodable(),
-            "maker_order_id": args["maker_order_id"],
         }
     )
     data = identifier + encoded_args

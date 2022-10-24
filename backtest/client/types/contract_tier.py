@@ -21,6 +21,10 @@ class SpeculativeJSON(typing.TypedDict):
     kind: typing.Literal["Speculative"]
 
 
+class IsolatedJSON(typing.TypedDict):
+    kind: typing.Literal["Isolated"]
+
+
 @dataclass
 class A:
     discriminator: typing.ClassVar = 0
@@ -93,8 +97,26 @@ class Speculative:
         }
 
 
-ContractTierKind = typing.Union[A, B, C, Speculative]
-ContractTierJSON = typing.Union[AJSON, BJSON, CJSON, SpeculativeJSON]
+@dataclass
+class Isolated:
+    discriminator: typing.ClassVar = 4
+    kind: typing.ClassVar = "Isolated"
+
+    @classmethod
+    def to_json(cls) -> IsolatedJSON:
+        return IsolatedJSON(
+            kind="Isolated",
+        )
+
+    @classmethod
+    def to_encodable(cls) -> dict:
+        return {
+            "Isolated": {},
+        }
+
+
+ContractTierKind = typing.Union[A, B, C, Speculative, Isolated]
+ContractTierJSON = typing.Union[AJSON, BJSON, CJSON, SpeculativeJSON, IsolatedJSON]
 
 
 def from_decoded(obj: dict) -> ContractTierKind:
@@ -108,6 +130,8 @@ def from_decoded(obj: dict) -> ContractTierKind:
         return C()
     if "Speculative" in obj:
         return Speculative()
+    if "Isolated" in obj:
+        return Isolated()
     raise ValueError("Invalid enum object")
 
 
@@ -120,6 +144,8 @@ def from_json(obj: ContractTierJSON) -> ContractTierKind:
         return C()
     if obj["kind"] == "Speculative":
         return Speculative()
+    if obj["kind"] == "Isolated":
+        return Isolated()
     kind = obj["kind"]
     raise ValueError(f"Unrecognized enum kind: {kind}")
 
@@ -129,4 +155,5 @@ layout = EnumForCodegen(
     "B" / borsh.CStruct(),
     "C" / borsh.CStruct(),
     "Speculative" / borsh.CStruct(),
+    "Isolated" / borsh.CStruct(),
 )

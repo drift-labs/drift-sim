@@ -22,6 +22,7 @@ class UpdateSpotMarketOracleAccounts(typing.TypedDict):
     admin: PublicKey
     state: PublicKey
     spot_market: PublicKey
+    oracle: PublicKey
 
 
 def update_spot_market_oracle(
@@ -34,6 +35,7 @@ def update_spot_market_oracle(
         AccountMeta(pubkey=accounts["admin"], is_signer=True, is_writable=False),
         AccountMeta(pubkey=accounts["state"], is_signer=False, is_writable=False),
         AccountMeta(pubkey=accounts["spot_market"], is_signer=False, is_writable=True),
+        AccountMeta(pubkey=accounts["oracle"], is_signer=False, is_writable=False),
     ]
     if remaining_accounts is not None:
         keys += remaining_accounts

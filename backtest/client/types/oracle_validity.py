@@ -13,6 +13,10 @@ class TooVolatileJSON(typing.TypedDict):
     kind: typing.Literal["TooVolatile"]
 
 
+class TooUncertainJSON(typing.TypedDict):
+    kind: typing.Literal["TooUncertain"]
+
+
 class StaleForMarginJSON(typing.TypedDict):
     kind: typing.Literal["StaleForMargin"]
 
@@ -66,8 +70,26 @@ class TooVolatile:
 
 
 @dataclass
-class StaleForMargin:
+class TooUncertain:
     discriminator: typing.ClassVar = 2
+    kind: typing.ClassVar = "TooUncertain"
+
+    @classmethod
+    def to_json(cls) -> TooUncertainJSON:
+        return TooUncertainJSON(
+            kind="TooUncertain",
+        )
+
+    @classmethod
+    def to_encodable(cls) -> dict:
+        return {
+            "TooUncertain": {},
+        }
+
+
+@dataclass
+class StaleForMargin:
+    discriminator: typing.ClassVar = 3
     kind: typing.ClassVar = "StaleForMargin"
 
     @classmethod
@@ -85,7 +107,7 @@ class StaleForMargin:
 
 @dataclass
 class InsufficientDataPoints:
-    discriminator: typing.ClassVar = 3
+    discriminator: typing.ClassVar = 4
     kind: typing.ClassVar = "InsufficientDataPoints"
 
     @classmethod
@@ -103,7 +125,7 @@ class InsufficientDataPoints:
 
 @dataclass
 class StaleForAMM:
-    discriminator: typing.ClassVar = 4
+    discriminator: typing.ClassVar = 5
     kind: typing.ClassVar = "StaleForAMM"
 
     @classmethod
@@ -121,7 +143,7 @@ class StaleForAMM:
 
 @dataclass
 class Valid:
-    discriminator: typing.ClassVar = 5
+    discriminator: typing.ClassVar = 6
     kind: typing.ClassVar = "Valid"
 
     @classmethod
@@ -138,11 +160,18 @@ class Valid:
 
 
 OracleValidityKind = typing.Union[
-    Invalid, TooVolatile, StaleForMargin, InsufficientDataPoints, StaleForAMM, Valid
+    Invalid,
+    TooVolatile,
+    TooUncertain,
+    StaleForMargin,
+    InsufficientDataPoints,
+    StaleForAMM,
+    Valid,
 ]
 OracleValidityJSON = typing.Union[
     InvalidJSON,
     TooVolatileJSON,
+    TooUncertainJSON,
     StaleForMarginJSON,
     InsufficientDataPointsJSON,
     StaleForAMMJSON,
@@ -157,6 +186,8 @@ def from_decoded(obj: dict) -> OracleValidityKind:
         return Invalid()
     if "TooVolatile" in obj:
         return TooVolatile()
+    if "TooUncertain" in obj:
+        return TooUncertain()
     if "StaleForMargin" in obj:
         return StaleForMargin()
     if "InsufficientDataPoints" in obj:
@@ -173,6 +204,8 @@ def from_json(obj: OracleValidityJSON) -> OracleValidityKind:
         return Invalid()
     if obj["kind"] == "TooVolatile":
         return TooVolatile()
+    if obj["kind"] == "TooUncertain":
+        return TooUncertain()
     if obj["kind"] == "StaleForMargin":
         return StaleForMargin()
     if obj["kind"] == "InsufficientDataPoints":
@@ -188,6 +221,7 @@ def from_json(obj: OracleValidityJSON) -> OracleValidityKind:
 layout = EnumForCodegen(
     "Invalid" / borsh.CStruct(),
     "TooVolatile" / borsh.CStruct(),
+    "TooUncertain" / borsh.CStruct(),
     "StaleForMargin" / borsh.CStruct(),
     "InsufficientDataPoints" / borsh.CStruct(),
     "StaleForAMM" / borsh.CStruct(),

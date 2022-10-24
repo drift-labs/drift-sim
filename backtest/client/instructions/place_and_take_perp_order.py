@@ -3,48 +3,46 @@ import typing
 from solana.publickey import PublicKey
 from solana.transaction import TransactionInstruction, AccountMeta
 import borsh_construct as borsh
+from .. import types
 from ..program_id import PROGRAM_ID
 
 
-class FillOrderArgs(typing.TypedDict):
-    order_id: typing.Optional[int]
+class PlaceAndTakePerpOrderArgs(typing.TypedDict):
+    params: types.order_params.OrderParams
     maker_order_id: typing.Optional[int]
 
 
 layout = borsh.CStruct(
-    "order_id" / borsh.Option(borsh.U32), "maker_order_id" / borsh.Option(borsh.U32)
+    "params" / types.order_params.OrderParams.layout,
+    "maker_order_id" / borsh.Option(borsh.U32),
 )
 
 
-class FillOrderAccounts(typing.TypedDict):
+class PlaceAndTakePerpOrderAccounts(typing.TypedDict):
     state: PublicKey
-    authority: PublicKey
-    filler: PublicKey
-    filler_stats: PublicKey
     user: PublicKey
     user_stats: PublicKey
+    authority: PublicKey
 
 
-def fill_order(
-    args: FillOrderArgs,
-    accounts: FillOrderAccounts,
+def place_and_take_perp_order(
+    args: PlaceAndTakePerpOrderArgs,
+    accounts: PlaceAndTakePerpOrderAccounts,
     program_id: PublicKey = PROGRAM_ID,
     remaining_accounts: typing.Optional[typing.List[AccountMeta]] = None,
 ) -> TransactionInstruction:
     keys: list[AccountMeta] = [
         AccountMeta(pubkey=accounts["state"], is_signer=False, is_writable=False),
-        AccountMeta(pubkey=accounts["authority"], is_signer=True, is_writable=False),
-        AccountMeta(pubkey=accounts["filler"], is_signer=False, is_writable=True),
-        AccountMeta(pubkey=accounts["filler_stats"], is_signer=False, is_writable=True),
         AccountMeta(pubkey=accounts["user"], is_signer=False, is_writable=True),
         AccountMeta(pubkey=accounts["user_stats"], is_signer=False, is_writable=True),
+        AccountMeta(pubkey=accounts["authority"], is_signer=True, is_writable=False),
     ]
     if remaining_accounts is not None:
         keys += remaining_accounts
-    identifier = b"\xe8zs\x19\xc7\x8f\x88\xa2"
+    identifier = b"\xd53\x01\xbbl\xdc\xe6\xe0"
     encoded_args = layout.build(
         {
-            "order_id": args["order_id"],
+            "params": args["params"].to_encodable(),
             "maker_order_id": args["maker_order_id"],
         }
     )

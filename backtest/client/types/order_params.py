@@ -22,12 +22,13 @@ class OrderParamsJSON(typing.TypedDict):
     reduce_only: bool
     post_only: bool
     immediate_or_cancel: bool
+    max_ts: typing.Optional[int]
     trigger_price: typing.Optional[int]
     trigger_condition: order_trigger_condition.OrderTriggerConditionJSON
     oracle_price_offset: typing.Optional[int]
     auction_duration: typing.Optional[int]
-    time_in_force: typing.Optional[int]
     auction_start_price: typing.Optional[int]
+    auction_end_price: typing.Optional[int]
 
 
 @dataclass
@@ -43,12 +44,13 @@ class OrderParams:
         "reduce_only" / borsh.Bool,
         "post_only" / borsh.Bool,
         "immediate_or_cancel" / borsh.Bool,
+        "max_ts" / borsh.Option(borsh.I64),
         "trigger_price" / borsh.Option(borsh.U64),
         "trigger_condition" / order_trigger_condition.layout,
         "oracle_price_offset" / borsh.Option(borsh.I32),
         "auction_duration" / borsh.Option(borsh.U8),
-        "time_in_force" / borsh.Option(borsh.U8),
         "auction_start_price" / borsh.Option(borsh.U64),
+        "auction_end_price" / borsh.Option(borsh.U64),
     )
     order_type: order_type.OrderTypeKind
     market_type: market_type.MarketTypeKind
@@ -60,12 +62,13 @@ class OrderParams:
     reduce_only: bool
     post_only: bool
     immediate_or_cancel: bool
+    max_ts: typing.Optional[int]
     trigger_price: typing.Optional[int]
     trigger_condition: order_trigger_condition.OrderTriggerConditionKind
     oracle_price_offset: typing.Optional[int]
     auction_duration: typing.Optional[int]
-    time_in_force: typing.Optional[int]
     auction_start_price: typing.Optional[int]
+    auction_end_price: typing.Optional[int]
 
     @classmethod
     def from_decoded(cls, obj: Container) -> "OrderParams":
@@ -80,14 +83,15 @@ class OrderParams:
             reduce_only=obj.reduce_only,
             post_only=obj.post_only,
             immediate_or_cancel=obj.immediate_or_cancel,
+            max_ts=obj.max_ts,
             trigger_price=obj.trigger_price,
             trigger_condition=order_trigger_condition.from_decoded(
                 obj.trigger_condition
             ),
             oracle_price_offset=obj.oracle_price_offset,
             auction_duration=obj.auction_duration,
-            time_in_force=obj.time_in_force,
             auction_start_price=obj.auction_start_price,
+            auction_end_price=obj.auction_end_price,
         )
 
     def to_encodable(self) -> dict[str, typing.Any]:
@@ -102,12 +106,13 @@ class OrderParams:
             "reduce_only": self.reduce_only,
             "post_only": self.post_only,
             "immediate_or_cancel": self.immediate_or_cancel,
+            "max_ts": self.max_ts,
             "trigger_price": self.trigger_price,
             "trigger_condition": self.trigger_condition.to_encodable(),
             "oracle_price_offset": self.oracle_price_offset,
             "auction_duration": self.auction_duration,
-            "time_in_force": self.time_in_force,
             "auction_start_price": self.auction_start_price,
+            "auction_end_price": self.auction_end_price,
         }
 
     def to_json(self) -> OrderParamsJSON:
@@ -122,12 +127,13 @@ class OrderParams:
             "reduce_only": self.reduce_only,
             "post_only": self.post_only,
             "immediate_or_cancel": self.immediate_or_cancel,
+            "max_ts": self.max_ts,
             "trigger_price": self.trigger_price,
             "trigger_condition": self.trigger_condition.to_json(),
             "oracle_price_offset": self.oracle_price_offset,
             "auction_duration": self.auction_duration,
-            "time_in_force": self.time_in_force,
             "auction_start_price": self.auction_start_price,
+            "auction_end_price": self.auction_end_price,
         }
 
     @classmethod
@@ -143,12 +149,13 @@ class OrderParams:
             reduce_only=obj["reduce_only"],
             post_only=obj["post_only"],
             immediate_or_cancel=obj["immediate_or_cancel"],
+            max_ts=obj["max_ts"],
             trigger_price=obj["trigger_price"],
             trigger_condition=order_trigger_condition.from_json(
                 obj["trigger_condition"]
             ),
             oracle_price_offset=obj["oracle_price_offset"],
             auction_duration=obj["auction_duration"],
-            time_in_force=obj["time_in_force"],
             auction_start_price=obj["auction_start_price"],
+            auction_end_price=obj["auction_end_price"],
         )

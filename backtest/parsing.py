@@ -10,8 +10,8 @@ def parse_ix_args(ix, layout, identifier):
     return dargs
 
 def place_and_take_ix_args(ix):
-    from client.instructions.place_and_take import layout
-    identifier = b"P\xfb\x17\xf1\x93\xed\x87\x92"
+    from client.instructions.place_and_take_perp_order import layout
+    identifier = b"\xd53\x01\xbbl\xdc\xe6\xe0" 
     ix_args = parse_ix_args(ix, layout, identifier) # [1] bc we increase the compute too
     order_params = dict(ix_args.pop('params'))
     order_params.pop('_io')

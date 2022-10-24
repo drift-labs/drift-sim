@@ -1221,6 +1221,24 @@ class ReduceOnlyWithdrawIncreasedRisk(ProgramError):
     msg = "Reduce Only Withdraw Increased Risk"
 
 
+class MaxOpenInterest(ProgramError):
+    def __init__(self) -> None:
+        super().__init__(6135, "Max Open Interest")
+
+    code = 6135
+    name = "MaxOpenInterest"
+    msg = "Max Open Interest"
+
+
+class CantResolvePerpBankruptcy(ProgramError):
+    def __init__(self) -> None:
+        super().__init__(6136, "Cant Resolve Perp Bankruptcy")
+
+    code = 6136
+    name = "CantResolvePerpBankruptcy"
+    msg = "Cant Resolve Perp Bankruptcy"
+
+
 CustomError = typing.Union[
     InvalidSpotMarketAuthority,
     InvalidInsuranceFundAuthority,
@@ -1357,6 +1375,8 @@ CustomError = typing.Union[
     AssetTierViolation,
     UserCantBeDeleted,
     ReduceOnlyWithdrawIncreasedRisk,
+    MaxOpenInterest,
+    CantResolvePerpBankruptcy,
 ]
 CUSTOM_ERROR_MAP: dict[int, CustomError] = {
     6000: InvalidSpotMarketAuthority(),
@@ -1494,6 +1514,8 @@ CUSTOM_ERROR_MAP: dict[int, CustomError] = {
     6132: AssetTierViolation(),
     6133: UserCantBeDeleted(),
     6134: ReduceOnlyWithdrawIncreasedRisk(),
+    6135: MaxOpenInterest(),
+    6136: CantResolvePerpBankruptcy(),
 }
 
 

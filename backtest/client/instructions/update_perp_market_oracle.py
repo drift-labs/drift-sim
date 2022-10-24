@@ -19,9 +19,10 @@ layout = borsh.CStruct(
 
 
 class UpdatePerpMarketOracleAccounts(typing.TypedDict):
-    admin: PublicKey
     state: PublicKey
     perp_market: PublicKey
+    oracle: PublicKey
+    admin: PublicKey
 
 
 def update_perp_market_oracle(
@@ -31,9 +32,10 @@ def update_perp_market_oracle(
     remaining_accounts: typing.Optional[typing.List[AccountMeta]] = None,
 ) -> TransactionInstruction:
     keys: list[AccountMeta] = [
-        AccountMeta(pubkey=accounts["admin"], is_signer=True, is_writable=False),
         AccountMeta(pubkey=accounts["state"], is_signer=False, is_writable=False),
         AccountMeta(pubkey=accounts["perp_market"], is_signer=False, is_writable=True),
+        AccountMeta(pubkey=accounts["oracle"], is_signer=False, is_writable=False),
+        AccountMeta(pubkey=accounts["admin"], is_signer=True, is_writable=False),
     ]
     if remaining_accounts is not None:
         keys += remaining_accounts

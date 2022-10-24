@@ -21,6 +21,10 @@ class UserJSON(typing.TypedDict):
     perp_positions: list[types.perp_position.PerpPositionJSON]
     orders: list[types.order.OrderJSON]
     last_add_perp_lp_shares_ts: int
+    total_deposits: int
+    total_withdraws: int
+    settled_perp_pnl: int
+    cumulative_spot_fees: int
     next_order_id: int
     max_margin_ratio: int
     next_liquidation_id: int
@@ -41,6 +45,10 @@ class User:
         "perp_positions" / types.perp_position.PerpPosition.layout[8],
         "orders" / types.order.Order.layout[32],
         "last_add_perp_lp_shares_ts" / borsh.I64,
+        "total_deposits" / borsh.U64,
+        "total_withdraws" / borsh.U64,
+        "settled_perp_pnl" / borsh.I64,
+        "cumulative_spot_fees" / borsh.I64,
         "next_order_id" / borsh.U32,
         "max_margin_ratio" / borsh.U32,
         "next_liquidation_id" / borsh.U16,
@@ -56,6 +64,10 @@ class User:
     perp_positions: list[types.perp_position.PerpPosition]
     orders: list[types.order.Order]
     last_add_perp_lp_shares_ts: int
+    total_deposits: int
+    total_withdraws: int
+    settled_perp_pnl: int
+    cumulative_spot_fees: int
     next_order_id: int
     max_margin_ratio: int
     next_liquidation_id: int
@@ -127,6 +139,10 @@ class User:
                 map(lambda item: types.order.Order.from_decoded(item), dec.orders)
             ),
             last_add_perp_lp_shares_ts=dec.last_add_perp_lp_shares_ts,
+            total_deposits=dec.total_deposits,
+            total_withdraws=dec.total_withdraws,
+            settled_perp_pnl=dec.settled_perp_pnl,
+            cumulative_spot_fees=dec.cumulative_spot_fees,
             next_order_id=dec.next_order_id,
             max_margin_ratio=dec.max_margin_ratio,
             next_liquidation_id=dec.next_liquidation_id,
@@ -149,6 +165,10 @@ class User:
             ),
             "orders": list(map(lambda item: item.to_json(), self.orders)),
             "last_add_perp_lp_shares_ts": self.last_add_perp_lp_shares_ts,
+            "total_deposits": self.total_deposits,
+            "total_withdraws": self.total_withdraws,
+            "settled_perp_pnl": self.settled_perp_pnl,
+            "cumulative_spot_fees": self.cumulative_spot_fees,
             "next_order_id": self.next_order_id,
             "max_margin_ratio": self.max_margin_ratio,
             "next_liquidation_id": self.next_liquidation_id,
@@ -180,6 +200,10 @@ class User:
                 map(lambda item: types.order.Order.from_json(item), obj["orders"])
             ),
             last_add_perp_lp_shares_ts=obj["last_add_perp_lp_shares_ts"],
+            total_deposits=obj["total_deposits"],
+            total_withdraws=obj["total_withdraws"],
+            settled_perp_pnl=obj["settled_perp_pnl"],
+            cumulative_spot_fees=obj["cumulative_spot_fees"],
             next_order_id=obj["next_order_id"],
             max_margin_ratio=obj["max_margin_ratio"],
             next_liquidation_id=obj["next_liquidation_id"],

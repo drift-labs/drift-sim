@@ -32,6 +32,7 @@ class AMMJSON(typing.TypedDict):
     base_asset_amount_short: int
     base_asset_amount_with_amm: int
     base_asset_amount_with_unsettled_lp: int
+    max_open_interest: int
     quote_asset_amount_long: int
     quote_asset_amount_short: int
     quote_entry_amount_long: int
@@ -110,6 +111,7 @@ class AMM:
         "base_asset_amount_short" / borsh.I128,
         "base_asset_amount_with_amm" / borsh.I128,
         "base_asset_amount_with_unsettled_lp" / borsh.I128,
+        "max_open_interest" / borsh.U128,
         "quote_asset_amount_long" / borsh.I128,
         "quote_asset_amount_short" / borsh.I128,
         "quote_entry_amount_long" / borsh.I128,
@@ -184,6 +186,7 @@ class AMM:
     base_asset_amount_short: int
     base_asset_amount_with_amm: int
     base_asset_amount_with_unsettled_lp: int
+    max_open_interest: int
     quote_asset_amount_long: int
     quote_asset_amount_short: int
     quote_entry_amount_long: int
@@ -263,6 +266,7 @@ class AMM:
             base_asset_amount_short=obj.base_asset_amount_short,
             base_asset_amount_with_amm=obj.base_asset_amount_with_amm,
             base_asset_amount_with_unsettled_lp=obj.base_asset_amount_with_unsettled_lp,
+            max_open_interest=obj.max_open_interest,
             quote_asset_amount_long=obj.quote_asset_amount_long,
             quote_asset_amount_short=obj.quote_asset_amount_short,
             quote_entry_amount_long=obj.quote_entry_amount_long,
@@ -340,6 +344,7 @@ class AMM:
             "base_asset_amount_short": self.base_asset_amount_short,
             "base_asset_amount_with_amm": self.base_asset_amount_with_amm,
             "base_asset_amount_with_unsettled_lp": self.base_asset_amount_with_unsettled_lp,
+            "max_open_interest": self.max_open_interest,
             "quote_asset_amount_long": self.quote_asset_amount_long,
             "quote_asset_amount_short": self.quote_asset_amount_short,
             "quote_entry_amount_long": self.quote_entry_amount_long,
@@ -417,6 +422,7 @@ class AMM:
             "base_asset_amount_short": self.base_asset_amount_short,
             "base_asset_amount_with_amm": self.base_asset_amount_with_amm,
             "base_asset_amount_with_unsettled_lp": self.base_asset_amount_with_unsettled_lp,
+            "max_open_interest": self.max_open_interest,
             "quote_asset_amount_long": self.quote_asset_amount_long,
             "quote_asset_amount_short": self.quote_asset_amount_short,
             "quote_entry_amount_long": self.quote_entry_amount_long,
@@ -501,6 +507,7 @@ class AMM:
             base_asset_amount_with_unsettled_lp=obj[
                 "base_asset_amount_with_unsettled_lp"
             ],
+            max_open_interest=obj["max_open_interest"],
             quote_asset_amount_long=obj["quote_asset_amount_long"],
             quote_asset_amount_short=obj["quote_asset_amount_short"],
             quote_entry_amount_long=obj["quote_entry_amount_long"],

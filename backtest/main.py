@@ -36,7 +36,6 @@ from termcolor import colored
 from subprocess import Popen
 import time 
 from solana.transaction import TransactionInstruction
-from client.instructions.place_order import layout
 
 from parsing import *
 from helpers import *
@@ -219,6 +218,7 @@ async def run_trial(protocol_path, events, markets, trial_outpath, oracle_guard_
             print(f'=> {event.user_index} settle lp...')
             ch: SDKClearingHouse = user_chs[event.user_index]
             ix = await event.run_sdk(ch)
+            ix_args = settle_lp_ix_args(ix)
         
         elif event.event_name == oraclePriceEvent._event_name: 
             event = Event.deserialize_from_row(oraclePriceEvent, event)

@@ -16,29 +16,6 @@ from driftpy.types import *
 from driftpy.types import PerpMarket
 from driftpy.constants.numeric_constants import *
 
-from driftpy.setup.helpers import _create_usdc_mint, mock_oracle, _airdrop_user, set_price_feed, set_price_feed_detailed, adjust_oracle_pretrade, _mint_usdc_tx, _create_user_usdc_ata_tx
-from driftpy.clearing_house import ClearingHouse
-from driftpy.admin import Admin
-from driftpy.types import OracleSource
-
-from sim.events import * 
-from driftpy.clearing_house import ClearingHouse as SDKClearingHouse
-from driftpy.accounts import get_perp_market_account, get_spot_market_account, get_user_account, get_state_account
-from driftpy.math.amm import calculate_mark_price_amm
-
-from anchorpy import Provider, Program, create_workspace, close_workspace
-from sim.driftsim.clearing_house.state.market import SimulationAMM, SimulationMarket
-from tqdm import tqdm
-from driftpy.setup.helpers import _create_user_usdc_ata_tx
-from driftpy.clearing_house_user import ClearingHouseUser
-from solana.keypair import Keypair
-
-from termcolor import colored
-from subprocess import Popen
-import time 
-from solana.transaction import TransactionInstruction
-from client.instructions.place_order import layout
-
 from parsing import *
 from helpers import *
 from setup import *
