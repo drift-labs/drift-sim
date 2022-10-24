@@ -46,7 +46,7 @@ from solana.rpc.core import RPCException
 from anchorpy.coder.common import _sighash
 
 class Liquidator: 
-    def __init__(self, user_chs, n_markets, liquidator_index) -> None:
+    def __init__(self, user_chs, n_markets, liquidator_index, send_ix_fcn) -> None:
         """class for a liquidator 
 
         Args:
@@ -59,6 +59,7 @@ class Liquidator:
         self.user_chs = user_chs
         self.n_markets = n_markets
         self.liq_ch: ClearingHouse = user_chs[liquidator_index]
+        self.send_ix = send_ix_fcn
 
     async def liquidate_loop(self):
         await self.try_liquidate_perp()
@@ -89,7 +90,7 @@ class Liquidator:
         promises = []
         for ix in ixs:
             ix_args = liq_perp_ix_args(ix)
-            promise = send_ix(self.liq_ch, ix, 'liquidate_perp', ix_args, silent_fail=True)
+            promise = self.send_ix(self.liq_ch, ix, 'liquidate_perp', ix_args, silent_fail=True)
             promises.append(promise)
         await asyncio.gather(*promises)
 
@@ -115,7 +116,7 @@ class Liquidator:
         promises = []
         for ix in ixs:
             ix_args = liquidate_perp_pnl_for_deposit_ix_args(ix)
-            promise = send_ix(self.liq_ch, ix, 'liquidate_perp_pnl_for_deposit', ix_args, silent_fail=True)
+            promise = self.send_ix(self.liq_ch, ix, 'liquidate_perp_pnl_for_deposit', ix_args, silent_fail=True)
             promises.append(promise)
         await asyncio.gather(*promises)
 
@@ -149,7 +150,7 @@ class Liquidator:
         for ix in ixs:
             args = resolve_perp_bankruptcy_ix_args(ix)
             p.append(
-                send_ix(self.liq_ch, ix, 'resolve_perp_bankruptcy', args)
+                self.send_ix(self.liq_ch, ix, 'resolve_perp_bankruptcy', args)
             )
         await asyncio.gather(*p)
         
@@ -171,9 +172,9 @@ class Liquidator:
                 print(f'=> liquidator settling expired position')
                 ix = await ch.get_settle_pnl_ix(self.liq_ch.authority, i)
                 args = settle_pnl_ix_args(ix)
-                await send_ix(ch, ix, SettlePnLEvent._event_name, args)
+                await self.send_ix(ch, ix, SettlePnLEvent._event_name, args)
             else:
                 print(f'=> liquidator derisking')
                 ix = await ch.get_close_position_ix(i)
                 args = place_and_take_ix_args(ix[0])
-                await send_ix(ch, ix, ClosePositionEvent._event_name, args)
+                await self.send_ix(ch, ix, ClosePositionEvent._event_name, args)

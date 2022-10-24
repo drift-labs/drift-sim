@@ -149,7 +149,7 @@ async def run_trial(protocol_path, events, markets, trial_outpath, oracle_guard_
     print(f'> initial collateral: {init_total_collateral}')
     assert int(init_total_collateral) == int(_init_total_collateral/QUOTE_PRECISION)
 
-    liquidator = Liquidator(user_chs, n_markets, liquidator_index)
+    liquidator = Liquidator(user_chs, n_markets, liquidator_index, send_ix)
 
     global LOGGER
     LOGGER = Logger(f'{trial_outpath}/ix_logs.csv')
