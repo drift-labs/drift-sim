@@ -47,11 +47,11 @@ from sim.agents import *
 import pathlib 
 import pandas as pd 
 
-path = pathlib.Path('../../experiments/multi_market')
+path = pathlib.Path('../../experiments/init/simple')
 path.mkdir(exist_ok=True, parents=True)
 print(str(path.absolute()))
 
-def setup_ch(base_spread=0, strategies='', n_steps=100, n_users=2):
+def setup_ch(base_spread=0, strategies='', n_steps=100):
 
     # market one 
     prices, timestamps = rand_heterosk_oracle(90, n_steps=n_steps)
@@ -67,21 +67,22 @@ def setup_ch(base_spread=0, strategies='', n_steps=100, n_users=2):
     )
     market = SimulationMarket(amm=amm, market_index=0)
 
-    # market two 
-    prices, timestamps = rand_heterosk_oracle(40, n_steps=n_steps)
-    oracle = Oracle(prices=prices, timestamps=timestamps)
-    amm = SimulationAMM(
-        oracle=oracle, 
-        base_asset_reserve=367_6 * AMM_RESERVE_PRECISION,
-        quote_asset_reserve=367_6 * AMM_RESERVE_PRECISION,
-        funding_period=3600,
-        peg_multiplier=int(oracle.get_price(0)*PEG_PRECISION),
-        base_spread=base_spread,
-        strategies=strategies,
-    )
-    market2 = SimulationMarket(amm=amm, market_index=1)
+    # # market two 
+    # prices, timestamps = rand_heterosk_oracle(40, n_steps=n_steps)
+    # oracle = Oracle(prices=prices, timestamps=timestamps)
+    # amm = SimulationAMM(
+    #     oracle=oracle, 
+    #     base_asset_reserve=367_6 * AMM_RESERVE_PRECISION,
+    #     quote_asset_reserve=367_6 * AMM_RESERVE_PRECISION,
+    #     funding_period=3600,
+    #     peg_multiplier=int(oracle.get_price(0)*PEG_PRECISION),
+    #     base_spread=base_spread,
+    #     strategies=strategies,
+    # )
+    # market2 = SimulationMarket(amm=amm, market_index=1)
 
-    markets = [market, market2]
+    # markets = [market, market2]
+    markets = [market]
     json_markets = [m.to_json(0) for m in markets]
 
     with open(path/'markets_json.csv', 'w') as f:
@@ -100,14 +101,14 @@ random.seed(seed)
 
 print('seed', seed)
 ch = setup_ch(
-    n_steps=100,
+    n_steps=20,
     base_spread=0,
 )
 
 #%%
-n_lps = 5
-n_traders = 5
-n_times = 3
+n_lps = 1
+n_traders = 1
+n_times = 1
 total_users = n_lps + n_traders
 n_markets = len(ch.markets)
 
