@@ -1,9 +1,7 @@
 import numpy as np 
-import json
 
 import sys
 sys.path.insert(0, '../driftpy/src/')
-sys.path.insert(0, '../')
 
 from driftpy.math.amm import *
 from driftpy.math.trade import *
@@ -14,10 +12,9 @@ from driftpy.math.user import *
 from sim.events import * 
 from sim.agents import * 
 
-from programs.clearing_house.state.market import SimulationMarket
-from programs.clearing_house.state.user import MarketPosition
+from sim.driftsim.clearing_house.state.market import SimulationMarket
+from sim.driftsim.clearing_house.state.user import MarketPosition
 
-# %%
 def random_walk_oracle(start_price, n_steps=100):
     prices = []
     timestamps = []
@@ -217,4 +214,3 @@ def collateral_difference(ch, initial_collateral, verbose=False):
     abs_difference = abs(difference) 
     
     return (abs_difference, difference), events, chs, mark_prices
-# %%

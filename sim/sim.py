@@ -2,46 +2,28 @@ import pandas as pd
 pd.options.plotting.backend = "plotly"
 
 import sys
-sys.path.insert(0, 'driftpy/src/')
-import driftpy
+sys.path.insert(0, '../driftpy/src/')
 
 import sys 
-import driftpy
 from tqdm import tqdm
 from driftpy.math.amm import (
-    calculate_swap_output, 
-    calculate_amm_reserves_after_swap, 
-    get_swap_direction,
     calculate_peg_multiplier
 )
 from driftpy.math.repeg import calculate_repeg_cost
 from driftpy.math.funding import calculate_long_short_funding
-from driftpy.math.trade import calculate_trade_slippage, calculate_target_price_trade, calculate_trade_acquired_amounts
-from driftpy.math.positions import calculate_base_asset_value, calculate_position_pnl, calculate_position_funding_pnl
-from driftpy.types import PositionDirection, AssetType, MarketPosition, SwapDirection
+from driftpy.math.positions import calculate_position_pnl, calculate_position_funding_pnl
 from driftpy.math.market import calculate_mark_price, calculate_bid_price, calculate_ask_price
 from driftpy.math.user import *
 
 import os
-from driftpy.constants.numeric_constants import AMM_TIMES_PEG_TO_QUOTE_PRECISION_RATIO, PEG_PRECISION
-from solana.publickey import PublicKey
 
 import datetime
 import json 
-import matplotlib.pyplot as plt 
-import numpy as np 
 import pandas as pd
-from dataclasses import dataclass, field
-from driftpy.math.amm import calculate_price
 
-from programs.clearing_house.state import * 
-import multiprocessing
+from sim.driftsim.clearing_house.state import * 
 
 from sim.agents import * 
-from sim.events import OpenPositionEvent, DepositCollateralEvent
-from sim.helpers import random_walk_oracle, rand_heterosk_oracle, class_to_json
-import pickle as cPickle
-
 import subprocess
 
 def get_git_revision_hash() -> str:

@@ -14,10 +14,10 @@ import copy
 import pandas as pd
 import numpy as np
 
-from programs.clearing_house.state import Oracle, User, user
-from programs.clearing_house.lib import ClearingHouse
+from sim.driftsim.clearing_house.state import Oracle, User, user
+from sim.driftsim.clearing_house.lib import ClearingHouse
 from sim.events import *
-from programs.clearing_house.state import User 
+from sim.driftsim.clearing_house.state import User 
 
 ''' Agents ABC '''
 
@@ -424,13 +424,17 @@ class SettlePnL(Agent):
     def run(self, state: ClearingHouse) -> list[Event]: 
         events = []
         if state.time % self.every_x_steps == 0: 
-            # only settle if/when they are an lp 
-            event = SettlePnLEvent(
-                timestamp=state.time, 
-                user_index=self.user_index, 
-                market_index=self.market_index,
-            )
-            events.append(event)
+            user: User = state.users[self.user_index]
+            position = user.positions[self.market_index]
+
+            # only settle if they have position 
+            if position.base_asset_amount != 0:
+                event = SettlePnLEvent(
+                    timestamp=state.time, 
+                    user_index=self.user_index, 
+                    market_index=self.market_index,
+                )
+                events.append(event)
 
         return events
 

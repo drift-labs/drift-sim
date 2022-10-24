@@ -41,10 +41,10 @@ import pandas as pd
 from dataclasses import dataclass, field
 from driftpy.math.amm import calculate_price
 
-from programs.clearing_house.math.pnl import *
-from programs.clearing_house.math.amm import *
-from programs.clearing_house.state import *
-from programs.clearing_house.lib import *
+from driftsim.clearing_house.math.pnl import *
+from driftsim.clearing_house.math.amm import *
+from driftsim.clearing_house.state import *
+from driftsim.clearing_house.lib import *
 
 from sim.helpers import random_walk_oracle, rand_heterosk_oracle, class_to_json
 from sim.events import * 

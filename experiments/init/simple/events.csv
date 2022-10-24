@@ -1,0 +1,12 @@
+event_name,timestamp,parameters
+deposit_collateral,0,"{""deposit_amount"": 99209097, ""user_index"": 0, ""username"": ""multiple-openclose""}"
+deposit_collateral,2,"{""deposit_amount"": 10000000000000, ""user_index"": 1, ""username"": ""multiple-liquidity-provider""}"
+oracle_price,5,"{""conf"": 0, ""market_index"": 0, ""price"": 1.5553664149516777, ""slot"": 0}"
+add_liquidity,5,"{""market_index"": 0, ""token_amount"": 68759639591, ""user_index"": 1}"
+remove_liquidity,8,"{""lp_token_amount"": 68759639591, ""market_index"": 0, ""user_index"": 1}"
+oracle_price,20,"{""conf"": 0, ""market_index"": 0, ""price"": 2.487395246672648, ""slot"": 0}"
+open_position,20,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 99209097, ""user_index"": 0}"
+settle_pnl,22,"{""market_index"": 0, ""user_index"": 0}"
+oracle_price,24,"{""conf"": 0, ""market_index"": 0, ""price"": 3.661663874733435, ""slot"": 0}"
+close_position,24,"{""market_index"": 0, ""user_index"": 0}"
+settle_pnl,24,"{""market_index"": 0, ""user_index"": 0}"

@@ -1,5 +1,5 @@
 import sys
-sys.path.insert(0, 'driftpy/src/')
+sys.path.insert(0, './driftpy/src/')
 
 import driftpy
 
@@ -14,10 +14,10 @@ from driftpy.math.amm import (
     calculate_price, 
 )
 
-from programs.clearing_house.math.pnl import *
-from programs.clearing_house.math.amm import *
-from programs.clearing_house.state import *
-from programs.clearing_house.lib import * 
+from sim.driftsim.clearing_house.math.pnl import *
+from sim.driftsim.clearing_house.math.amm import *
+from sim.driftsim.clearing_house.state import *
+from sim.driftsim.clearing_house.lib import * 
 from sim.events import * 
 from sim.helpers import compute_total_collateral, close_all_users
 
@@ -26,7 +26,6 @@ import pandas as pd
 
 import unittest
 
-#%%
 def default_set_up(self, n_users=1, default_collateral=1000, bq_ar=1e6):
     length = 10 
     self.default_collateral = default_collateral * QUOTE_PRECISION    
@@ -58,7 +57,6 @@ def default_set_up(self, n_users=1, default_collateral=1000, bq_ar=1e6):
             )        
         )
 
-#%%
 class TestLP(unittest.TestCase):
     
     def setUp(self):
