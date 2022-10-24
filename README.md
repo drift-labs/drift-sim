@@ -15,6 +15,14 @@ requirements / setup help:
 - on mac OS, you can use homebrew
   - `brew install postgresql`
 
+## file structure 
+- `scripts/workspace/`: folder to produce events.csv/experiments by using agents or specific events against python protocol
+- `backtest/main.py`: run an events.csv/experiment against the actual rust protocol 
+- `sim/`: python simulation files (agents, events, python clearing_house, etc.)
+- `solana-accountsdb-...`: geyser plugin to record changes in program account throughout the backtest and analyze the change in state
+- `driftpy`: drift python sdk
+- `experiments/`: folder to store initial data + events to start backtest in `init/` and the state over time in `results/` (after running backtest/main.py)
+
 ## run the tests 
 
 `python test.py` 
