@@ -27,17 +27,9 @@ requirements / setup help:
 
 `python test.py` 
 
-## run an example 
-
-- `sim_eval.ipynb`
-
 ## update scripts
 
 ```
 git submodule update --remote --merge
 pip install driftpy/ --upgrade
 ```
-
-## future work
-- split test.py to tests/*_test.py
-- complete/recon full implementation of programs/clearing_house (from rust implementation)
