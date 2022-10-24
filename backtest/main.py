@@ -1,4 +1,3 @@
-#%%
 import sys
 sys.path.insert(0, '../')
 sys.path.insert(0, '../driftpy/src/')
@@ -28,444 +27,59 @@ from driftpy.math.amm import calculate_mark_price_amm
 
 from anchorpy import Provider, Program, create_workspace, close_workspace
 from sim.driftsim.clearing_house.state.market import SimulationAMM, SimulationMarket
-from helpers import setup_run_info, init_user, setup_bank, setup_market, view_logs, save_state
 from tqdm import tqdm
 from driftpy.setup.helpers import _create_user_usdc_ata_tx
 from driftpy.clearing_house_user import ClearingHouseUser
 from solana.keypair import Keypair
 
-from typing import Optional, Union, cast, Dict
-import json
-from pathlib import Path
-from solana.publickey import PublicKey
-from anchorpy.program.core import Program
-from anchorpy.provider import Provider
-from anchorpy.idl import Idl, _Metadata
-WorkspaceType = Dict[str, Program]
-
 from termcolor import colored
 from subprocess import Popen
-import os 
 import time 
-import signal
 from solana.transaction import TransactionInstruction
 from client.instructions.place_order import layout
 
-class LocalValidator:
-    def __init__(self, protocol_path, geyser_path) -> None:
-        self.protocol_path = protocol_path
-        self.geyser_path = geyser_path
-        
-    def start(self):
-        """
-        builds the protocol (from protocol path)
-        sets up geyser plugin to get state from (from geyser path)
-        starts a new solana-test-validator with a bunch of custom args to 
-        launch program + use geyser
-        """
-
-        self.log_file = open('node.txt', 'w')
-
-        process = Popen("anchor build".split(' '), cwd=self.protocol_path)
-        process.wait()
-
-        process = Popen("bash setup.sh".split(' '), cwd=self.geyser_path)
-        process.wait()
-
-        self.proc = Popen(
-            f'bash localnet.sh {self.protocol_path} {self.geyser_path}'.split(' '), 
-            stdout=self.log_file, 
-            preexec_fn=os.setsid, 
-        )
-        time.sleep(5)
-
-    def stop(self):
-        self.log_file.close()
-        os.killpg(os.getpgid(self.proc.pid), signal.SIGTERM)  
-
-# copypastad from anchorpy
-def create_workspace(
-    path: Optional[Union[Path, str]] = None, url: Optional[str] = None
-) -> WorkspaceType:
-    """loads programs + idls from a specific workspace with a custom wallet path 
-    (we need this bc we're loading from a localvalidator and not anchor localnet)
-    (we need a custom localvalidator bc we need a geyser plugin to log account changes from the validator)
-    """
-    result = {}
-    project_root = Path.cwd() if path is None else Path(path)
-    idl_folder = project_root / "target/idl"
-    # keypair_folder = project_root / 'target/deploy/'
-
-    from solana.rpc.async_api import AsyncClient
-    from anchorpy.provider import Wallet
-    client = AsyncClient()
-    
-    with open('./anchor.json', 'r') as f: secret = json.load(f) 
-    kp = Keypair.from_secret_key(bytes(secret))
-    wallet = Wallet(kp)
-    provider = Provider(client, wallet)
-
-    for file in idl_folder.iterdir():
-        with file.open() as f:
-            idl_dict = json.load(f)
-        idl = Idl.from_json(idl_dict)
-
-        if file.stem == 'mock_usdc_faucet':
-            continue
-
-        with open(project_root/f'programs/{file.stem}/src/lib.rs', 'r') as f:
-            data = f.read()
-        import re 
-        re_result = re.search('\[cfg\(not\(feature = \"mainnet-beta\"\)\)\]\ndeclare_id!\(\"(.*)\"\)', data)
-        id = PublicKey(re_result.group(1))
-        
-        program = Program(idl, id, provider)
-        result[idl.name] = program
-        
-    return result
-
-class ObjectEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, object):
-            return obj.__dict__
-        # Let the base class default method raise the TypeError
-        return json.JSONEncoder.default(self, obj)
-
-async def save_state_account(program, state_path):
-    """dumps state struct to a json to trial_outpath/init_state.json
-    """
-    initial_state: State = await get_state_account(program)
-    initial_state_d = initial_state.__dict__
-
-    for x in ['admin', 'whitelist_mint', 'discount_mint', 'signer', 'srm_vault', 'exchange_status']:
-        initial_state_d[x] = str(initial_state_d[x])
-
-    for x in ['oracle_guard_rails', 'spot_fee_structure', 'perp_fee_structure']:
-        initial_state_d[x] = initial_state_d[x].__dict__
-
-    with open(state_path, "w") as outfile:
-        json.dump(
-            initial_state_d, 
-            outfile, 
-            sort_keys=True, 
-            cls=ObjectEncoder,
-            skipkeys=True,
-            indent=4
-        )
-
-async def airdrop_sol_users(provider, events, user_path):
-    """airdrops sol to all users in a sim and saves their kps to the outpath 
-
-    Args:
-        provider (Provider): 
-        events (): sim events
-        trial_outpath (str): where to save user keypairs
-
-    Returns:
-        (list of user keypairs, liquidator's index)
-    """
-
-    print('=> airdropping sol to users...')
-    user_indexs = np.unique([json.loads(e['parameters'])['user_index'] for _, e in events.iterrows() if 'user_index' in json.loads(e['parameters'])])
-    user_indexs = list(np.sort(user_indexs))
-
-    liquidator_index = len(user_indexs)
-    user_indexs.append(liquidator_index) # liquidator
-
-    users = {}
-    for user_index in tqdm(user_indexs):
-        user, tx_sig = await _airdrop_user(provider)
-        users[user_index] = (user, tx_sig)
-
-    # save user pks for later 
-    json_users = {}
-    kp: Keypair
-    for u, (kp, _) in users.items():
-        json_users[str(u)] = str(kp.public_key)
-    with open(user_path, 'w') as f:
-        json.dump(json_users, f)
-
-    for user, tx_sig in tqdm(users.values()):
-        await provider.connection.confirm_transaction(tx_sig, sleep_seconds=0.1)
-    
-    return users, liquidator_index
-
-class Liquidator: 
-    def __init__(self, user_chs, n_markets, liquidator_index) -> None:
-        """class for a liquidator 
-
-        Args:
-            user_chs (dict(user_index => clearing_house)): all users we want to try to liq
-            n_markets (int): number of markets to try to liq from 
-            liquidator_index (int): user_chs[liquidator_index] == liquidator's clearing house 
-
-        note we dont try to liquidate the liquidator (bc you cant liq yourself)
-        """
-        self.user_chs = user_chs
-        self.n_markets = n_markets
-        self.liq_ch: ClearingHouse = user_chs[liquidator_index]
-
-    async def liquidate_loop(self):
-        await self.try_liquidate_perp()
-        await self.try_liquidate_pnl()
-        await self.resolve_bankruptcies()
-        await self.derisk()
-
-    async def try_liquidate_perp(self):
-        ch: ClearingHouse
-        promises = []
-
-        for ch in self.user_chs.values(): 
-            for i in range(self.n_markets):
-                authority = ch.authority
-                if authority == self.liq_ch.authority: 
-                    continue
-                position = await ch.get_user_position(i)
-
-                if position and position.base_asset_amount != 0:
-                    promise = self.liq_ch.liquidate_perp(
-                        authority, 
-                        i,
-                        abs(position.base_asset_amount) # take it fully on
-                    )
-                    promises.append(promise)
-
-                if position and position.base_asset_amount == 0 and position.quote_asset_amount < 0:
-                    promise = self.liq_ch.liquidate_perp_pnl_for_deposit(
-                        authority,
-                        i,
-                        0,
-                        abs(position.quote_asset_amount) # take it fully on
-                    )
-                    promises.append(promise)
-
-        for promise in promises:
-            try:
-                sig = await promise
-                # await view_logs(sig, provider)
-                print(colored('     *** liquidation successful ***   ', "green"))
-            except Exception as e:
-                if "0x1774" in e.args[0]['message']: # sufficient collateral
-                    continue 
-                # elif "0x1793" in e.args[0]['message']: # invalid oracle
-                #     continue 
-                # else: 
-                #     raise Exception(e)
-
-                print(colored('     *** liquidation failed ***   ', "red"))
-                print(e.args)
-
-    async def try_liquidate_pnl(self):
-        promises = []
-        for ch in self.user_chs.values(): 
-            for i in range(self.n_markets):
-                authority = ch.authority
-                if authority == self.liq_ch.authority: 
-                    continue
-                position = await ch.get_user_position(i)
-
-                if position and position.base_asset_amount == 0 and position.quote_asset_amount < 0:
-                    promise = self.liq_ch.liquidate_perp_pnl_for_deposit(
-                        authority,
-                        i,
-                        0,
-                        abs(position.quote_asset_amount) # take it fully on
-                    )
-                    promises.append(promise)
-
-        for promise in promises:
-            try:
-                sig = await promise
-                # await view_logs(sig, provider)
-                print(colored('     *** liquidation successful ***   ', "green"))
-            except Exception as e:
-                if "0x1774" in e.args[0]['message']: # sufficient collateral
-                    continue 
-                # elif "0x1793" in e.args[0]['message']: # invalid oracle
-                #     continue 
-                # else: 
-                #     raise Exception(e)
-
-                print(colored('     *** liquidation failed ***   ', "red"))
-                print(e.args)
-
-    async def resolve_bankruptcies(self):
-        ch: ClearingHouse
-        user_promises = []
-        chs = []
-        for ch in self.user_chs.values(): 
-            authority = ch.authority
-            if authority == self.liq_ch.authority: 
-                continue
-            user = ch.get_user()
-            user_promises.append(user)
-            chs.append(ch)
-        users = await asyncio.gather(*user_promises)
-
-        promises = []
-        user: User
-        for ch, user in zip(chs, users):
-            if user.is_bankrupt:
-                for i in range(self.n_markets):
-                    position = await ch.get_user_position(i)
-                    if not is_available(position):
-                        promise = self.liq_ch.resolve_perp_bankruptcy(
-                            user.authority, i
-                        )
-                        promises.append(promise)
-
-        did_resolve = False
-        for promise in promises:
-            await promise
-            print(colored('     *** bankrupt resolved ***   ', "green"))
-            did_resolve = True
-
-        return did_resolve
-        
-    async def derisk(self):
-        ch = self.liq_ch
-        provider = self.liq_ch.program.provider
-
-        for i in range(self.n_markets):
-            position = await ch.get_user_position(i)
-            if position is None or position.base_asset_amount == 0: 
-                continue
-
-            market = await get_perp_market_account(self.liq_ch.program, i)
-            slot = (await provider.connection.get_slot())['result']
-            liq_time = (await provider.connection.get_block_time(slot))['result']
-            print(f'=> liquidator derisking {position.base_asset_amount} baa in market status:', market.status)
-
-            if str(market.status) == "MarketStatus.Settlement()" or market.expiry_ts >= liq_time:
-                try:
-                    print(f'=> liquidator settling expired position')
-                    await ch.settle_pnl(self.liq_ch.authority, i)
-                except:
-                    pass
-            else:
-                try:
-                    await ch.close_position(i)
-                except:
-                    pass
-
-async def setup_usdc_deposits(
-    events, 
-    program, 
-    usdc_mint, 
-    users, 
-    liquidator_index
-):
-    user_chs = {}
-    user_chus = {}
-    init_total_collateral = 0 
-
-    # deposit all at once for speed 
-    deposit_amounts = {}
-    for i in tqdm(range(len(events))):
-        event = events.iloc[i]
-        if event.event_name == DepositCollateralEvent._event_name:
-            event = Event.deserialize_from_row(DepositCollateralEvent, event)
-            deposit_amounts[event.user_index] = deposit_amounts.get(event.user_index, 0) + event.deposit_amount
-
-    # dont let the liquidator get liq'd 
-    deposit_amounts[liquidator_index] = 10_000_000 * QUOTE_PRECISION
-
-    routines = [] 
-    for user_index in deposit_amounts.keys(): 
-        deposit_amount = deposit_amounts[user_index]
-        user_kp = users[user_index][0]
-        print(f'=> user {user_index} depositing {deposit_amount / QUOTE_PRECISION:,.0f}...')
-
-        routine = init_user(
-            user_chs,
-            user_chus,
-            user_index, 
-            program, 
-            usdc_mint, 
-            deposit_amount, 
-            user_kp
-        )
-        routines.append(routine)
-
-        # track collateral 
-        init_total_collateral += deposit_amount
-
-    await asyncio.gather(*routines)
-
-    return user_chs, user_chus, init_total_collateral
-
-def parse_ix_args(ix, layout, identifier):
-    """ix => ix_args dictionary using anchorpy's layout
-    """
-    data = ix.data
-    args = layout.parse(data.split(identifier)[1])
-    dargs = dict(args)
-    dargs.pop('_io')
-    return dargs
-
-async def setup_market(
-    admin_clearing_house: ClearingHouse, 
-    oracle_program: Program, 
-    market: dict, 
-    market_index: int,
-    init_leverage: int, 
-    spread
-):
-    i = market_index
-    init_reserves = int(int(market['base_asset_reserve']) / 1e13 * AMM_RESERVE_PRECISION)
-    peg = market['peg_multiplier']
-    oracle_price = peg / PEG_PRECISION
-
-    print(f"=> initializing market {i}...")
-    print('\t> initial reserves:', init_reserves / AMM_RESERVE_PRECISION)
-    print('\t> init peg (init oracle price too):', oracle_price)
-
-    oracle = await mock_oracle(oracle_program, oracle_price, -7)
-    await admin_clearing_house.initialize_perp_market(
-        oracle, 
-        init_reserves, 
-        init_reserves, 
-        60, 
-        int(peg), 
-        OracleSource.PYTH(), 
-        # default is 5x
-        margin_ratio_initial=MARGIN_PRECISION // init_leverage if init_leverage else 2000
-    )
-
-    if spread is not None:
-        await admin_clearing_house.update_perp_market_curve_update_intensity(i, 100)
-        await admin_clearing_house.update_perp_market_base_spread(i, spread)
-
-    await admin_clearing_house.update_perp_market_max_fill_reserve_fraction(i, 1)
-    await admin_clearing_house.update_perp_market_step_size_and_tick_size(i, int(AMM_RESERVE_PRECISION/1e4), 1)
-
-    return oracle_price
-
-class Logger:
-    def __init__(self, export_path) -> None:
-        self.ix_names = []
-        self.ixs_args = []
-        self.slots = []
-        self.errs = []
-        self.export_path = export_path
-    
-    def log(self, slot, ix_name, ix_arg, err):
-        self.ix_names.append(ix_name)
-        self.slots.append(slot)
-        self.ixs_args.append(ix_arg)
-        self.errs.append(err)
-
-    def export(self):
-        pd.DataFrame({
-            'slot': self.slots,
-            'ix_name': self.ix_names,
-            'ix_args': self.ixs_args,
-            'error': self.errs,
-        }).to_csv(self.export_path, index=False)
+from parsing import *
+from helpers import *
+from setup import *
+from liquidator import Liquidator
+from solana.rpc.core import RPCException
+from anchorpy.coder.common import _sighash
 
 # set inside run_trail()
-LOGGER = None
-from solana.rpc.core import RPCException
+LOGGER: Logger = None
+    
+async def send_ix(
+    ch: ClearingHouse, 
+    ix: TransactionInstruction, 
+    event_name: str, 
+    ix_args: dict, 
+    silent_fail=False, 
+    silent_success=False,
+):
+    global LOGGER
+
+    failed = 1 # 1 = fail, 0 = success
+    provider = ch.program.provider
+    slot = (await provider.connection.get_slot())['result']
+    err = None
+    try:
+        if event_name == SettleLPEvent._event_name:
+            await ch.send_ixs(ix, signers=[])
+        else:
+            await ch.send_ixs(ix)
+        failed = 0
+    except RPCException as e:
+        err = e.args
+    
+    LOGGER.log(slot, event_name, ix_args, err)
+
+    if not failed and not silent_success: 
+        print(colored(f'> {event_name} success', "green"))
+    elif failed and not silent_fail:
+        print(colored(f'> {event_name} failed', "red"))
+        pprint.pprint(err)
+            
+    return failed
 
 async def run_trial(protocol_path, events, markets, trial_outpath, oracle_guard_rails=None, spread=None):
     print('trial_outpath:', trial_outpath)
@@ -544,8 +158,8 @@ async def run_trial(protocol_path, events, markets, trial_outpath, oracle_guard_
     for i in tqdm(range(len(events))):
         sys.stdout.flush()
         event = events.iloc[i]
-
         ix_args = None
+
         ix: TransactionInstruction
         if event.event_name == DepositCollateralEvent._event_name:
             continue
@@ -557,16 +171,9 @@ async def run_trial(protocol_path, events, markets, trial_outpath, oracle_guard_
 
             ch: SDKClearingHouse = user_chs[event.user_index]
             ix = await event.run_sdk(ch, init_leverage, oracle_program, adjust_oracle_pre_trade=False)
-
             if ix is None:
                 continue
-
-            from client.instructions.place_and_take import layout
-            identifier = b"P\xfb\x17\xf1\x93\xed\x87\x92"
-            ix_args = parse_ix_args(ix[1], layout, identifier) # [1] bc we increase the compute too
-            order_params = dict(ix_args.pop('params'))
-            order_params.pop('_io')
-            ix_args['params'] = order_params
+            ix_args = place_and_take_ix_args(ix[1])
 
         elif event.event_name == ClosePositionEvent._event_name: 
             # dont close so we have stuff to settle at end of sim
@@ -586,11 +193,8 @@ async def run_trial(protocol_path, events, markets, trial_outpath, oracle_guard_
 
             ch: SDKClearingHouse = user_chs[event.user_index]
             ix = await event.run_sdk(ch)
-
-            from client.instructions.add_perp_lp_shares import layout
-            identifier = b"8\xd18\xc5w\xfe\xbcu"
-            ix_args = parse_ix_args(ix, layout, identifier)
-
+            ix_args = add_liquidity_ix_args(ix)
+            
         elif event.event_name == removeLiquidityEvent._event_name:
             event = Event.deserialize_from_row(removeLiquidityEvent, event)
             print(f'=> {event.user_index} removing liquidity...')
@@ -601,26 +205,20 @@ async def run_trial(protocol_path, events, markets, trial_outpath, oracle_guard_
             ix = await event.run_sdk(ch)
             if ix is None: 
                 continue
-
-            from client.instructions.remove_perp_lp_shares import layout
-            identifier = b"\xd5Y\xd9\x12\xa075\x8d"
-            ix_args = parse_ix_args(ix, layout, identifier)
+            ix_args = remove_liquidity_ix_args(ix)
 
         elif event.event_name == SettlePnLEvent._event_name:
             event = Event.deserialize_from_row(SettlePnLEvent, event)
             print(f'=> {event.user_index} settle pnl...')
             ch: SDKClearingHouse = user_chs[event.user_index]
             ix = await event.run_sdk(ch)
+            ix_args = settle_pnl_ix_args(ix)
 
         elif event.event_name == SettleLPEvent._event_name: 
             event = Event.deserialize_from_row(SettleLPEvent, event)
             print(f'=> {event.user_index} settle lp...')
             ch: SDKClearingHouse = user_chs[event.user_index]
             ix = await event.run_sdk(ch)
-
-            from client.instructions.settle_lp import layout
-            identifier = b"\x9b\xe7tqa\xe5\x8b\x8d"
-            ix_args = parse_ix_args(ix, layout, identifier)
         
         elif event.event_name == oraclePriceEvent._event_name: 
             event = Event.deserialize_from_row(oraclePriceEvent, event)
@@ -638,21 +236,10 @@ async def run_trial(protocol_path, events, markets, trial_outpath, oracle_guard_
         else:
             raise NotImplementedError
 
-        if ix_args is not None:
-            slot = (await provider.connection.get_slot())['result']
-            err = None
-            try:
-                if event._event_name == SettleLPEvent._event_name:
-                    await ch.send_ixs(ix, signers=[])
-                else:
-                    await ch.send_ixs(ix)
-            except RPCException as e:
-                err = e.args
-                print(colored(f'\n\n {event._event_name} failed... \n\n', "red"))
-                print(e.args)
-            
-            LOGGER.log(slot, event._event_name, ix_args, err)
-        
+        need_to_send_ix = ix_args is not None 
+        if need_to_send_ix:
+            await send_ix(ch, ix, event._event_name, ix_args)        
+
         # try to liquidate traders after each timestep 
         await liquidator.liquidate_loop()
 

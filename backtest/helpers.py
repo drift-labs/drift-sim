@@ -35,6 +35,9 @@ from solana.keypair import Keypair
 from subprocess import Popen
 import datetime
 import subprocess
+from solana.transaction import Transaction
+import asyncio
+from tqdm import tqdm
 
 def get_git_revision_hash(path=None) -> str:
     result = None
@@ -336,107 +339,61 @@ async def save_state(program, experiments_folder, event_i, user_chs):
     else:
         all_user_stats_df.to_csv(outfile, index=False)
 
-from solana.transaction import Transaction
-async def init_user(
-    user_chs,
-    user_chus,
-    user_index, 
-    program: Program, 
-    usdc_mint, 
-    deposit_amount, 
-    user_kp
-):
-    # rough draft
-    instructions = []
-    provider = program.provider
+class ObjectEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, object):
+            return obj.__dict__
+        # Let the base class default method raise the TypeError
+        return json.JSONEncoder.default(self, obj)
 
-    # initialize user 
-    user_clearing_house = SDKClearingHouse(program, user_kp)
-    await user_clearing_house.intialize_user()
+async def save_state_account(program, state_path):
+    """dumps state struct to a json to trial_outpath/init_state.json
+    """
+    initial_state: State = await get_state_account(program)
+    initial_state_d = initial_state.__dict__
 
-    usdc_ata_kp = Keypair()
-    usdc_ata_tx = await _create_user_usdc_ata_tx(
-        usdc_ata_kp, 
-        provider, 
-        usdc_mint, 
-        user_clearing_house.authority
-    )
-    user_clearing_house.usdc_ata = usdc_ata_kp
-    instructions += usdc_ata_tx.instructions
+    for x in ['admin', 'whitelist_mint', 'discount_mint', 'signer', 'srm_vault', 'exchange_status']:
+        initial_state_d[x] = str(initial_state_d[x])
 
-    user_chs[user_index] = user_clearing_house
-    user_chus[user_index] = ClearingHouseUser(user_clearing_house)
+    for x in ['oracle_guard_rails', 'spot_fee_structure', 'perp_fee_structure']:
+        initial_state_d[x] = initial_state_d[x].__dict__
 
-    # add fundings 
-    mint_tx = _mint_usdc_tx(
-        usdc_mint, 
-        provider, 
-        deposit_amount, 
-        user_clearing_house.usdc_ata
-    )
-    instructions += mint_tx.instructions
-
-    instructions += [
-        await user_clearing_house.get_deposit_collateral_ix(
-            deposit_amount, 
-            0, 
-            user_clearing_house.usdc_ata.public_key
+    with open(state_path, "w") as outfile:
+        json.dump(
+            initial_state_d, 
+            outfile, 
+            sort_keys=True, 
+            cls=ObjectEncoder,
+            skipkeys=True,
+            indent=4
         )
-    ]
 
-    tx = Transaction()
-    [tx.add(ix) for ix in instructions]
-    routine = provider.send(tx,  user_clearing_house.signers + [provider.wallet.payer, user_clearing_house.usdc_ata])
-
-    return await routine
-
-async def setup_market(
-    clearing_house: Admin,
-    market: SimulationMarket,
-    workspace: WorkspaceType
-):
-    amm = market.amm
-    oracle = await mock_oracle(workspace["pyth"], 1, -7)
-
-    await clearing_house.initialize_perp_market(
-        oracle, 
-        int(amm.base_asset_reserve), 
-        int(amm.quote_asset_reserve), 
-        int(amm.funding_period), 
-        int(amm.peg_multiplier), 
-        OracleSource.Pyth(), 
-    )
-
-    # update durations
-    await clearing_house.update_auction_duration(0, 0)
-    await clearing_house.update_lp_cooldown_time(0, 0)
-    await clearing_house.update_max_base_asset_amount_ratio(1, 0)
-    await clearing_house.update_perp_step_size_and_tick_size(0, 1, 1)
+class Logger:
+    def __init__(self, export_path) -> None:
+        self.ix_names = []
+        self.ixs_args = []
+        self.slots = []
+        self.errs = []
+        self.export_path = export_path
     
-    # add a spread 
-    if amm.base_spread > 0:
-        print('setting spread..')
-        await clearing_house.update_market_base_spread(amm.base_spread, 0)
+    def log(self, slot, ix_name, ix_arg, err):
+        self.ix_names.append(ix_name)
+        self.slots.append(slot)
+        self.ixs_args.append(ix_arg)
+        self.errs.append(err)
 
-    return oracle
-
-async def setup_bank(
-    program: Program,
-):
-    # init usdc mint
-    usdc_mint = await _create_usdc_mint(program.provider)
-
-    # init state + bank + market 
-    clearing_house = Admin(program)
-    resp = await clearing_house.initialize(usdc_mint.public_key, True)
-    await view_logs(resp, program.provider)
-    await clearing_house.initialize_spot_market(usdc_mint.public_key)
-
-    return clearing_house, usdc_mint
+    def export(self):
+        pd.DataFrame({
+            'slot': self.slots,
+            'ix_name': self.ix_names,
+            'ix_args': self.ixs_args,
+            'error': self.errs,
+        }).to_csv(self.export_path, index=False)
 
 async def view_logs(
     sig: str,
-    provider: Provider
+    provider: Provider,
+    print: bool = True
 ):
     provider.connection._commitment = commitment.Confirmed 
     logs = ''
@@ -447,4 +404,8 @@ async def view_logs(
     #     print(e)
     finally:
         provider.connection._commitment = commitment.Processed 
-    pprint.pprint(logs)
+
+    if print:
+        pprint.pprint(logs)
+
+    return logs
