@@ -23,6 +23,16 @@ requirements / setup help:
 - `driftpy`: drift python sdk
 - `experiments/`: folder to store initial data + events to start backtest in `init/` and the state over time in `results/` (after running backtest/main.py)
 
+## backtest
+
+```bash
+cd scripts/workspace/
+python simple.py # generate events.csv files of a simple market 
+cd ../../backtest 
+python main.py --events ../experiments/init/simple -t no_oracle_guards # backtest the events against the v2 protocol 
+ls ../experiments/results/simple/no_oracle_guards # behold the results 
+```
+
 ## run the tests 
 
 `python test.py` 
