@@ -30,8 +30,38 @@ from sim.driftsim.clearing_house.lib import *
 
 from sim.events import * 
 from sim.agents import * 
+from pathlib import Path
+
+def run_trial_events(events, ch, path: Path):
+    path.mkdir(exist_ok=True, parents=True)
+
+    ## save the initial markets!
+    json_markets = [m.to_json(0) for m in ch.markets]
+    with open(path/'markets_json.csv', 'w') as f:
+        json.dump(json_markets, f)
+
+    clearing_houses = []
+    for e in tqdm(events):
+        ch = ch.change_time(e.timestamp)
+        ch = e.run(ch)
+
+        clearing_houses.append(copy.deepcopy(ch))
+
+    print('number of events:', len(events))
+
+    # save trial results 
+    json_events = [e.serialize_to_row() for e in events if e._event_name != 'null']
+    df = pd.DataFrame(json_events)
+    df.to_csv(path/'events.csv', index=False)
+
+    json_chs = [e.to_json() for e in clearing_houses]
+    df = pd.DataFrame(json_chs)
+    df.to_csv(path/'chs.csv', index=False)
+
 
 def run_trial(agents, ch, path):
+    path.mkdir(exist_ok=True, parents=True)
+
     n_markets = len(ch.markets)
     max_t = [len(market.amm.oracle) for market in ch.markets]
 

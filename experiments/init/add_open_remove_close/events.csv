@@ -1,0 +1,11 @@
+event_name,timestamp,parameters
+deposit_collateral,0.0,"{""deposit_amount"": 1998590197697, ""user_index"": 0, ""username"": ""LP""}"
+deposit_collateral,1.0,"{""deposit_amount"": 4255468411490, ""user_index"": 1, ""username"": ""LP""}"
+deposit_collateral,4.0,"{""deposit_amount"": 79010000000, ""user_index"": 2, ""username"": ""openclose""}"
+deposit_collateral,5.0,"{""deposit_amount"": 1802000000, ""user_index"": 3, ""username"": ""openclose""}"
+add_liquidity,142.0,"{""market_index"": 0, ""token_amount"": 42554684114, ""user_index"": 1}"
+settle_lp,183.0,"{""market_index"": 0, ""user_index"": 1}"
+open_position,227.0,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 790100000, ""user_index"": 2}"
+remove_liquidity,10000000000227.0,"{""lp_token_amount"": -1, ""market_index"": 0, ""user_index"": 1}"
+close_position,10000000000228.0,"{""market_index"": 0, ""user_index"": 1}"
+close_position,10000000000229.0,"{""market_index"": 0, ""user_index"": 2}"
