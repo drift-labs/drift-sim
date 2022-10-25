@@ -59,3 +59,9 @@ def resolve_perp_bankruptcy_ix_args(ix):
     identifier = b"\xe0\x10\xb0\xd6\xa2\xd5\xb7\xde"
     ix_args = parse_ix_args(ix, layout, identifier)
     return ix_args
+
+def withdraw_ix_args(ix):
+    from client.instructions.withdraw import layout
+    identifier = b'\xb7\x12F\x9c\x94m\xa1"'
+    ix_args = parse_ix_args(ix, layout, identifier)
+    return ix_args

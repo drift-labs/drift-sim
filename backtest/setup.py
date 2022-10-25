@@ -68,9 +68,11 @@ class LocalValidator:
 
         process = Popen("anchor build".split(' '), cwd=self.protocol_path)
         process.wait()
+        assert process.poll() == 0, 'anchor build failed'
 
         process = Popen("bash setup.sh".split(' '), cwd=self.geyser_path)
         process.wait()
+        assert process.poll() == 0, 'setting up localnet (setup.sh) failed'
 
         self.proc = Popen(
             f'bash localnet.sh {self.protocol_path} {self.geyser_path}'.split(' '), 

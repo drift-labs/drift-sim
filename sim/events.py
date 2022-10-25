@@ -380,6 +380,10 @@ class SettlePnLEvent(Event):
         return clearing_house
 
     async def run_sdk(self, clearing_house: ClearingHouseSDK):
+        position = await clearing_house.get_user_position(self.market_index)
+        if position is None or position.base_asset_amount == 0: 
+            return None
+
         return await clearing_house.get_settle_pnl_ix(
             clearing_house.authority, 
             self.market_index

@@ -377,8 +377,8 @@ class Logger:
         self.export_path = export_path
     
     def log(self, slot, ix_name, ix_arg, err):
-        self.ix_names.append(ix_name)
         self.slots.append(slot)
+        self.ix_names.append(ix_name)
         self.ixs_args.append(ix_arg)
         self.errs.append(err)
 
