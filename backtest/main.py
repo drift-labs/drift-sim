@@ -128,8 +128,8 @@ async def run_trial(protocol_path, events, markets, trial_outpath, oracle_guard_
     user_chs, _user_chus, _init_total_collateral = await setup_usdc_deposits(events, program, usdc_mint, users, liquidator_index)
 
     # compute init collateral 
-    async def get_token_amount(usdc_ata: Keypair):
-        return (await provider.connection.get_token_account_balance(usdc_ata.public_key))['result']['value']['uiAmount']
+    async def get_token_amount(usdc_ata: PublicKey):
+        return (await provider.connection.get_token_account_balance(usdc_ata))['result']['value']['uiAmount']
     async def get_collateral_amount(chu: ClearingHouseUser):
         return (await chu.get_total_collateral()) / QUOTE_PRECISION
     async def compute_collateral_amount():
@@ -183,7 +183,6 @@ async def run_trial(protocol_path, events, markets, trial_outpath, oracle_guard_
             # event = Event.deserialize_from_row(ClosePositionEvent, event)
             # print(f'=> {event.user_index} closing position...')
             # assert event.user_index in user_chs, 'user doesnt exist'
-            
             # ch: SDKClearingHouse = user_chs[event.user_index]
             # await event.run_sdk(ch, oracle_program, adjust_oracle_pre_trade=True)
 
@@ -233,7 +232,25 @@ async def run_trial(protocol_path, events, markets, trial_outpath, oracle_guard_
             print('=> liquidating...')
             await liquidator.liquidate_loop()
             continue
+
+        elif event.event_name == InitIfStakeEvent._event_name:
+            event = Event.deserialize_from_row(InitIfStakeEvent, event)
+            ch: SDKClearingHouse = user_chs[event.user_index]
+            ix = await event.run_sdk(ch)
+            ix_args = {'spot_market_index': event.market_index}
+
+        elif event.event_name == AddIfStakeEvent._event_name:
+            event = Event.deserialize_from_row(AddIfStakeEvent, event)
+            ch: SDKClearingHouse = user_chs[event.user_index]
+            ix = await event.run_sdk(ch)
+            ix_args = {'spot_market_index': event.market_index, 'amount': event.amount}
         
+        elif event.event_name == RemoveIfStakeEvent._event_name:
+            event = Event.deserialize_from_row(RemoveIfStakeEvent, event)
+            ch: SDKClearingHouse = user_chs[event.user_index]
+            ix = await event.run_sdk(ch)
+            ix_args = {'spot_market_index': event.market_index, 'amount': event.amount}
+
         elif event.event_name == NullEvent._event_name: 
             continue
         else:
@@ -392,9 +409,9 @@ async def run_trial(protocol_path, events, markets, trial_outpath, oracle_guard_
 
                 # withdraw all of collateral
                 ix = await ch.get_withdraw_collateral_ix(
-                    int(1e10 * 1e6), 
+                    int(1e10 * 1e9), 
                     QUOTE_ASSET_BANK_INDEX, 
-                    ch.usdc_ata.public_key,
+                    ch.usdc_ata,
                     True
                 )
                 ix_args = withdraw_ix_args(ix)
@@ -408,6 +425,9 @@ async def run_trial(protocol_path, events, markets, trial_outpath, oracle_guard_
 
     for i in range(n_markets):
         for (_, ch) in user_chs.items():
+            user = await ch.get_user()
+            pprint.pprint(user.spot_positions[0])
+
             position = await ch.get_user_position(i)
             if position is None: 
                 continue

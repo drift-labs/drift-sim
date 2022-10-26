@@ -140,18 +140,22 @@ async def setup_usdc_deposits(
 
     # deposit all at once for speed 
     deposit_amounts = {}
+    mint_amounts = {}
     for i in tqdm(range(len(events))):
         event = events.iloc[i]
         if event.event_name == DepositCollateralEvent._event_name:
             event = Event.deserialize_from_row(DepositCollateralEvent, event)
             deposit_amounts[event.user_index] = deposit_amounts.get(event.user_index, 0) + event.deposit_amount
+            mint_amounts[event.user_index] = mint_amounts.get(event.user_index, 0) + event.mint_amount
 
     # dont let the liquidator get liq'd 
     deposit_amounts[liquidator_index] = 10_000_000 * QUOTE_PRECISION
+    mint_amounts[liquidator_index] = 0
 
     routines = [] 
     for user_index in deposit_amounts.keys(): 
         deposit_amount = deposit_amounts[user_index]
+        mint_amount = mint_amounts[user_index]
         user_kp = users[user_index][0]
         print(f'=> user {user_index} depositing {deposit_amount / QUOTE_PRECISION:,.0f}...')
 
@@ -162,12 +166,13 @@ async def setup_usdc_deposits(
             program, 
             usdc_mint, 
             deposit_amount, 
+            mint_amount,
             user_kp
         )
         routines.append(routine)
 
         # track collateral 
-        init_total_collateral += deposit_amount
+        init_total_collateral += deposit_amount + mint_amount
 
     await asyncio.gather(*routines)
 
@@ -180,11 +185,13 @@ async def setup_user(
     program: Program, 
     usdc_mint, 
     deposit_amount, 
+    mint_amount,
     user_kp
 ):
     # rough draft
     instructions = []
-    provider = program.provider
+    signers = []
+    provider: Provider = program.provider
 
     # initialize user 
     user_clearing_house = SDKClearingHouse(program, user_kp)
@@ -197,7 +204,7 @@ async def setup_user(
         usdc_mint, 
         user_clearing_house.authority
     )
-    user_clearing_house.usdc_ata = usdc_ata_kp
+    user_clearing_house.usdc_ata = usdc_ata_kp.public_key
     instructions += usdc_ata_tx.instructions
 
     user_chs[user_index] = user_clearing_house
@@ -207,22 +214,25 @@ async def setup_user(
     mint_tx = _mint_usdc_tx(
         usdc_mint, 
         provider, 
-        deposit_amount, 
+        deposit_amount + mint_amount, 
         user_clearing_house.usdc_ata
     )
     instructions += mint_tx.instructions
+    signers += [provider.wallet.payer, usdc_ata_kp]
 
-    instructions += [
-        await user_clearing_house.get_deposit_collateral_ix(
-            deposit_amount, 
-            0, 
-            user_clearing_house.usdc_ata.public_key
-        )
-    ]
+    if deposit_amount > 0:
+        instructions += [
+            await user_clearing_house.get_deposit_collateral_ix(
+                deposit_amount, 
+                0, 
+                user_clearing_house.usdc_ata
+            )
+        ]
+        signers += user_clearing_house.signers
 
     tx = Transaction()
     [tx.add(ix) for ix in instructions]
-    routine = provider.send(tx,  user_clearing_house.signers + [provider.wallet.payer, user_clearing_house.usdc_ata])
+    routine = provider.send(tx, signers)
 
     return await routine
 

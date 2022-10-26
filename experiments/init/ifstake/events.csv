@@ -1,0 +1,7 @@
+event_name,timestamp,parameters
+deposit_collateral,0,"{""deposit_amount"": 0, ""mint_amount"": 31737385, ""user_index"": 0, ""username"": ""if_staker""}"
+init_if_stake,0,"{""market_index"": 0, ""user_index"": 0}"
+oracle_price,50,"{""conf"": 0, ""market_index"": 0, ""price"": 5.391071368830239, ""slot"": 0}"
+add_if_stake,50,"{""amount"": 31737385, ""market_index"": 0, ""user_index"": 0}"
+oracle_price,53,"{""conf"": 0, ""market_index"": 0, ""price"": 5.337472124438278, ""slot"": 0}"
+remove_if_stake,53,"{""amount"": 31737385, ""market_index"": 0, ""user_index"": 0}"

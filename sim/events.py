@@ -84,6 +84,7 @@ class NullEvent(Event):
 class DepositCollateralEvent(Event): 
     user_index: int 
     deposit_amount: int
+    mint_amount: int = 0
     username: str = "u"
     
     _event_name: str = "deposit_collateral"
@@ -389,5 +390,60 @@ class SettlePnLEvent(Event):
             self.market_index
         )
          
+@dataclass
+class InitIfStakeEvent(Event): 
+    user_index: int 
+    market_index: int
+    _event_name: str = "init_if_stake"
+    
+    def run(self, clearing_house: ClearingHouse, verbose=False) -> ClearingHouse:
+        pass 
+        # not implemented yet... 
+        return clearing_house
+
+    async def run_sdk(self, clearing_house: ClearingHouseSDK):
+        return clearing_house.get_initialize_insurance_fund_stake_ix(
+            self.market_index, 
+        )
+
+@dataclass
+class AddIfStakeEvent(Event): 
+    user_index: int 
+    market_index: int
+    amount: int
+    _event_name: str = "add_if_stake"
+    
+    def run(self, clearing_house: ClearingHouse, verbose=False) -> ClearingHouse:
+        pass 
+        # not implemented yet... 
+        return clearing_house
+
+    async def run_sdk(self, clearing_house: ClearingHouseSDK):
+        return await clearing_house.get_add_insurance_fund_stake_ix(
+            self.market_index, 
+            self.amount
+        )
+
+@dataclass
+class RemoveIfStakeEvent(Event): 
+    user_index: int 
+    market_index: int
+    amount: int
+    _event_name: str = "remove_if_stake"
+    
+    def run(self, clearing_house: ClearingHouse, verbose=False) -> ClearingHouse:
+        pass 
+        # not implemented yet... 
+        return clearing_house
+
+    async def run_sdk(self, clearing_house: ClearingHouseSDK):
+        ix1 = await clearing_house.get_request_remove_insurance_fund_stake_ix(
+            self.market_index, 
+            self.amount
+        )
+        ix2 = await clearing_house.get_remove_insurance_fund_stake_ix(
+            self.market_index, 
+        )
+        return [ix1, ix2]
 
 # %%

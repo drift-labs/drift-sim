@@ -39,7 +39,7 @@ def default_user_deposit(
     clearing_house: ClearingHouse,
     deposit_amount:int = 10_000_000 * QUOTE_PRECISION,
     username: str = "u",
-) -> list[Event]:
+) -> DepositCollateralEvent:
     event = DepositCollateralEvent(
         user_index=user_index, 
         deposit_amount=deposit_amount, # $10M
@@ -79,6 +79,72 @@ class MultipleAgent(Agent):
             events += agent.run(state_i)
         
         return events
+
+@dataclass
+class IFStaker(Agent):
+    stake_amount: int
+    spot_market_index: int
+    user_index: int
+    start_time: int = 0
+    duration: int = -1
+    name: str = 'if_staker'
+    has_opened: bool = False
+
+    @staticmethod
+    def random_init(max_t, user_index, spot_market_index): 
+        start = np.random.randint(0, max_t - 2)
+        dur = np.random.randint(0, max_t - start - 1)
+        stake_amount = np.random.randint(0, QUOTE_PRECISION * 100)
+
+        return IFStaker(
+            stake_amount, 
+            spot_market_index, 
+            user_index, 
+            start_time=start,
+            duration=dur,
+        )
+
+    def setup(self, state_i: ClearingHouse) -> list[Event]: 
+        event = default_user_deposit(
+            self.user_index, 
+            state_i, 
+            username=self.name, 
+            deposit_amount=self.stake_amount
+        )
+        event.mint_amount = event.deposit_amount
+        event.deposit_amount = 0
+
+        s_event = InitIfStakeEvent(
+            state_i.time, 
+            self.user_index, 
+            self.spot_market_index
+        )
+        event = [event, s_event]
+        return event
+
+    def run(self, state_i: ClearingHouse) -> list[Event]:
+        now = state_i.time
+        
+        if (now == self.start_time) or (now > self.start_time and not self.has_opened): 
+            self.deposit_start = now
+            self.has_opened = True
+            event = AddIfStakeEvent(
+                timestamp=now, 
+                user_index=self.user_index, 
+                market_index=self.spot_market_index, 
+                amount=self.stake_amount
+            )
+        elif self.has_opened and self.duration > 0 and now - self.deposit_start == self.duration:
+            event = RemoveIfStakeEvent(
+                timestamp=now, 
+                user_index=self.user_index, 
+                market_index=self.spot_market_index, 
+                amount=self.stake_amount
+            )
+        else: 
+            event = NullEvent(now)
+
+        return [event]
 
 class OpenClose(Agent):
     def __init__(
@@ -151,7 +217,6 @@ class OpenClose(Agent):
                 user_index=self.user_index, 
                 quote_amount=amount
             )
-
         elif self.has_opened and self.duration > 0 and now - self.deposit_start == self.duration:
             # print(f'u{self.user_index} cp...')
             event = ClosePositionEvent(

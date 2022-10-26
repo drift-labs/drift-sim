@@ -216,7 +216,7 @@ def main(
     # vaults 
     i = 0
     spot_vault_public_key = get_spot_market_vault_public_key(program_id, i)
-    insurance_vault_public_key = get_insurance_fund_public_key(program_id, i)
+    insurance_vault_public_key = get_insurance_fund_vault_public_key(program_id, i)
 
     extractor.extract_token_account(spot_vault_public_key, 'spot_vault')
     extractor.extract_token_account(insurance_vault_public_key, 'insurance_vault')
