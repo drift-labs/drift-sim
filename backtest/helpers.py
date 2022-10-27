@@ -374,13 +374,15 @@ class Logger:
         self.ixs_args = []
         self.slots = []
         self.errs = []
+        self.compute = []
         self.export_path = export_path
     
-    def log(self, slot, ix_name, ix_arg, err):
+    def log(self, slot, ix_name, ix_arg, err, compute):
         self.slots.append(slot)
         self.ix_names.append(ix_name)
         self.ixs_args.append(ix_arg)
         self.errs.append(err)
+        self.compute.append(compute)
 
     def export(self):
         pd.DataFrame({
@@ -388,6 +390,7 @@ class Logger:
             'ix_name': self.ix_names,
             'ix_args': self.ixs_args,
             'error': self.errs,
+            'compute': self.compute,
         }).to_csv(self.export_path, index=False)
 
 async def view_logs(

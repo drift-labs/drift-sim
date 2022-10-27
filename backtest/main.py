@@ -43,6 +43,7 @@ from setup import *
 from liquidator import Liquidator
 from solana.rpc.core import RPCException
 from anchorpy.coder.common import _sighash
+import re 
 
 # set inside run_trail()
 LOGGER: Logger = None
@@ -58,26 +59,33 @@ async def send_ix(
     global LOGGER
 
     failed = 1 # 1 = fail, 0 = success
-    provider = ch.program.provider
+    provider: Provider = ch.program.provider
     slot = (await provider.connection.get_slot())['result']
+    compute_used = -1
     err = None
     try:
         if event_name == SettleLPEvent._event_name:
-            await ch.send_ixs(ix, signers=[])
+            sig = await ch.send_ixs(ix, signers=[])
         else:
-            await ch.send_ixs(ix)
+            sig = await ch.send_ixs(ix)
         failed = 0
+        logs = await view_logs(sig, provider, False)
+        for log in logs:
+            if 'compute units' in log: 
+                result = re.search(r'.* consumed (\d+) of (\d+)', log)
+                compute_used = result.group(1)
+
     except RPCException as e:
         err = e.args
     
-    LOGGER.log(slot, event_name, ix_args, err)
+    LOGGER.log(slot, event_name, ix_args, err, compute_used)
 
     if not failed and not silent_success: 
         print(colored(f'> {event_name} success', "green"))
     elif failed and not silent_fail:
         print(colored(f'> {event_name} failed', "red"))
         pprint.pprint(err)
-            
+    
     return failed
 
 async def run_trial(protocol_path, events, markets, trial_outpath, oracle_guard_rails=None, spread=None):
@@ -274,7 +282,7 @@ async def run_trial(protocol_path, events, markets, trial_outpath, oracle_guard_
         sig = await admin_clearing_house.update_perp_market_expiry(i, dtime + seconds_time)
         sigs.append(sig)
 
-        LOGGER.log(slot, 'update_perp_market_expiry', {'market_index': i, 'expiry_time': dtime + seconds_time}, None)
+        LOGGER.log(slot, 'update_perp_market_expiry', {'market_index': i, 'expiry_time': dtime + seconds_time}, None, -1)
 
     # close out all the LPs 
     routines = []
@@ -317,7 +325,7 @@ async def run_trial(protocol_path, events, markets, trial_outpath, oracle_guard_
     print('settling expired market')
     for i in range(n_markets):
         await admin_clearing_house.settle_expired_market(i)
-        LOGGER.log(slot, 'settle_expired_market', {'market_index': i}, None)
+        LOGGER.log(slot, 'settle_expired_market', {'market_index': i}, None, -1)
 
         market = await get_perp_market_account(
             program, i
@@ -589,7 +597,7 @@ if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('--events', type=str, required=True)
-    parser.add_argument('--protocol', type=str, required=False, default='../protocol-v2')
+    parser.add_argument('--protocol', type=str, required=False, default='../driftpy/protocol-v2')
     parser.add_argument('--geyser', type=str, required=False, default='../solana-accountsdb-plugin-postgres')
 
     # trials = ['no_oracle_guards', 'spread_250', 'spread_1000', 'oracle_guards',]
