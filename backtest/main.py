@@ -63,28 +63,32 @@ async def send_ix(
     slot = (await provider.connection.get_slot())['result']
     compute_used = -1
     err = None
+    logs = None
     try:
         if event_name == SettleLPEvent._event_name:
             sig = await ch.send_ixs(ix, signers=[])
         else:
             sig = await ch.send_ixs(ix)
         failed = 0
-        logs = await view_logs(sig, provider, False)
-        for log in logs:
-            if 'compute units' in log: 
-                result = re.search(r'.* consumed (\d+) of (\d+)', log)
-                compute_used = result.group(1)
+        logs = view_logs(sig, provider, False)
 
     except RPCException as e:
         err = e.args
     
-    LOGGER.log(slot, event_name, ix_args, err, compute_used)
-
     if not failed and not silent_success: 
         print(colored(f'> {event_name} success', "green"))
     elif failed and not silent_fail:
         print(colored(f'> {event_name} failed', "red"))
         pprint.pprint(err)
+
+    if logs: 
+        logs = await logs
+        for log in logs:
+            if 'compute units' in log: 
+                result = re.search(r'.* consumed (\d+) of (\d+)', log)
+                compute_used = result.group(1)
+
+    LOGGER.log(slot, event_name, ix_args, err, compute_used)
     
     return failed
 
@@ -184,14 +188,13 @@ async def run_trial(protocol_path, events, markets, trial_outpath, oracle_guard_
             print(f'=> {event.user_index} opening position...')
 
         elif event.event_name == ClosePositionEvent._event_name: 
-            # dont close so we have stuff to settle at end of sim
-            continue
-
-            # event = Event.deserialize_from_row(ClosePositionEvent, event)
-            # print(f'=> {event.user_index} closing position...')
-            # assert event.user_index in user_chs, 'user doesnt exist'
-            # ch: SDKClearingHouse = user_chs[event.user_index]
-            # await event.run_sdk(ch, oracle_program, adjust_oracle_pre_trade=True)
+            event = Event.deserialize_from_row(ClosePositionEvent, event)
+            assert event.user_index in user_chs, 'user doesnt exist'
+            ch: SDKClearingHouse = user_chs[event.user_index]
+            ix = await event.run_sdk(ch, oracle_program, adjust_oracle_pre_trade=True)
+            if ix is None: continue
+            ix_args = place_and_take_ix_args(ix[1])
+            print(f'=> {event.user_index} closing position...')
 
         elif event.event_name == addLiquidityEvent._event_name: 
             event = Event.deserialize_from_row(addLiquidityEvent, event)

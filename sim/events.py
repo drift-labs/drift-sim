@@ -318,7 +318,7 @@ class ClosePositionEvent(Event):
         
         return clearing_house
     
-    async def run_sdk(self, clearing_house: ClearingHouse, oracle_program=None, adjust_oracle_pre_trade=False) -> ClearingHouse:
+    async def run_sdk(self, clearing_house: ClearingHouseSDK, oracle_program=None, adjust_oracle_pre_trade=False) -> ClearingHouse:
         # tmp -- sim is quote open position v2 is base only
         market = await get_perp_market_account(clearing_house.program, self.market_index)
         user = await get_user_account(clearing_house.program, clearing_house.authority)
@@ -344,7 +344,7 @@ class ClosePositionEvent(Event):
                 oracle_program
             )
 
-        return await clearing_house.close_position(self.market_index)
+        return await clearing_house.get_close_position_ix(self.market_index)
          
 @dataclass
 class SettleLPEvent(Event): 

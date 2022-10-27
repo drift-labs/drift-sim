@@ -173,18 +173,24 @@ class OpenClose(Agent):
         self.name = 'openclose'
 
     @staticmethod
-    def random_init(max_t, user_index, market_index, short_bias, leverage=1):
+    def random_init(max_t, user_index, market_index, short_bias, leave_open_odds=0.5, leverage=1):
         assert short_bias <= 1 and short_bias >= 0, "invalid short bias value"
+        assert leave_open_odds <= 1 and leave_open_odds >= 0, "invalid leave open odds value"
         
         start = np.random.randint(0, max_t - 2)
         dur = np.random.randint(0, max_t - start - 1)
         amount = np.random.randint(0, QUOTE_PRECISION * 100)
         quote_amount = amount 
+
+        # dont close it ???
+        should_leave_open = np.random.choice([1, 0], p=[leave_open_odds, 1-leave_open_odds])
+        if should_leave_open:
+            dur = max_t + 1
         
         return OpenClose(
             start_time=start,
             duration=dur, 
-            direction='long' if np.random.choice([0, 1], p=[1 - short_bias, short_bias]) == 0 else 'short',
+            direction='long' if np.random.choice([1, 0], p=[1 - short_bias, short_bias]) else 'short',
             quote_amount=quote_amount, 
             deposit_amount=quote_amount//leverage,
             user_index=user_index, 
