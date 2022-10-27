@@ -10,7 +10,7 @@ class UpdatePerpMarketImfFactorArgs(typing.TypedDict):
     imf_factor: int
 
 
-layout = borsh.CStruct("imf_factor" / borsh.U128)
+layout = borsh.CStruct("imf_factor" / borsh.U32)
 
 
 class UpdatePerpMarketImfFactorAccounts(typing.TypedDict):

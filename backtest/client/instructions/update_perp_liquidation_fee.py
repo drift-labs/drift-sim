@@ -11,7 +11,7 @@ class UpdatePerpLiquidationFeeArgs(typing.TypedDict):
     if_liquidation_fee: int
 
 
-layout = borsh.CStruct("liquidator_fee" / borsh.U128, "if_liquidation_fee" / borsh.U128)
+layout = borsh.CStruct("liquidator_fee" / borsh.U32, "if_liquidation_fee" / borsh.U32)
 
 
 class UpdatePerpLiquidationFeeAccounts(typing.TypedDict):

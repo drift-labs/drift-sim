@@ -28,7 +28,7 @@ layout = borsh.CStruct(
     "oracle_source" / types.oracle_source.layout,
     "margin_ratio_initial" / borsh.U32,
     "margin_ratio_maintenance" / borsh.U32,
-    "liquidation_fee" / borsh.U128,
+    "liquidation_fee" / borsh.U32,
     "active_status" / borsh.Bool,
     "name" / borsh.U8[32],
 )

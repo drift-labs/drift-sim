@@ -10,7 +10,7 @@ class UpdatePerpMarketBaseSpreadArgs(typing.TypedDict):
     base_spread: int
 
 
-layout = borsh.CStruct("base_spread" / borsh.U16)
+layout = borsh.CStruct("base_spread" / borsh.U32)
 
 
 class UpdatePerpMarketBaseSpreadAccounts(typing.TypedDict):

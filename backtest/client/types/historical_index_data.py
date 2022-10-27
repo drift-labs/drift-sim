@@ -16,10 +16,10 @@ class HistoricalIndexDataJSON(typing.TypedDict):
 @dataclass
 class HistoricalIndexData:
     layout: typing.ClassVar = borsh.CStruct(
-        "last_index_bid_price" / borsh.U128,
-        "last_index_ask_price" / borsh.U128,
-        "last_index_price_twap" / borsh.U128,
-        "last_index_price_twap5min" / borsh.U128,
+        "last_index_bid_price" / borsh.U64,
+        "last_index_ask_price" / borsh.U64,
+        "last_index_price_twap" / borsh.U64,
+        "last_index_price_twap5min" / borsh.U64,
         "last_index_price_twap_ts" / borsh.I64,
     )
     last_index_bid_price: int

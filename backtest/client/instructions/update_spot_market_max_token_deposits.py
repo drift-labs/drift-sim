@@ -10,7 +10,7 @@ class UpdateSpotMarketMaxTokenDepositsArgs(typing.TypedDict):
     max_token_deposits: int
 
 
-layout = borsh.CStruct("max_token_deposits" / borsh.U128)
+layout = borsh.CStruct("max_token_deposits" / borsh.U64)
 
 
 class UpdateSpotMarketMaxTokenDepositsAccounts(typing.TypedDict):

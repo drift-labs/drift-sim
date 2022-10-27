@@ -18,8 +18,6 @@ class AMMJSON(typing.TypedDict):
     base_asset_amount_per_lp: int
     quote_asset_amount_per_lp: int
     fee_pool: pool_balance.PoolBalanceJSON
-    last_oracle_normalised_price: int
-    last_oracle_reserve_price_spread_pct: int
     base_asset_reserve: int
     quote_asset_reserve: int
     concentration_coef: int
@@ -51,12 +49,12 @@ class AMMJSON(typing.TypedDict):
     cumulative_funding_rate_long: int
     cumulative_funding_rate_short: int
     cumulative_social_loss: int
-    long_spread: int
-    short_spread: int
     ask_base_asset_reserve: int
     ask_quote_asset_reserve: int
     bid_base_asset_reserve: int
     bid_quote_asset_reserve: int
+    last_oracle_normalised_price: int
+    last_oracle_reserve_price_spread_pct: int
     last_bid_price_twap: int
     last_ask_price_twap: int
     last_mark_price_twap: int
@@ -76,17 +74,18 @@ class AMMJSON(typing.TypedDict):
     last_trade_ts: int
     mark_std: int
     last_mark_price_twap_ts: int
-    max_spread: int
-    max_fill_reserve_fraction: int
-    max_slippage_ratio: int
     base_spread: int
+    max_spread: int
+    long_spread: int
+    short_spread: int
     long_intensity_count: int
     short_intensity_count: int
+    max_fill_reserve_fraction: int
+    max_slippage_ratio: int
     curve_update_intensity: int
     amm_jit_intensity: int
     oracle_source: oracle_source.OracleSourceJSON
     last_oracle_valid: bool
-    padding: list[int]
 
 
 @dataclass
@@ -97,8 +96,6 @@ class AMM:
         "base_asset_amount_per_lp" / borsh.I128,
         "quote_asset_amount_per_lp" / borsh.I128,
         "fee_pool" / pool_balance.PoolBalance.layout,
-        "last_oracle_normalised_price" / borsh.I128,
-        "last_oracle_reserve_price_spread_pct" / borsh.I128,
         "base_asset_reserve" / borsh.U128,
         "quote_asset_reserve" / borsh.U128,
         "concentration_coef" / borsh.U128,
@@ -117,10 +114,10 @@ class AMM:
         "quote_entry_amount_long" / borsh.I128,
         "quote_entry_amount_short" / borsh.I128,
         "user_lp_shares" / borsh.U128,
-        "last_funding_rate" / borsh.I128,
-        "last_funding_rate_long" / borsh.I128,
-        "last_funding_rate_short" / borsh.I128,
-        "last24h_avg_funding_rate" / borsh.I128,
+        "last_funding_rate" / borsh.I64,
+        "last_funding_rate_long" / borsh.I64,
+        "last_funding_rate_short" / borsh.I64,
+        "last24h_avg_funding_rate" / borsh.I64,
         "total_fee" / borsh.I128,
         "total_mm_fee" / borsh.I128,
         "total_exchange_fee" / borsh.U128,
@@ -130,16 +127,16 @@ class AMM:
         "cumulative_funding_rate_long" / borsh.I128,
         "cumulative_funding_rate_short" / borsh.I128,
         "cumulative_social_loss" / borsh.I128,
-        "long_spread" / borsh.U128,
-        "short_spread" / borsh.U128,
         "ask_base_asset_reserve" / borsh.U128,
         "ask_quote_asset_reserve" / borsh.U128,
         "bid_base_asset_reserve" / borsh.U128,
         "bid_quote_asset_reserve" / borsh.U128,
-        "last_bid_price_twap" / borsh.U128,
-        "last_ask_price_twap" / borsh.U128,
-        "last_mark_price_twap" / borsh.U128,
-        "last_mark_price_twap5min" / borsh.U128,
+        "last_oracle_normalised_price" / borsh.I64,
+        "last_oracle_reserve_price_spread_pct" / borsh.I64,
+        "last_bid_price_twap" / borsh.U64,
+        "last_ask_price_twap" / borsh.U64,
+        "last_mark_price_twap" / borsh.U64,
+        "last_mark_price_twap5min" / borsh.U64,
         "last_update_slot" / borsh.U64,
         "last_oracle_conf_pct" / borsh.U64,
         "net_revenue_since_last_funding" / borsh.I64,
@@ -155,25 +152,24 @@ class AMM:
         "last_trade_ts" / borsh.I64,
         "mark_std" / borsh.U64,
         "last_mark_price_twap_ts" / borsh.I64,
+        "base_spread" / borsh.U32,
         "max_spread" / borsh.U32,
+        "long_spread" / borsh.U32,
+        "short_spread" / borsh.U32,
+        "long_intensity_count" / borsh.U32,
+        "short_intensity_count" / borsh.U32,
         "max_fill_reserve_fraction" / borsh.U16,
         "max_slippage_ratio" / borsh.U16,
-        "base_spread" / borsh.U16,
-        "long_intensity_count" / borsh.U16,
-        "short_intensity_count" / borsh.U16,
         "curve_update_intensity" / borsh.U8,
         "amm_jit_intensity" / borsh.U8,
         "oracle_source" / oracle_source.layout,
         "last_oracle_valid" / borsh.Bool,
-        "padding" / borsh.U8[6],
     )
     oracle: PublicKey
     historical_oracle_data: historical_oracle_data.HistoricalOracleData
     base_asset_amount_per_lp: int
     quote_asset_amount_per_lp: int
     fee_pool: pool_balance.PoolBalance
-    last_oracle_normalised_price: int
-    last_oracle_reserve_price_spread_pct: int
     base_asset_reserve: int
     quote_asset_reserve: int
     concentration_coef: int
@@ -205,12 +201,12 @@ class AMM:
     cumulative_funding_rate_long: int
     cumulative_funding_rate_short: int
     cumulative_social_loss: int
-    long_spread: int
-    short_spread: int
     ask_base_asset_reserve: int
     ask_quote_asset_reserve: int
     bid_base_asset_reserve: int
     bid_quote_asset_reserve: int
+    last_oracle_normalised_price: int
+    last_oracle_reserve_price_spread_pct: int
     last_bid_price_twap: int
     last_ask_price_twap: int
     last_mark_price_twap: int
@@ -230,17 +226,18 @@ class AMM:
     last_trade_ts: int
     mark_std: int
     last_mark_price_twap_ts: int
-    max_spread: int
-    max_fill_reserve_fraction: int
-    max_slippage_ratio: int
     base_spread: int
+    max_spread: int
+    long_spread: int
+    short_spread: int
     long_intensity_count: int
     short_intensity_count: int
+    max_fill_reserve_fraction: int
+    max_slippage_ratio: int
     curve_update_intensity: int
     amm_jit_intensity: int
     oracle_source: oracle_source.OracleSourceKind
     last_oracle_valid: bool
-    padding: list[int]
 
     @classmethod
     def from_decoded(cls, obj: Container) -> "AMM":
@@ -252,8 +249,6 @@ class AMM:
             base_asset_amount_per_lp=obj.base_asset_amount_per_lp,
             quote_asset_amount_per_lp=obj.quote_asset_amount_per_lp,
             fee_pool=pool_balance.PoolBalance.from_decoded(obj.fee_pool),
-            last_oracle_normalised_price=obj.last_oracle_normalised_price,
-            last_oracle_reserve_price_spread_pct=obj.last_oracle_reserve_price_spread_pct,
             base_asset_reserve=obj.base_asset_reserve,
             quote_asset_reserve=obj.quote_asset_reserve,
             concentration_coef=obj.concentration_coef,
@@ -285,12 +280,12 @@ class AMM:
             cumulative_funding_rate_long=obj.cumulative_funding_rate_long,
             cumulative_funding_rate_short=obj.cumulative_funding_rate_short,
             cumulative_social_loss=obj.cumulative_social_loss,
-            long_spread=obj.long_spread,
-            short_spread=obj.short_spread,
             ask_base_asset_reserve=obj.ask_base_asset_reserve,
             ask_quote_asset_reserve=obj.ask_quote_asset_reserve,
             bid_base_asset_reserve=obj.bid_base_asset_reserve,
             bid_quote_asset_reserve=obj.bid_quote_asset_reserve,
+            last_oracle_normalised_price=obj.last_oracle_normalised_price,
+            last_oracle_reserve_price_spread_pct=obj.last_oracle_reserve_price_spread_pct,
             last_bid_price_twap=obj.last_bid_price_twap,
             last_ask_price_twap=obj.last_ask_price_twap,
             last_mark_price_twap=obj.last_mark_price_twap,
@@ -310,17 +305,18 @@ class AMM:
             last_trade_ts=obj.last_trade_ts,
             mark_std=obj.mark_std,
             last_mark_price_twap_ts=obj.last_mark_price_twap_ts,
-            max_spread=obj.max_spread,
-            max_fill_reserve_fraction=obj.max_fill_reserve_fraction,
-            max_slippage_ratio=obj.max_slippage_ratio,
             base_spread=obj.base_spread,
+            max_spread=obj.max_spread,
+            long_spread=obj.long_spread,
+            short_spread=obj.short_spread,
             long_intensity_count=obj.long_intensity_count,
             short_intensity_count=obj.short_intensity_count,
+            max_fill_reserve_fraction=obj.max_fill_reserve_fraction,
+            max_slippage_ratio=obj.max_slippage_ratio,
             curve_update_intensity=obj.curve_update_intensity,
             amm_jit_intensity=obj.amm_jit_intensity,
             oracle_source=oracle_source.from_decoded(obj.oracle_source),
             last_oracle_valid=obj.last_oracle_valid,
-            padding=obj.padding,
         )
 
     def to_encodable(self) -> dict[str, typing.Any]:
@@ -330,8 +326,6 @@ class AMM:
             "base_asset_amount_per_lp": self.base_asset_amount_per_lp,
             "quote_asset_amount_per_lp": self.quote_asset_amount_per_lp,
             "fee_pool": self.fee_pool.to_encodable(),
-            "last_oracle_normalised_price": self.last_oracle_normalised_price,
-            "last_oracle_reserve_price_spread_pct": self.last_oracle_reserve_price_spread_pct,
             "base_asset_reserve": self.base_asset_reserve,
             "quote_asset_reserve": self.quote_asset_reserve,
             "concentration_coef": self.concentration_coef,
@@ -363,12 +357,12 @@ class AMM:
             "cumulative_funding_rate_long": self.cumulative_funding_rate_long,
             "cumulative_funding_rate_short": self.cumulative_funding_rate_short,
             "cumulative_social_loss": self.cumulative_social_loss,
-            "long_spread": self.long_spread,
-            "short_spread": self.short_spread,
             "ask_base_asset_reserve": self.ask_base_asset_reserve,
             "ask_quote_asset_reserve": self.ask_quote_asset_reserve,
             "bid_base_asset_reserve": self.bid_base_asset_reserve,
             "bid_quote_asset_reserve": self.bid_quote_asset_reserve,
+            "last_oracle_normalised_price": self.last_oracle_normalised_price,
+            "last_oracle_reserve_price_spread_pct": self.last_oracle_reserve_price_spread_pct,
             "last_bid_price_twap": self.last_bid_price_twap,
             "last_ask_price_twap": self.last_ask_price_twap,
             "last_mark_price_twap": self.last_mark_price_twap,
@@ -388,17 +382,18 @@ class AMM:
             "last_trade_ts": self.last_trade_ts,
             "mark_std": self.mark_std,
             "last_mark_price_twap_ts": self.last_mark_price_twap_ts,
-            "max_spread": self.max_spread,
-            "max_fill_reserve_fraction": self.max_fill_reserve_fraction,
-            "max_slippage_ratio": self.max_slippage_ratio,
             "base_spread": self.base_spread,
+            "max_spread": self.max_spread,
+            "long_spread": self.long_spread,
+            "short_spread": self.short_spread,
             "long_intensity_count": self.long_intensity_count,
             "short_intensity_count": self.short_intensity_count,
+            "max_fill_reserve_fraction": self.max_fill_reserve_fraction,
+            "max_slippage_ratio": self.max_slippage_ratio,
             "curve_update_intensity": self.curve_update_intensity,
             "amm_jit_intensity": self.amm_jit_intensity,
             "oracle_source": self.oracle_source.to_encodable(),
             "last_oracle_valid": self.last_oracle_valid,
-            "padding": self.padding,
         }
 
     def to_json(self) -> AMMJSON:
@@ -408,8 +403,6 @@ class AMM:
             "base_asset_amount_per_lp": self.base_asset_amount_per_lp,
             "quote_asset_amount_per_lp": self.quote_asset_amount_per_lp,
             "fee_pool": self.fee_pool.to_json(),
-            "last_oracle_normalised_price": self.last_oracle_normalised_price,
-            "last_oracle_reserve_price_spread_pct": self.last_oracle_reserve_price_spread_pct,
             "base_asset_reserve": self.base_asset_reserve,
             "quote_asset_reserve": self.quote_asset_reserve,
             "concentration_coef": self.concentration_coef,
@@ -441,12 +434,12 @@ class AMM:
             "cumulative_funding_rate_long": self.cumulative_funding_rate_long,
             "cumulative_funding_rate_short": self.cumulative_funding_rate_short,
             "cumulative_social_loss": self.cumulative_social_loss,
-            "long_spread": self.long_spread,
-            "short_spread": self.short_spread,
             "ask_base_asset_reserve": self.ask_base_asset_reserve,
             "ask_quote_asset_reserve": self.ask_quote_asset_reserve,
             "bid_base_asset_reserve": self.bid_base_asset_reserve,
             "bid_quote_asset_reserve": self.bid_quote_asset_reserve,
+            "last_oracle_normalised_price": self.last_oracle_normalised_price,
+            "last_oracle_reserve_price_spread_pct": self.last_oracle_reserve_price_spread_pct,
             "last_bid_price_twap": self.last_bid_price_twap,
             "last_ask_price_twap": self.last_ask_price_twap,
             "last_mark_price_twap": self.last_mark_price_twap,
@@ -466,17 +459,18 @@ class AMM:
             "last_trade_ts": self.last_trade_ts,
             "mark_std": self.mark_std,
             "last_mark_price_twap_ts": self.last_mark_price_twap_ts,
-            "max_spread": self.max_spread,
-            "max_fill_reserve_fraction": self.max_fill_reserve_fraction,
-            "max_slippage_ratio": self.max_slippage_ratio,
             "base_spread": self.base_spread,
+            "max_spread": self.max_spread,
+            "long_spread": self.long_spread,
+            "short_spread": self.short_spread,
             "long_intensity_count": self.long_intensity_count,
             "short_intensity_count": self.short_intensity_count,
+            "max_fill_reserve_fraction": self.max_fill_reserve_fraction,
+            "max_slippage_ratio": self.max_slippage_ratio,
             "curve_update_intensity": self.curve_update_intensity,
             "amm_jit_intensity": self.amm_jit_intensity,
             "oracle_source": self.oracle_source.to_json(),
             "last_oracle_valid": self.last_oracle_valid,
-            "padding": self.padding,
         }
 
     @classmethod
@@ -489,10 +483,6 @@ class AMM:
             base_asset_amount_per_lp=obj["base_asset_amount_per_lp"],
             quote_asset_amount_per_lp=obj["quote_asset_amount_per_lp"],
             fee_pool=pool_balance.PoolBalance.from_json(obj["fee_pool"]),
-            last_oracle_normalised_price=obj["last_oracle_normalised_price"],
-            last_oracle_reserve_price_spread_pct=obj[
-                "last_oracle_reserve_price_spread_pct"
-            ],
             base_asset_reserve=obj["base_asset_reserve"],
             quote_asset_reserve=obj["quote_asset_reserve"],
             concentration_coef=obj["concentration_coef"],
@@ -526,12 +516,14 @@ class AMM:
             cumulative_funding_rate_long=obj["cumulative_funding_rate_long"],
             cumulative_funding_rate_short=obj["cumulative_funding_rate_short"],
             cumulative_social_loss=obj["cumulative_social_loss"],
-            long_spread=obj["long_spread"],
-            short_spread=obj["short_spread"],
             ask_base_asset_reserve=obj["ask_base_asset_reserve"],
             ask_quote_asset_reserve=obj["ask_quote_asset_reserve"],
             bid_base_asset_reserve=obj["bid_base_asset_reserve"],
             bid_quote_asset_reserve=obj["bid_quote_asset_reserve"],
+            last_oracle_normalised_price=obj["last_oracle_normalised_price"],
+            last_oracle_reserve_price_spread_pct=obj[
+                "last_oracle_reserve_price_spread_pct"
+            ],
             last_bid_price_twap=obj["last_bid_price_twap"],
             last_ask_price_twap=obj["last_ask_price_twap"],
             last_mark_price_twap=obj["last_mark_price_twap"],
@@ -551,15 +543,16 @@ class AMM:
             last_trade_ts=obj["last_trade_ts"],
             mark_std=obj["mark_std"],
             last_mark_price_twap_ts=obj["last_mark_price_twap_ts"],
-            max_spread=obj["max_spread"],
-            max_fill_reserve_fraction=obj["max_fill_reserve_fraction"],
-            max_slippage_ratio=obj["max_slippage_ratio"],
             base_spread=obj["base_spread"],
+            max_spread=obj["max_spread"],
+            long_spread=obj["long_spread"],
+            short_spread=obj["short_spread"],
             long_intensity_count=obj["long_intensity_count"],
             short_intensity_count=obj["short_intensity_count"],
+            max_fill_reserve_fraction=obj["max_fill_reserve_fraction"],
+            max_slippage_ratio=obj["max_slippage_ratio"],
             curve_update_intensity=obj["curve_update_intensity"],
             amm_jit_intensity=obj["amm_jit_intensity"],
             oracle_source=oracle_source.from_json(obj["oracle_source"]),
             last_oracle_valid=obj["last_oracle_valid"],
-            padding=obj["padding"],
         )

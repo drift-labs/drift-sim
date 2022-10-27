@@ -10,7 +10,7 @@ class UpdateWithdrawGuardThresholdArgs(typing.TypedDict):
     withdraw_guard_threshold: int
 
 
-layout = borsh.CStruct("withdraw_guard_threshold" / borsh.U128)
+layout = borsh.CStruct("withdraw_guard_threshold" / borsh.U64)
 
 
 class UpdateWithdrawGuardThresholdAccounts(typing.TypedDict):

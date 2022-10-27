@@ -13,9 +13,9 @@ class UpdatePerpMarketMaxImbalancesArgs(typing.TypedDict):
 
 
 layout = borsh.CStruct(
-    "unrealized_max_imbalance" / borsh.U128,
-    "max_revenue_withdraw_per_period" / borsh.U128,
-    "quote_max_insurance" / borsh.U128,
+    "unrealized_max_imbalance" / borsh.U64,
+    "max_revenue_withdraw_per_period" / borsh.U64,
+    "quote_max_insurance" / borsh.U64,
 )
 
 

@@ -17,11 +17,11 @@ class HistoricalOracleDataJSON(typing.TypedDict):
 @dataclass
 class HistoricalOracleData:
     layout: typing.ClassVar = borsh.CStruct(
-        "last_oracle_price" / borsh.I128,
-        "last_oracle_conf" / borsh.U128,
+        "last_oracle_price" / borsh.I64,
+        "last_oracle_conf" / borsh.U64,
         "last_oracle_delay" / borsh.I64,
-        "last_oracle_price_twap" / borsh.I128,
-        "last_oracle_price_twap5min" / borsh.I128,
+        "last_oracle_price_twap" / borsh.I64,
+        "last_oracle_price_twap5min" / borsh.I64,
         "last_oracle_price_twap_ts" / borsh.I64,
     )
     last_oracle_price: int

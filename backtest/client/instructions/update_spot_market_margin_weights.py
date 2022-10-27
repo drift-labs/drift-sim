@@ -15,11 +15,11 @@ class UpdateSpotMarketMarginWeightsArgs(typing.TypedDict):
 
 
 layout = borsh.CStruct(
-    "initial_asset_weight" / borsh.U128,
-    "maintenance_asset_weight" / borsh.U128,
-    "initial_liability_weight" / borsh.U128,
-    "maintenance_liability_weight" / borsh.U128,
-    "imf_factor" / borsh.U128,
+    "initial_asset_weight" / borsh.U32,
+    "maintenance_asset_weight" / borsh.U32,
+    "initial_liability_weight" / borsh.U32,
+    "maintenance_liability_weight" / borsh.U32,
+    "imf_factor" / borsh.U32,
 )
 
 

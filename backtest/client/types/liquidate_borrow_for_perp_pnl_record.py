@@ -18,10 +18,10 @@ class LiquidateBorrowForPerpPnlRecordJSON(typing.TypedDict):
 class LiquidateBorrowForPerpPnlRecord:
     layout: typing.ClassVar = borsh.CStruct(
         "perp_market_index" / borsh.U16,
-        "market_oracle_price" / borsh.I128,
+        "market_oracle_price" / borsh.I64,
         "pnl_transfer" / borsh.U128,
         "liability_market_index" / borsh.U16,
-        "liability_price" / borsh.I128,
+        "liability_price" / borsh.I64,
         "liability_transfer" / borsh.U128,
     )
     perp_market_index: int

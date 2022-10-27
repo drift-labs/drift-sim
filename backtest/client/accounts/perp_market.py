@@ -18,22 +18,22 @@ class PerpMarketJSON(typing.TypedDict):
     amm: types.amm.AMMJSON
     pnl_pool: types.pool_balance.PoolBalanceJSON
     name: list[int]
-    expiry_price: int
-    number_of_users: int
-    imf_factor: int
-    unrealized_pnl_imf_factor: int
-    unrealized_pnl_max_imbalance: int
-    liquidator_fee: int
-    if_liquidation_fee: int
     insurance_claim: types.insurance_claim.InsuranceClaimJSON
+    unrealized_pnl_max_imbalance: int
     expiry_ts: int
+    expiry_price: int
     next_fill_record_id: int
     next_funding_rate_record_id: int
     next_curve_record_id: int
+    imf_factor: int
+    unrealized_pnl_imf_factor: int
+    liquidator_fee: int
+    if_liquidation_fee: int
     margin_ratio_initial: int
     margin_ratio_maintenance: int
     unrealized_pnl_initial_asset_weight: int
     unrealized_pnl_maintenance_asset_weight: int
+    number_of_users: int
     market_index: int
     status: types.market_status.MarketStatusJSON
     contract_type: types.contract_type.ContractTypeJSON
@@ -49,48 +49,48 @@ class PerpMarket:
         "amm" / types.amm.AMM.layout,
         "pnl_pool" / types.pool_balance.PoolBalance.layout,
         "name" / borsh.U8[32],
-        "expiry_price" / borsh.I128,
-        "number_of_users" / borsh.U128,
-        "imf_factor" / borsh.U128,
-        "unrealized_pnl_imf_factor" / borsh.U128,
-        "unrealized_pnl_max_imbalance" / borsh.U128,
-        "liquidator_fee" / borsh.U128,
-        "if_liquidation_fee" / borsh.U128,
         "insurance_claim" / types.insurance_claim.InsuranceClaim.layout,
+        "unrealized_pnl_max_imbalance" / borsh.U64,
         "expiry_ts" / borsh.I64,
+        "expiry_price" / borsh.I64,
         "next_fill_record_id" / borsh.U64,
         "next_funding_rate_record_id" / borsh.U64,
         "next_curve_record_id" / borsh.U64,
+        "imf_factor" / borsh.U32,
+        "unrealized_pnl_imf_factor" / borsh.U32,
+        "liquidator_fee" / borsh.U32,
+        "if_liquidation_fee" / borsh.U32,
         "margin_ratio_initial" / borsh.U32,
         "margin_ratio_maintenance" / borsh.U32,
         "unrealized_pnl_initial_asset_weight" / borsh.U32,
         "unrealized_pnl_maintenance_asset_weight" / borsh.U32,
+        "number_of_users" / borsh.U32,
         "market_index" / borsh.U16,
         "status" / types.market_status.layout,
         "contract_type" / types.contract_type.layout,
         "contract_tier" / types.contract_tier.layout,
-        "padding" / borsh.U8[3],
+        "padding" / borsh.U8[7],
     )
     pubkey: PublicKey
     amm: types.amm.AMM
     pnl_pool: types.pool_balance.PoolBalance
     name: list[int]
-    expiry_price: int
-    number_of_users: int
-    imf_factor: int
-    unrealized_pnl_imf_factor: int
-    unrealized_pnl_max_imbalance: int
-    liquidator_fee: int
-    if_liquidation_fee: int
     insurance_claim: types.insurance_claim.InsuranceClaim
+    unrealized_pnl_max_imbalance: int
     expiry_ts: int
+    expiry_price: int
     next_fill_record_id: int
     next_funding_rate_record_id: int
     next_curve_record_id: int
+    imf_factor: int
+    unrealized_pnl_imf_factor: int
+    liquidator_fee: int
+    if_liquidation_fee: int
     margin_ratio_initial: int
     margin_ratio_maintenance: int
     unrealized_pnl_initial_asset_weight: int
     unrealized_pnl_maintenance_asset_weight: int
+    number_of_users: int
     market_index: int
     status: types.market_status.MarketStatusKind
     contract_type: types.contract_type.ContractTypeKind
@@ -145,24 +145,24 @@ class PerpMarket:
             amm=types.amm.AMM.from_decoded(dec.amm),
             pnl_pool=types.pool_balance.PoolBalance.from_decoded(dec.pnl_pool),
             name=dec.name,
-            expiry_price=dec.expiry_price,
-            number_of_users=dec.number_of_users,
-            imf_factor=dec.imf_factor,
-            unrealized_pnl_imf_factor=dec.unrealized_pnl_imf_factor,
-            unrealized_pnl_max_imbalance=dec.unrealized_pnl_max_imbalance,
-            liquidator_fee=dec.liquidator_fee,
-            if_liquidation_fee=dec.if_liquidation_fee,
             insurance_claim=types.insurance_claim.InsuranceClaim.from_decoded(
                 dec.insurance_claim
             ),
+            unrealized_pnl_max_imbalance=dec.unrealized_pnl_max_imbalance,
             expiry_ts=dec.expiry_ts,
+            expiry_price=dec.expiry_price,
             next_fill_record_id=dec.next_fill_record_id,
             next_funding_rate_record_id=dec.next_funding_rate_record_id,
             next_curve_record_id=dec.next_curve_record_id,
+            imf_factor=dec.imf_factor,
+            unrealized_pnl_imf_factor=dec.unrealized_pnl_imf_factor,
+            liquidator_fee=dec.liquidator_fee,
+            if_liquidation_fee=dec.if_liquidation_fee,
             margin_ratio_initial=dec.margin_ratio_initial,
             margin_ratio_maintenance=dec.margin_ratio_maintenance,
             unrealized_pnl_initial_asset_weight=dec.unrealized_pnl_initial_asset_weight,
             unrealized_pnl_maintenance_asset_weight=dec.unrealized_pnl_maintenance_asset_weight,
+            number_of_users=dec.number_of_users,
             market_index=dec.market_index,
             status=types.market_status.from_decoded(dec.status),
             contract_type=types.contract_type.from_decoded(dec.contract_type),
@@ -176,22 +176,22 @@ class PerpMarket:
             "amm": self.amm.to_json(),
             "pnl_pool": self.pnl_pool.to_json(),
             "name": self.name,
-            "expiry_price": self.expiry_price,
-            "number_of_users": self.number_of_users,
-            "imf_factor": self.imf_factor,
-            "unrealized_pnl_imf_factor": self.unrealized_pnl_imf_factor,
-            "unrealized_pnl_max_imbalance": self.unrealized_pnl_max_imbalance,
-            "liquidator_fee": self.liquidator_fee,
-            "if_liquidation_fee": self.if_liquidation_fee,
             "insurance_claim": self.insurance_claim.to_json(),
+            "unrealized_pnl_max_imbalance": self.unrealized_pnl_max_imbalance,
             "expiry_ts": self.expiry_ts,
+            "expiry_price": self.expiry_price,
             "next_fill_record_id": self.next_fill_record_id,
             "next_funding_rate_record_id": self.next_funding_rate_record_id,
             "next_curve_record_id": self.next_curve_record_id,
+            "imf_factor": self.imf_factor,
+            "unrealized_pnl_imf_factor": self.unrealized_pnl_imf_factor,
+            "liquidator_fee": self.liquidator_fee,
+            "if_liquidation_fee": self.if_liquidation_fee,
             "margin_ratio_initial": self.margin_ratio_initial,
             "margin_ratio_maintenance": self.margin_ratio_maintenance,
             "unrealized_pnl_initial_asset_weight": self.unrealized_pnl_initial_asset_weight,
             "unrealized_pnl_maintenance_asset_weight": self.unrealized_pnl_maintenance_asset_weight,
+            "number_of_users": self.number_of_users,
             "market_index": self.market_index,
             "status": self.status.to_json(),
             "contract_type": self.contract_type.to_json(),
@@ -206,20 +206,19 @@ class PerpMarket:
             amm=types.amm.AMM.from_json(obj["amm"]),
             pnl_pool=types.pool_balance.PoolBalance.from_json(obj["pnl_pool"]),
             name=obj["name"],
-            expiry_price=obj["expiry_price"],
-            number_of_users=obj["number_of_users"],
-            imf_factor=obj["imf_factor"],
-            unrealized_pnl_imf_factor=obj["unrealized_pnl_imf_factor"],
-            unrealized_pnl_max_imbalance=obj["unrealized_pnl_max_imbalance"],
-            liquidator_fee=obj["liquidator_fee"],
-            if_liquidation_fee=obj["if_liquidation_fee"],
             insurance_claim=types.insurance_claim.InsuranceClaim.from_json(
                 obj["insurance_claim"]
             ),
+            unrealized_pnl_max_imbalance=obj["unrealized_pnl_max_imbalance"],
             expiry_ts=obj["expiry_ts"],
+            expiry_price=obj["expiry_price"],
             next_fill_record_id=obj["next_fill_record_id"],
             next_funding_rate_record_id=obj["next_funding_rate_record_id"],
             next_curve_record_id=obj["next_curve_record_id"],
+            imf_factor=obj["imf_factor"],
+            unrealized_pnl_imf_factor=obj["unrealized_pnl_imf_factor"],
+            liquidator_fee=obj["liquidator_fee"],
+            if_liquidation_fee=obj["if_liquidation_fee"],
             margin_ratio_initial=obj["margin_ratio_initial"],
             margin_ratio_maintenance=obj["margin_ratio_maintenance"],
             unrealized_pnl_initial_asset_weight=obj[
@@ -228,6 +227,7 @@ class PerpMarket:
             unrealized_pnl_maintenance_asset_weight=obj[
                 "unrealized_pnl_maintenance_asset_weight"
             ],
+            number_of_users=obj["number_of_users"],
             market_index=obj["market_index"],
             status=types.market_status.from_json(obj["status"]),
             contract_type=types.contract_type.from_json(obj["contract_type"]),

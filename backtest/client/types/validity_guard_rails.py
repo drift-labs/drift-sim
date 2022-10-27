@@ -17,8 +17,8 @@ class ValidityGuardRails:
     layout: typing.ClassVar = borsh.CStruct(
         "slots_before_stale_for_amm" / borsh.I64,
         "slots_before_stale_for_margin" / borsh.I64,
-        "confidence_interval_max_size" / borsh.U128,
-        "too_volatile_ratio" / borsh.I128,
+        "confidence_interval_max_size" / borsh.U64,
+        "too_volatile_ratio" / borsh.I64,
     )
     slots_before_stale_for_amm: int
     slots_before_stale_for_margin: int

@@ -21,7 +21,7 @@ class LiquidatePerpRecordJSON(typing.TypedDict):
 class LiquidatePerpRecord:
     layout: typing.ClassVar = borsh.CStruct(
         "market_index" / borsh.U16,
-        "oracle_price" / borsh.I128,
+        "oracle_price" / borsh.I64,
         "base_asset_amount" / borsh.I64,
         "quote_asset_amount" / borsh.I64,
         "lp_shares" / borsh.U64,

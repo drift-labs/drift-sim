@@ -16,10 +16,10 @@ class InsuranceClaimJSON(typing.TypedDict):
 @dataclass
 class InsuranceClaim:
     layout: typing.ClassVar = borsh.CStruct(
-        "revenue_withdraw_since_last_settle" / borsh.U128,
-        "max_revenue_withdraw_per_period" / borsh.U128,
-        "quote_max_insurance" / borsh.U128,
-        "quote_settled_insurance" / borsh.U128,
+        "revenue_withdraw_since_last_settle" / borsh.U64,
+        "max_revenue_withdraw_per_period" / borsh.U64,
+        "quote_max_insurance" / borsh.U64,
+        "quote_settled_insurance" / borsh.U64,
         "last_revenue_withdraw_ts" / borsh.I64,
     )
     revenue_withdraw_since_last_settle: int

@@ -81,6 +81,5 @@ def from_json(obj: PerpFulfillmentMethodJSON) -> PerpFulfillmentMethodKind:
 
 
 layout = EnumForCodegen(
-    "AMM" / borsh.CStruct("item_0" / borsh.Option(borsh.U128)),
-    "Match" / borsh.CStruct(),
+    "AMM" / borsh.CStruct("item_0" / borsh.Option(borsh.U64)), "Match" / borsh.CStruct()
 )

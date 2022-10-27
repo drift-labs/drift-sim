@@ -31,6 +31,7 @@ class UserJSON(typing.TypedDict):
     sub_account_id: int
     is_being_liquidated: bool
     is_bankrupt: bool
+    is_margin_trading_enabled: bool
     padding: list[int]
 
 
@@ -55,7 +56,8 @@ class User:
         "sub_account_id" / borsh.U8,
         "is_being_liquidated" / borsh.Bool,
         "is_bankrupt" / borsh.Bool,
-        "padding" / borsh.U8[3],
+        "is_margin_trading_enabled" / borsh.Bool,
+        "padding" / borsh.U8[2],
     )
     authority: PublicKey
     delegate: PublicKey
@@ -74,6 +76,7 @@ class User:
     sub_account_id: int
     is_being_liquidated: bool
     is_bankrupt: bool
+    is_margin_trading_enabled: bool
     padding: list[int]
 
     @classmethod
@@ -149,6 +152,7 @@ class User:
             sub_account_id=dec.sub_account_id,
             is_being_liquidated=dec.is_being_liquidated,
             is_bankrupt=dec.is_bankrupt,
+            is_margin_trading_enabled=dec.is_margin_trading_enabled,
             padding=dec.padding,
         )
 
@@ -175,6 +179,7 @@ class User:
             "sub_account_id": self.sub_account_id,
             "is_being_liquidated": self.is_being_liquidated,
             "is_bankrupt": self.is_bankrupt,
+            "is_margin_trading_enabled": self.is_margin_trading_enabled,
             "padding": self.padding,
         }
 
@@ -210,5 +215,6 @@ class User:
             sub_account_id=obj["sub_account_id"],
             is_being_liquidated=obj["is_being_liquidated"],
             is_bankrupt=obj["is_bankrupt"],
+            is_margin_trading_enabled=obj["is_margin_trading_enabled"],
             padding=obj["padding"],
         )

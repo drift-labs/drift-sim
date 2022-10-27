@@ -9,10 +9,13 @@ from ..program_id import PROGRAM_ID
 class LiquidatePerpArgs(typing.TypedDict):
     market_index: int
     liquidator_max_base_asset_amount: int
+    limit_price: typing.Optional[int]
 
 
 layout = borsh.CStruct(
-    "market_index" / borsh.U16, "liquidator_max_base_asset_amount" / borsh.U64
+    "market_index" / borsh.U16,
+    "liquidator_max_base_asset_amount" / borsh.U64,
+    "limit_price" / borsh.Option(borsh.U64),
 )
 
 
@@ -50,6 +53,7 @@ def liquidate_perp(
             "liquidator_max_base_asset_amount": args[
                 "liquidator_max_base_asset_amount"
             ],
+            "limit_price": args["limit_price"],
         }
     )
     data = identifier + encoded_args

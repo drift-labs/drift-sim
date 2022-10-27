@@ -1239,6 +1239,24 @@ class CantResolvePerpBankruptcy(ProgramError):
     msg = "Cant Resolve Perp Bankruptcy"
 
 
+class LiquidationDoesntSatisfyLimitPrice(ProgramError):
+    def __init__(self) -> None:
+        super().__init__(6137, "Liquidation Doesnt Satisfy Limit Price")
+
+    code = 6137
+    name = "LiquidationDoesntSatisfyLimitPrice"
+    msg = "Liquidation Doesnt Satisfy Limit Price"
+
+
+class MarginTradingDisabled(ProgramError):
+    def __init__(self) -> None:
+        super().__init__(6138, "Margin Trading Disabled")
+
+    code = 6138
+    name = "MarginTradingDisabled"
+    msg = "Margin Trading Disabled"
+
+
 CustomError = typing.Union[
     InvalidSpotMarketAuthority,
     InvalidInsuranceFundAuthority,
@@ -1377,6 +1395,8 @@ CustomError = typing.Union[
     ReduceOnlyWithdrawIncreasedRisk,
     MaxOpenInterest,
     CantResolvePerpBankruptcy,
+    LiquidationDoesntSatisfyLimitPrice,
+    MarginTradingDisabled,
 ]
 CUSTOM_ERROR_MAP: dict[int, CustomError] = {
     6000: InvalidSpotMarketAuthority(),
@@ -1516,6 +1536,8 @@ CUSTOM_ERROR_MAP: dict[int, CustomError] = {
     6134: ReduceOnlyWithdrawIncreasedRisk(),
     6135: MaxOpenInterest(),
     6136: CantResolvePerpBankruptcy(),
+    6137: LiquidationDoesntSatisfyLimitPrice(),
+    6138: MarginTradingDisabled(),
 }
 
 

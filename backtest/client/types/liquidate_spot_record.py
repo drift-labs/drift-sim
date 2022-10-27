@@ -19,10 +19,10 @@ class LiquidateSpotRecordJSON(typing.TypedDict):
 class LiquidateSpotRecord:
     layout: typing.ClassVar = borsh.CStruct(
         "asset_market_index" / borsh.U16,
-        "asset_price" / borsh.I128,
+        "asset_price" / borsh.I64,
         "asset_transfer" / borsh.U128,
         "liability_market_index" / borsh.U16,
-        "liability_price" / borsh.I128,
+        "liability_price" / borsh.I64,
         "liability_transfer" / borsh.U128,
         "if_fee" / borsh.U64,
     )

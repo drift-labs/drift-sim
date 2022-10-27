@@ -26,12 +26,12 @@ layout = borsh.CStruct(
     "optimal_borrow_rate" / borsh.U32,
     "max_borrow_rate" / borsh.U32,
     "oracle_source" / types.oracle_source.layout,
-    "initial_asset_weight" / borsh.U128,
-    "maintenance_asset_weight" / borsh.U128,
-    "initial_liability_weight" / borsh.U128,
-    "maintenance_liability_weight" / borsh.U128,
-    "imf_factor" / borsh.U128,
-    "liquidation_fee" / borsh.U128,
+    "initial_asset_weight" / borsh.U32,
+    "maintenance_asset_weight" / borsh.U32,
+    "initial_liability_weight" / borsh.U32,
+    "maintenance_liability_weight" / borsh.U32,
+    "imf_factor" / borsh.U32,
+    "liquidation_fee" / borsh.U32,
     "active_status" / borsh.Bool,
 )
 
