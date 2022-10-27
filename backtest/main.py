@@ -171,8 +171,7 @@ async def run_trial(protocol_path, events, markets, trial_outpath, oracle_guard_
 
             ch: SDKClearingHouse = user_chs[event.user_index]
             ix = await event.run_sdk(ch, init_leverage, oracle_program, adjust_oracle_pre_trade=False)
-            if ix is None:
-                continue
+            if ix is None: continue
             ix_args = place_and_take_ix_args(ix[1])
             print(f'=> {event.user_index} opening position...')
 
@@ -212,7 +211,7 @@ async def run_trial(protocol_path, events, markets, trial_outpath, oracle_guard_
             ch: SDKClearingHouse = user_chs[event.user_index]
             ix = await event.run_sdk(ch)
             if ix is None: continue
-            ix_args = settle_pnl_ix_args(ix)
+            ix_args = settle_pnl_ix_args(ix[1])
             print(f'=> {event.user_index} settle pnl...')
 
         elif event.event_name == SettleLPEvent._event_name: 
@@ -376,7 +375,7 @@ async def run_trial(protocol_path, events, markets, trial_outpath, oracle_guard_
                     user_count += 1
                 else:
                     ix = await ch.get_settle_pnl_ix(ch.authority, i)
-                    ix_args = settle_pnl_ix_args(ix)
+                    ix_args = settle_pnl_ix_args(ix[1])
                     failed = await send_ix(ch, ix, SettlePnLEvent._event_name, ix_args, silent_success=True)
                     if not failed:
                         user_count += 1
@@ -425,9 +424,6 @@ async def run_trial(protocol_path, events, markets, trial_outpath, oracle_guard_
 
     for i in range(n_markets):
         for (_, ch) in user_chs.items():
-            user = await ch.get_user()
-            pprint.pprint(user.spot_positions[0])
-
             position = await ch.get_user_position(i)
             if position is None: 
                 continue
@@ -593,7 +589,7 @@ if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('--events', type=str, required=True)
-    parser.add_argument('--protocol', type=str, required=False, default='../driftpy/protocol-v2')
+    parser.add_argument('--protocol', type=str, required=False, default='../protocol-v2')
     parser.add_argument('--geyser', type=str, required=False, default='../solana-accountsdb-plugin-postgres')
 
     # trials = ['no_oracle_guards', 'spread_250', 'spread_1000', 'oracle_guards',]

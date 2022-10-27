@@ -36,7 +36,8 @@ from sim.events import *
 from sim.agents import * 
 
 def setup_ch(base_spread=0, strategies=''):
-    oracle_df = pd.read_csv('../../experiments/init/dogeMoon/oracle.csv', index_col=[0])    prices = oracle_df.values
+    oracle_df = pd.read_csv('../../experiments/init/dogeMoon/oracle.csv', index_col=[0])    
+    prices = oracle_df.values
     timestamps = (oracle_df.index-oracle_df.index[0])
     oracle = Oracle(prices=prices, timestamps=timestamps)
     

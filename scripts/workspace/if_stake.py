@@ -50,8 +50,11 @@ import random
 
 def setup_ch(base_spread=0, strategies='', n_steps=100):
     # market one 
-    prices, timestamps = rand_heterosk_oracle(90, n_steps=n_steps)
+    oracle_df = pd.read_csv('../../experiments/init/dogeMoon/oracle.csv', index_col=[0])    
+    prices = oracle_df.values
+    timestamps = (oracle_df.index-oracle_df.index[0])
     oracle = Oracle(prices=prices, timestamps=timestamps)
+
     amm = SimulationAMM(
         oracle=oracle, 
         base_asset_reserve=367_621 * AMM_RESERVE_PRECISION,
@@ -86,10 +89,10 @@ def main():
     )
 
     # setup the agents
-    n_lps = 0
-    n_traders = 0
-    n_times = 0
-    n_stakers = 1
+    n_lps = 10
+    n_traders = 10
+    n_times = 4
+    n_stakers = 10
     total_users = n_lps + n_traders + n_stakers
 
     n_markets = len(ch.markets)
@@ -102,7 +105,7 @@ def main():
             # trader agents (open/close)
             if user_idx < n_traders:
                 agent = MultipleAgent(
-                    lambda: OpenClose.random_init(max_t[market_index], user_idx, market_index, short_bias=0.5),
+                    lambda: OpenClose.random_init(max_t[market_index], user_idx, market_index, short_bias=0.9),
                     n_times, 
                 )
                 agents.append(agent)

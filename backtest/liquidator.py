@@ -127,7 +127,7 @@ class Liquidator:
         for ix in ixs:
             args = resolve_perp_bankruptcy_ix_args(ix)
             p.append(
-                self.send_ix(self.liq_ch, ix, 'resolve_perp_bankruptcy', args)
+                self.send_ix(self.liq_ch, ix, 'resolve_perp_bankruptcy', args, silent_fail=True)
             )
         await asyncio.gather(*p)
         
@@ -153,5 +153,5 @@ class Liquidator:
             else:
                 print(f'=> liquidator derisking')
                 ix = await ch.get_close_position_ix(i)
-                args = place_and_take_ix_args(ix[0])
+                args = place_and_take_ix_args(ix[1])
                 await self.send_ix(ch, ix, ClosePositionEvent._event_name, args)
