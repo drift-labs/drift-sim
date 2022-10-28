@@ -57,6 +57,7 @@ async def send_ix(
     silent_success=False,
 ):
     global LOGGER
+    global args
 
     failed = 1 # 1 = fail, 0 = success
     provider: Provider = ch.program.provider
@@ -81,7 +82,7 @@ async def send_ix(
         print(colored(f'> {event_name} failed', "red"))
         pprint.pprint(err)
 
-    if logs: 
+    if logs and not args.ignore_compute: 
         logs = await logs
         for log in logs:
             if 'compute units' in log: 
@@ -190,6 +191,7 @@ async def run_trial(protocol_path, events, markets, trial_outpath, oracle_guard_
         elif event.event_name == ClosePositionEvent._event_name: 
             event = Event.deserialize_from_row(ClosePositionEvent, event)
             assert event.user_index in user_chs, 'user doesnt exist'
+
             ch: SDKClearingHouse = user_chs[event.user_index]
             ix = await event.run_sdk(ch, oracle_program, adjust_oracle_pre_trade=True)
             if ix is None: continue
@@ -602,10 +604,12 @@ if __name__ == '__main__':
     parser.add_argument('--events', type=str, required=True)
     parser.add_argument('--protocol', type=str, required=False, default='../driftpy/protocol-v2')
     parser.add_argument('--geyser', type=str, required=False, default='../solana-accountsdb-plugin-postgres')
+    parser.add_argument('--ignore-compute', action='store_true')
 
     # trials = ['no_oracle_guards', 'spread_250', 'spread_1000', 'oracle_guards',]
     parser.add_argument('-t', '--trial', type=str, required=False, default='')
 
+    global args
     args = parser.parse_args()
 
     try: 
