@@ -3,7 +3,7 @@
 example command (ran from within backtest/): `python main.py --events ../experiments/init/simple -t no_oracle_guards`
 - other parameters can be overriden (including protocol and geyser path)
 - `-t` defines what trails you want to run 
-- results will be in 'experiments/results/{events}/{trails}/...' 
+- results will be in 'experiments/results/{events}/{trials}/...' 
   - this includes the geyser state results which are auto-extracted after each backtest
 
 note: valid event folders require the following files 
