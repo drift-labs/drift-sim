@@ -252,7 +252,8 @@ def main(
     print('done!')
 
 if __name__ == '__main__':
-    v2_path = '../driftpy/protocol-v2'
+    # v2_path = '../driftpy/protocol-v2'
+    v2_path = '../../protocol-v2'
     experiment_name = 'if_stake'
     experiment_type_name = 'trial_no_oracle_guards'
 
