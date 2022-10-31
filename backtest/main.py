@@ -111,7 +111,7 @@ async def run_trial(
     print('protocol path:', protocol_path)
 
     workspace = create_workspace(protocol_path)
-    program: Program = workspace["clearing_house"]
+    program: Program = workspace["drift"]
     oracle_program: Program = workspace["pyth"]
     provider: Provider = program.provider
 

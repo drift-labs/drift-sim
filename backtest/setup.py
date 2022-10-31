@@ -120,6 +120,7 @@ def create_workspace(
         import re 
         re_result = re.search('\[cfg\(not\(feature = \"mainnet-beta\"\)\)\]\ndeclare_id!\(\"(.*)\"\)', data)
         id = PublicKey(re_result.group(1))
+        print(file.stem, id)
         
         program = Program(idl, id, provider)
         result[idl.name] = program
