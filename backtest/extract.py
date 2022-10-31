@@ -57,7 +57,7 @@ def read_sql_db():
     return df 
 
 def get_program(v2_path):
-    with open(f'{v2_path}/programs/clearing_house/src/lib.rs', 'r') as f:
+    with open(f'{v2_path}/programs/drift/src/lib.rs', 'r') as f:
         data = f.read()
     re_result = re.search('\[cfg\(not\(feature = \"mainnet-beta\"\)\)\]\ndeclare_id!\(\"(.*)\"\)', data)
     program_id = PublicKey(re_result.group(1))
