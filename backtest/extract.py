@@ -62,7 +62,7 @@ def get_program(v2_path):
     re_result = re.search('\[cfg\(not\(feature = \"mainnet-beta\"\)\)\]\ndeclare_id!\(\"(.*)\"\)', data)
     program_id = PublicKey(re_result.group(1))
 
-    file = Path(f'{v2_path}/target/idl/clearing_house.json')
+    file = Path(f'{v2_path}/target/idl/drift.json')
     with file.open() as f:
         idl_dict = json.load(f)
     idl = Idl.from_json(idl_dict)
