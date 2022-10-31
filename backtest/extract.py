@@ -12,7 +12,7 @@ import sys
 sys.path.insert(0, '../driftpy/src/')
 
 sys.path.insert(0, '../')
-from backtest.helpers import serialize_perp_market_2
+from backtest.helpers import serialize_perp_market_2, serialize_spot_market
 from spl.token._layouts import ACCOUNT_LAYOUT
 
 import json
@@ -124,6 +124,22 @@ class Extractor:
         perp_market_df = pd.concat(perp_market_df)
         perp_market_df.to_csv(self.save_path/f"perp_market_{i}.csv", index=False)
 
+    def extract_spot_market(self, pk: PublicKey, i: int):
+        perp_market_history, rows = self.decode_type_to_object(pk, 'SpotMarket')
+        perp_market_df = []
+        for perp_market, r in zip(perp_market_history, rows):
+            perp_df = serialize_spot_market(perp_market)
+
+            # add time information to dict
+            perp_df['slot'] = r['slot']
+            perp_df['write_version'] = r['write_version']
+            perp_df['updated_on'] = r['updated_on']
+
+            perp_market_df.append(perp_df)
+
+        perp_market_df = pd.concat(perp_market_df)
+        perp_market_df.to_csv(self.save_path/f"spot_market_{i}.csv", index=False)
+
     def extract_state_account(self, pk):
         i = 0
         
@@ -213,6 +229,10 @@ def main(
     ]
     state = get_state_public_key(program_id)
 
+    # spot 
+    spot_market = get_spot_market_public_key(program_id, 0)
+    extractor.extract_spot_market(spot_market, 0)
+
     # vaults 
     i = 0
     spot_vault_public_key = get_spot_market_vault_public_key(program_id, i)
@@ -233,17 +253,17 @@ def main(
 
 if __name__ == '__main__':
     v2_path = '../driftpy/protocol-v2'
-    experiment_name = 'simple'
+    experiment_name = 'if_stake'
     experiment_type_name = 'trial_no_oracle_guards'
 
     user_path = f'../experiments/results/{experiment_name}/{experiment_type_name}/users.json'
     state_path = f'../experiments/results/{experiment_name}/{experiment_type_name}/init_state.json'
-    results_path = f'../experiments/results/{experiment_name}/{experiment_type_name}/data/'
+    results_path = f'../experiments/results/{experiment_name}/{experiment_type_name}/'
     Path(results_path).mkdir(exist_ok=True, parents=True)
 
     main(
         v2_path, 
-        results_path, 
+        Path(results_path), 
         user_path,
         state_path
     )

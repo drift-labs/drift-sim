@@ -76,6 +76,19 @@ def run_trial(agents, ch, path):
     clearing_houses = []
     differences = []
 
+    last_oracle_price = [-1] * n_markets
+    def adjust_oracle_price():
+        # adjust oracle pre events
+        for market in ch.markets:
+            oracle_price = market.amm.oracle.get_price(ch.time)
+            last_price = last_oracle_price[market.market_index]
+
+            if oracle_price != last_price:
+                last_oracle_price[market.market_index] = oracle_price
+                events.append(
+                    oraclePriceEvent(ch.time, market.market_index, oracle_price)
+                )
+
     # setup agents
     for agent in agents:        
         events_i: list[Event] = agent.setup(ch)
@@ -83,18 +96,18 @@ def run_trial(agents, ch, path):
         for event in events_i: 
             if event._event_name != 'null':
                 ch = event.run(ch, verbose=False)
-            events.append(event)
-            clearing_houses.append(copy.deepcopy(ch))
-            differences.append(0)
-            
-        ch.change_time(1)
+                events.append(event)
+                clearing_houses.append(copy.deepcopy(ch))
+                differences.append(0)
+        
+        # adjust_oracle_price()
+        ch = ch.change_time(1)
 
     # run agents 
     settle_tracker = {}
     for (_, user) in ch.users.items(): 
         settle_tracker[user.user_index] = False 
 
-    last_oracle_price = [-1] * n_markets
 
     for x in tqdm(range(max(max_t))):
         if x < ch.time:
@@ -118,16 +131,6 @@ def run_trial(agents, ch, path):
                 if event_i._event_name != 'null':
                     time_t_events.append(event_i)
             
-        # adjust oracle pre events
-        for market in ch.markets:
-            oracle_price = market.amm.oracle.get_price(ch.time)
-            last_price = last_oracle_price[market.market_index]
-
-            if oracle_price != last_price and len(time_t_events) > 0:
-                last_oracle_price[market.market_index] = oracle_price
-                events.append(
-                    oraclePriceEvent(ch.time, market.market_index, oracle_price)
-                )
 
         for e in time_t_events:
             ch = e.run(ch)
@@ -135,6 +138,9 @@ def run_trial(agents, ch, path):
             events.append(e)
             clearing_houses.append(copy.deepcopy(ch))
 
+        if len(time_t_events) > 0:
+            adjust_oracle_price()
+        
         ch = ch.change_time(1)
 
     _, _events, _chs, _ = collateral_difference(ch, 0, verbose=False) 

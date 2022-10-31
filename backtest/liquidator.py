@@ -37,6 +37,7 @@ class Liquidator:
         self.n_markets = n_markets
         self.liq_ch: ClearingHouse = user_chs[liquidator_index]
         self.send_ix = send_ix_fcn
+        self.silent = True
 
     async def liquidate_loop(self):
         await self.try_liquidate_perp()
@@ -54,6 +55,7 @@ class Liquidator:
                 if authority == self.liq_ch.authority: 
                     continue
                 position = await ch.get_user_position(i)
+                # print('user position:', position)
 
                 if position and position.base_asset_amount != 0:
                     promise = self.liq_ch.get_liquidate_perp_ix(
@@ -63,11 +65,12 @@ class Liquidator:
                     )
                     promises.append(promise)
         ixs = await asyncio.gather(*promises)
+        print(f'trying to liq {len(ixs)} users')
 
         promises = []
         for ix in ixs:
             ix_args = liq_perp_ix_args(ix)
-            promise = self.send_ix(self.liq_ch, ix, 'liquidate_perp', ix_args, silent_fail=True)
+            promise = self.send_ix(self.liq_ch, ix, 'liquidate_perp', ix_args, silent_fail=self.silent)
             promises.append(promise)
         await asyncio.gather(*promises)
 
@@ -93,7 +96,7 @@ class Liquidator:
         promises = []
         for ix in ixs:
             ix_args = liquidate_perp_pnl_for_deposit_ix_args(ix)
-            promise = self.send_ix(self.liq_ch, ix, 'liquidate_perp_pnl_for_deposit', ix_args, silent_fail=True)
+            promise = self.send_ix(self.liq_ch, ix, 'liquidate_perp_pnl_for_deposit', ix_args, silent_fail=self.silent)
             promises.append(promise)
         await asyncio.gather(*promises)
 
@@ -123,11 +126,12 @@ class Liquidator:
                         promises.append(promise)
 
         ixs = await asyncio.gather(*promises)
+        print(f'trying to resolve {len(ixs)} users bankruptcies')
         p = []
         for ix in ixs:
             args = resolve_perp_bankruptcy_ix_args(ix)
             p.append(
-                self.send_ix(self.liq_ch, ix, 'resolve_perp_bankruptcy', args, silent_fail=True)
+                self.send_ix(self.liq_ch, ix, 'resolve_perp_bankruptcy', args, silent_fail=self.silent)
             )
         await asyncio.gather(*p)
         
@@ -148,7 +152,7 @@ class Liquidator:
             if str(market.status) == "MarketStatus.Settlement()" or market.expiry_ts >= liq_time:
                 print(f'=> liquidator settling expired position')
                 ix = await ch.get_settle_pnl_ix(self.liq_ch.authority, i)
-                args = settle_pnl_ix_args(ix)
+                args = settle_pnl_ix_args(ix[1])
                 await self.send_ix(ch, ix, SettlePnLEvent._event_name, args)
             else:
                 print(f'=> liquidator derisking')

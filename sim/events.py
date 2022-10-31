@@ -1,4 +1,4 @@
-from driftpy.accounts import get_perp_market_account, get_user_account
+from driftpy.accounts import *
 from driftpy.clearing_house import ClearingHouse as SDKClearingHouse
 from driftpy.setup.helpers import get_feed_data
 from driftpy.math.amm import calculate_price
@@ -9,6 +9,7 @@ from driftpy.types import PositionDirection
 import json 
 from dataclasses import dataclass
 from backtest.helpers import adjust_oracle_pretrade, set_price_feed_detailed
+from driftpy.setup.helpers import get_set_price_feed_detailed_ix
 from sim.driftsim.clearing_house.lib import ClearingHouse
 
 @dataclass
@@ -125,7 +126,7 @@ class oraclePriceEvent(Event):
             program,
             self.market_index
         )
-        return await set_price_feed_detailed(
+        return await get_set_price_feed_detailed_ix(
             oracle_program, market.amm.oracle, self.price, self.conf, self.slot
         )
 
@@ -260,7 +261,9 @@ class OpenPositionEvent(Event):
             price = data.price
             print('get_feed_data oracle price:', price, data)
             user = await clearing_house.get_user()
-            collateral = user.spot_positions[0].scaled_balance # todo: use clearing house user sdk fcns 
+            from driftpy.clearing_house_user import ClearingHouseUser
+            chu = ClearingHouseUser(clearing_house) 
+            collateral = await chu.get_total_collateral()
 
             pos = None
             for position in user.perp_positions:
@@ -282,25 +285,20 @@ class OpenPositionEvent(Event):
 
         print(f'opening baa: {baa} {direction} {self.market_index}')
 
-        return await clearing_house.get_open_position_ix(
+        pchange = 0.99 # 50% change
+        if self.direction == 'long':
+            limit_price = price * (1 + pchange)
+        else: 
+            limit_price = price * (1 - pchange)
+
+        ix = await clearing_house.get_open_position_ix(
             direction, 
             baa, 
             self.market_index, 
-            ioc=is_ioc
+            ioc=is_ioc,
+            limit_price=limit_price,
         )
-        
-        # try:
-        #     return await clearing_house.open_position(
-        #         direction,
-        #         baa,
-        #         self.market_index,
-        #         ioc=is_ioc
-        #     )
-        # except Exception as e:
-        #     print(e.args)
-        #     from termcolor import colored
-        #     print(colored('open position failed...', "red"))
-        #     return ''
+        return ix
                 
 @dataclass
 class ClosePositionEvent(Event): 
@@ -329,7 +327,6 @@ class ClosePositionEvent(Event):
                 position = _position
                 break 
         assert position is not None, "user not in market"
-
 
         direction = PositionDirection.LONG() if position.base_asset_amount < 0 else PositionDirection.SHORT()
 
@@ -437,9 +434,30 @@ class RemoveIfStakeEvent(Event):
         return clearing_house
 
     async def run_sdk(self, clearing_house: ClearingHouseSDK):
+        spot = await get_spot_market_account(clearing_house.program, 0)
+        total_shares = spot.insurance_fund.total_shares
+        if_stake = await get_if_stake_account(clearing_house.program, clearing_house.authority, 0)
+        n_shares = if_stake.if_shares
+
+        conn = clearing_house.program.provider.connection
+        vault_pk = get_insurance_fund_vault_public_key(clearing_house.program_id, 0)
+        v_amount = int((await conn.get_token_account_balance(vault_pk))['result']['value']['amount'])
+
+        print(
+            f'vault_amount: {v_amount} n_shares: {n_shares} total_shares: {total_shares}'
+        )
+
+        withdraw_amount = int(v_amount * n_shares / total_shares)
+        if withdraw_amount > 1:
+            withdraw_amount = 0
+        
+        if withdraw_amount == 0:
+            print('WARNING: if_stake withdraw amount == 0')
+            return
+
         ix1 = await clearing_house.get_request_remove_insurance_fund_stake_ix(
             self.market_index, 
-            self.amount
+            withdraw_amount
         )
         ix2 = await clearing_house.get_remove_insurance_fund_stake_ix(
             self.market_index, 

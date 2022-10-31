@@ -149,7 +149,7 @@ async def setup_usdc_deposits(
             mint_amounts[event.user_index] = mint_amounts.get(event.user_index, 0) + event.mint_amount
 
     # dont let the liquidator get liq'd 
-    deposit_amounts[liquidator_index] = 10_000_000 * QUOTE_PRECISION
+    deposit_amounts[liquidator_index] = 100_000_000 * QUOTE_PRECISION
     mint_amounts[liquidator_index] = 0
 
     routines = [] 
@@ -291,6 +291,11 @@ async def setup_market(
     print('\t> init peg (init oracle price too):', oracle_price)
 
     oracle = await mock_oracle(oracle_program, oracle_price, -7)
+
+    margin_ratio = MARGIN_PRECISION // init_leverage if init_leverage else 2000
+    margin_ratio_main = margin_ratio - 200
+    print('\t> margin ratio (init, main):', margin_ratio, margin_ratio_main)
+
     await admin_clearing_house.initialize_perp_market(
         oracle, 
         init_reserves, 
@@ -299,7 +304,8 @@ async def setup_market(
         int(peg), 
         OracleSource.PYTH(), 
         # default is 5x
-        margin_ratio_initial=MARGIN_PRECISION // init_leverage if init_leverage else 2000
+        margin_ratio_initial=margin_ratio,
+        margin_ratio_maintenance=margin_ratio_main
     )
 
     if spread is not None:

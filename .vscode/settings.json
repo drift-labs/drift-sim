@@ -1,5 +1,8 @@
 {
     "python.analysis.extraPaths": [
         "${workspaceFolder}/driftpy/src/"
+    ],
+    "rust-analyzer.linkedProjects": [
+        "${workspaceFolder}/driftpy/protocol-v2/Cargo.toml"
     ]
 }

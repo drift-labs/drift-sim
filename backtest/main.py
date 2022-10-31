@@ -71,7 +71,8 @@ async def send_ix(
         else:
             sig = await ch.send_ixs(ix)
         failed = 0
-        logs = view_logs(sig, provider, False)
+        if not args.ignore_compute or event_name == 'resolve_perp_bankruptcy':
+            logs = view_logs(sig, provider, False)
 
     except RPCException as e:
         err = e.args
@@ -82,18 +83,30 @@ async def send_ix(
         print(colored(f'> {event_name} failed', "red"))
         pprint.pprint(err)
 
-    if logs and not args.ignore_compute: 
-        logs = await logs
-        for log in logs:
-            if 'compute units' in log: 
-                result = re.search(r'.* consumed (\d+) of (\d+)', log)
-                compute_used = result.group(1)
+    if logs: 
+        try:
+            logs = await logs
+            for log in logs:
+                if 'compute units' in log: 
+                    result = re.search(r'.* consumed (\d+) of (\d+)', log)
+                    compute_used = result.group(1)
+        except Exception as e:
+            pprint.pprint(e)
 
     LOGGER.log(slot, event_name, ix_args, err, compute_used)
     
     return failed
 
-async def run_trial(protocol_path, events, markets, trial_outpath, oracle_guard_rails=None, spread=None):
+async def run_trial(
+    protocol_path,
+    events, 
+    markets, 
+    trial_outpath, 
+    state_path,
+    user_path,
+    oracle_guard_rails=None, 
+    spread=None
+):
     print('trial_outpath:', trial_outpath)
     print('protocol path:', protocol_path)
 
@@ -105,7 +118,8 @@ async def run_trial(protocol_path, events, markets, trial_outpath, oracle_guard_
     admin_clearing_house, usdc_mint = await setup_bank(program)
 
     # state modification
-    await admin_clearing_house.update_perp_auction_duration(0)
+    auction_duration = 0
+    await admin_clearing_house.update_perp_auction_duration(auction_duration)
     await admin_clearing_house.update_lp_cooldown_time(0)    
 
     if oracle_guard_rails is not None:
@@ -114,7 +128,7 @@ async def run_trial(protocol_path, events, markets, trial_outpath, oracle_guard_
     await admin_clearing_house.update_withdraw_guard_threshold(0, 2**64 - 1)
 
     # setup the markets
-    init_leverage = 11
+    init_leverage = 5
     n_markets = len(markets) 
     last_oracle_prices = []
 
@@ -129,14 +143,24 @@ async def run_trial(protocol_path, events, markets, trial_outpath, oracle_guard_
         )
         last_oracle_prices.append(oracle_price)
 
+        # allow IF to pay bankruptcies
+        await admin_clearing_house.update_perp_market_contract_tier(
+            i, 
+            ContractTier.A()
+        )
+        await admin_clearing_house.update_perp_market_max_imbalances(
+            i, 
+            4000 * QUOTE_PRECISION, 
+            100_000_000 * QUOTE_PRECISION, 
+            100_000_000 * QUOTE_PRECISION
+        )
+
     # save initial state
-    state_path = f'{trial_outpath}/init_state.json' 
     await save_state_account(program, state_path)
 
     start = time.time()
 
     # initialize users + deposits
-    user_path = f'{trial_outpath}/users.json'
     users, liquidator_index = await airdrop_sol_users(provider, events, user_path)
     user_chs, _user_chus, _init_total_collateral = await setup_usdc_deposits(events, program, usdc_mint, users, liquidator_index)
 
@@ -164,6 +188,7 @@ async def run_trial(protocol_path, events, markets, trial_outpath, oracle_guard_
     assert int(init_total_collateral) == int(_init_total_collateral/QUOTE_PRECISION)
 
     liquidator = Liquidator(user_chs, n_markets, liquidator_index, send_ix)
+    n_fails = 0
 
     global LOGGER
     LOGGER = Logger(f'{trial_outpath}/ix_logs.csv')
@@ -173,6 +198,7 @@ async def run_trial(protocol_path, events, markets, trial_outpath, oracle_guard_
         sys.stdout.flush()
         event = events.iloc[i]
         ix_args = None
+        ch = None
 
         ix: TransactionInstruction
         if event.event_name == DepositCollateralEvent._event_name:
@@ -214,8 +240,7 @@ async def run_trial(protocol_path, events, markets, trial_outpath, oracle_guard_
 
             ch: SDKClearingHouse = user_chs[event.user_index]
             ix = await event.run_sdk(ch)
-            if ix is None: 
-                continue
+            if ix is None: continue
             ix_args = remove_liquidity_ix_args(ix)
             print(f'=> {event.user_index} removing liquidity...')
 
@@ -237,8 +262,24 @@ async def run_trial(protocol_path, events, markets, trial_outpath, oracle_guard_
         elif event.event_name == oraclePriceEvent._event_name: 
             event = Event.deserialize_from_row(oraclePriceEvent, event)
             event.slot = (await provider.connection.get_slot())['result']
-            print(f'=> adjusting oracle: {event.price}')
-            await event.run_sdk(program, oracle_program)
+            print(f'=> adjusting oracle: {colored(event.price, "red")}')
+            ix = await event.run_sdk(program, oracle_program)
+            ix_args = {'oracle_price': event.price, 'market_index': event.market_index}
+            ch = admin_clearing_house
+            # # await send_ix(admin_clearing_house, ix1, 'oracle', {})
+
+            try:
+                await admin_clearing_house.update_amm([0])
+                n_fails = 0
+            except Exception:
+                n_fails += 1
+                assert n_fails < 5, f'n fails in a row {n_fails}'
+                print('=> update_amm n fails in a row:', n_fails)
+            
+            # print(f'=> updating amms: market {event.market_index}')
+            # ix2 = await admin_clearing_house.get_update_amm_ix([event.market_index])
+            # ix = [ix1, ix2]
+            # ch = admin_clearing_house
 
         elif event.event_name == 'liquidate':
             print('=> liquidating...')
@@ -261,6 +302,8 @@ async def run_trial(protocol_path, events, markets, trial_outpath, oracle_guard_
             event = Event.deserialize_from_row(RemoveIfStakeEvent, event)
             ch: SDKClearingHouse = user_chs[event.user_index]
             ix = await event.run_sdk(ch)
+            if ix is None: 
+                continue
             ix_args = {'spot_market_index': event.market_index, 'amount': event.amount}
 
         elif event.event_name == NullEvent._event_name: 
@@ -274,6 +317,15 @@ async def run_trial(protocol_path, events, markets, trial_outpath, oracle_guard_
 
         # try to liquidate traders after each timestep 
         await liquidator.liquidate_loop()
+
+        # print('levearged users:')
+        # for i, chu in _user_chus.items():
+        #     leverage = await chu.get_leverage()
+        #     if leverage != 0:
+        #         print(i, leverage/10_000)
+        # market = await get_perp_market_account(program, 0)
+        # twap = market.amm.historical_oracle_data.last_oracle_price_twap
+        # print('oracle twap:', twap)
 
     print('delisting market...')
     slot = (await provider.connection.get_slot())['result']
@@ -386,7 +438,14 @@ async def run_trial(protocol_path, events, markets, trial_outpath, oracle_guard_
                 # settle expired position
                 if position is None or is_available(position): 
                     user_count += 1
+                    print(colored(f'settled expired position success: {user_count}/{n_users}', 'green'))
                 else:
+                    user = await ch.get_user()
+                    print(
+                        user.is_bankrupt,
+                        user.is_being_liquidated
+                    )
+
                     ix = await ch.get_settle_pnl_ix(ch.authority, i)
                     ix_args = settle_pnl_ix_args(ix[1])
                     failed = await send_ix(ch, ix, SettlePnLEvent._event_name, ix_args, silent_success=True)
@@ -473,8 +532,6 @@ async def run_trial(protocol_path, events, markets, trial_outpath, oracle_guard_
     #         if position.base_asset_amount != 0: 
     #             await ch.close_position(position.market_index)
 
-    # save logs
-    LOGGER.export()
 
     # compute total collateral at end of sim
     end_total_collateral = await compute_collateral_amount()
@@ -492,6 +549,7 @@ async def run_trial(protocol_path, events, markets, trial_outpath, oracle_guard_
         'borrow_balance:', usdc_spot_market.borrow_balance, 
         'revenue_pool:', usdc_spot_market.revenue_pool.scaled_balance,
         'spot_fee_pool:', usdc_spot_market.spot_fee_pool.scaled_balance,
+        'total if shares', usdc_spot_market.insurance_fund.total_shares
     )
 
     print('market $:', market_collateral)
@@ -538,23 +596,14 @@ async def run_trial(protocol_path, events, markets, trial_outpath, oracle_guard_
     await provider.close()
     await close_workspace(workspace)
 
-    # export state over time with geyser to trail_outpath
-    # run script with -- output path flags etc.
-    import extract
-    extract.main(
-        protocol_path, 
-        trial_outpath, 
-        user_path, 
-        state_path,
-    )
 
 async def main(protocol_path, experiments_folder, geyser_path, trial):
     events = pd.read_csv(f"{experiments_folder}/events.csv")
 
     no_oracle_guard_rails = OracleGuardRails(
         price_divergence=PriceDivergenceGuardRails(1, 1), 
-        validity=ValidityGuardRails(10, 10, 100, 100),
-        use_for_liquidations=True
+        validity=ValidityGuardRails(10, 10, 100, 2**63 - 1),
+        use_for_liquidations=True,
     )
 
     trial_guard_rails = None
@@ -579,10 +628,12 @@ async def main(protocol_path, experiments_folder, geyser_path, trial):
         markets = json.load(f)
 
     experiment_name = Path(experiments_folder).stem
-    output_path = Path(f'{experiments_folder}/../../results/{experiment_name}/trial_{trial}')
-    output_path.mkdir(exist_ok=True, parents=True)
+    trial_outpath = Path(f'{experiments_folder}/../../results/{experiment_name}/trial_{trial}')
+    trial_outpath.mkdir(exist_ok=True, parents=True)
+    state_path = f'{trial_outpath}/init_state.json' 
+    user_path = f'{trial_outpath}/users.json'
 
-    setup_run_info(str(output_path), protocol_path, '')
+    setup_run_info(str(trial_outpath), protocol_path, '')
 
     val = LocalValidator(protocol_path, geyser_path)
     val.start()
@@ -591,12 +642,28 @@ async def main(protocol_path, experiments_folder, geyser_path, trial):
             protocol_path, 
             events, 
             markets, 
-            output_path, 
+            trial_outpath, 
+            state_path,
+            user_path,
             trial_guard_rails, 
             spread
         )
     finally:
         val.stop()
+
+        # save logs
+        global LOGGER
+        LOGGER.export()
+
+        # export state over time with geyser to trail_outpath
+        # run script with -- output path flags etc.
+        import extract
+        extract.main(
+            protocol_path, 
+            trial_outpath, 
+            user_path, 
+            state_path,
+        )
 
 if __name__ == '__main__':
     import argparse
@@ -611,6 +678,9 @@ if __name__ == '__main__':
 
     global args
     args = parser.parse_args()
+
+    if args.ignore_compute:
+        print('=> ignoring compute used in ixs')
 
     try: 
         import asyncio

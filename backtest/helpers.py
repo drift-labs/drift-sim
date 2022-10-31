@@ -246,15 +246,16 @@ def serialize_spot_market(spot_market: SpotMarket):
     hist_index_df= pd.json_normalize(spot_market.historical_index_data.__dict__).pipe(human_amm_df)
     hist_index_df.columns = ['spot_market.historical_index_data.'+col for col in hist_index_df.columns]
 
-
     market_pool_df = pd.json_normalize(spot_market.revenue_pool.__dict__).pipe(human_amm_df)
     market_pool_df.columns = ['spot_market.revenue_pool.'+col for col in market_pool_df.columns]
-
+    
+    if_index_df= pd.json_normalize(spot_market.insurance_fund.__dict__).pipe(human_amm_df)
+    if_index_df.columns = ['spot_market.insurance_fund.'+col for col in if_index_df.columns]
 
     market_fee_df = pd.json_normalize(spot_market.spot_fee_pool.__dict__).pipe(human_amm_df)
     market_fee_df.columns = ['spot_market.spot_fee_pool.'+col for col in market_fee_df.columns]
 
-    result_df = pd.concat([spot_market_df, hist_oracle_df, hist_index_df, market_pool_df, market_fee_df],axis=1)
+    result_df = pd.concat([spot_market_df, hist_oracle_df, hist_index_df, market_pool_df, market_fee_df, if_index_df],axis=1)
     return result_df
 
 async def save_state(program, experiments_folder, event_i, user_chs):

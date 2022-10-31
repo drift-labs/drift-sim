@@ -139,7 +139,7 @@ class IFStaker(Agent):
                 timestamp=now, 
                 user_index=self.user_index, 
                 market_index=self.spot_market_index, 
-                amount=self.stake_amount
+                amount=-1
             )
         else: 
             event = NullEvent(now)
@@ -468,23 +468,28 @@ class Noise(Agent):
         return event
 
 class SettlePnL(Agent):
-    def __init__(self, user_index: int, market_index: int, every_x_steps: int = 1) -> None:
+    def __init__(self, user_index: int, market_index: int, every_x_steps: int = 1, start: int = 0) -> None:
         self.user_index = user_index
         self.market_index = market_index
         self.every_x_steps = every_x_steps
+        self.start = start
 
         self.name = 'settler_pnl'
         self.deposit_amount = 0
 
     @staticmethod
-    def random_init(max_t, user_index, market_index, update_every=-1):
+    def random_init(max_t, user_index, market_index, update_every=-1, start=-1):
         if update_every == -1:
             update_every = np.random.randint(1, max_t // 4)
 
+        if start == -1:
+            start = np.random.randint(1, max_t // 4)
+        
         return SettlePnL(
             user_index, 
             market_index, 
             every_x_steps=update_every, 
+            start=start,
         )
 
     def setup(self, state: ClearingHouse) -> list[Event]:
@@ -494,7 +499,7 @@ class SettlePnL(Agent):
 
     def run(self, state: ClearingHouse) -> list[Event]: 
         events = []
-        if state.time % self.every_x_steps == 0: 
+        if state.time % self.every_x_steps == 0 and state.time > self.start: 
             user: User = state.users[self.user_index]
             position = user.positions[self.market_index]
 
