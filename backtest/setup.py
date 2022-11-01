@@ -13,7 +13,7 @@ from driftpy.math.user import *
 from driftpy.types import *
 from driftpy.constants.numeric_constants import *
 
-from driftpy.setup.helpers import _create_usdc_mint, mock_oracle, _airdrop_user, set_price_feed, set_price_feed_detailed, adjust_oracle_pretrade, _mint_usdc_tx, _create_user_usdc_ata_tx
+from driftpy.setup.helpers import _create_mint, mock_oracle, _airdrop_user, set_price_feed, set_price_feed_detailed, adjust_oracle_pretrade, _mint_usdc_tx, _create_user_ata_tx
 from driftpy.admin import Admin
 from driftpy.types import OracleSource
 
@@ -29,7 +29,7 @@ import pprint
 import os
 import json
 
-from driftpy.setup.helpers import _create_user_usdc_ata_tx
+from driftpy.setup.helpers import _create_user_ata_tx
 from solana.keypair import Keypair
 
 from subprocess import Popen
@@ -128,10 +128,10 @@ def create_workspace(
     return result
 
 
-async def setup_usdc_deposits(
+async def setup_deposits(
     events: pd.DataFrame, 
     program: Program, 
-    usdc_mint: Keypair, 
+    spot_mints: list[Keypair], 
     users: list, 
     liquidator_index: int
 ):
@@ -142,38 +142,62 @@ async def setup_usdc_deposits(
     # deposit all at once for speed 
     deposit_amounts = {}
     mint_amounts = {}
+    spot_markets = {}
+    user_indexs = []
+
     for i in tqdm(range(len(events))):
         event = events.iloc[i]
         if event.event_name == DepositCollateralEvent._event_name:
             event = Event.deserialize_from_row(DepositCollateralEvent, event)
-            deposit_amounts[event.user_index] = deposit_amounts.get(event.user_index, 0) + event.deposit_amount
-            mint_amounts[event.user_index] = mint_amounts.get(event.user_index, 0) + event.mint_amount
+
+            spot_market_index = event.spot_market_index
+            if spot_market_index not in spot_markets: 
+                spot_markets[spot_market_index] = {
+                    'mints': {},
+                    'deposits': {}
+                }
+
+            sm = spot_markets[spot_market_index]
+            mints = sm['mints']
+            deposits = sm['deposits']
+
+            user_indexs.append(event.user_index)
+
+            deposits[event.user_index] = deposits.get(event.user_index, 0) + event.deposit_amount
+            mints[event.user_index] = mints.get(event.user_index, 0) + event.mint_amount
 
     # dont let the liquidator get liq'd 
-    deposit_amounts[liquidator_index] = 100_000_000 * QUOTE_PRECISION
-    mint_amounts[liquidator_index] = 0
+    spot_markets[0]['deposits'][liquidator_index] = 100_000_000 * QUOTE_PRECISION
+    spot_markets[0]['mints'][liquidator_index] = 0
+    user_indexs.append(liquidator_index)
 
     routines = [] 
-    for user_index in deposit_amounts.keys(): 
-        deposit_amount = deposit_amounts[user_index]
-        mint_amount = mint_amounts[user_index]
-        user_kp = users[user_index][0]
-        print(f'=> user {user_index} depositing {deposit_amount / QUOTE_PRECISION:,.0f}...')
+    for i in spot_markets.keys():
+        mint = spot_mints[i]
+        deposit_amounts = spot_markets[i]['deposits']
+        mint_amounts = spot_markets[i]['mints']
 
-        routine = setup_user(
-            user_chs,
-            user_chus,
-            user_index, 
-            program, 
-            usdc_mint, 
-            deposit_amount, 
-            mint_amount,
-            user_kp
-        )
-        routines.append(routine)
+        for user_index in user_indexs:
+            deposit_amount = deposit_amounts.get(user_index, 0)
+            mint_amount = mint_amounts.get(user_index, 0)
+            user_kp = users[user_index][0]
+            print(f'=> user {user_index} depositing in spot {i}: {deposit_amount / QUOTE_PRECISION:,.0f}...')
 
-        # track collateral 
-        init_total_collateral += deposit_amount + mint_amount
+            routine = setup_user(
+                user_chs,
+                user_chus,
+                user_index, 
+                program, 
+                mint, 
+                i,
+                deposit_amount, 
+                mint_amount,
+                user_kp
+            )
+            routines.append(routine)
+
+            # track collateral 
+            init_total_collateral += deposit_amount + mint_amount
 
     await asyncio.gather(*routines)
 
@@ -185,6 +209,7 @@ async def setup_user(
     user_index, 
     program: Program, 
     usdc_mint, 
+    spot_market_index,
     deposit_amount, 
     mint_amount,
     user_kp
@@ -198,15 +223,18 @@ async def setup_user(
     user_clearing_house = SDKClearingHouse(program, user_kp)
     await user_clearing_house.intialize_user()
 
-    usdc_ata_kp = Keypair()
-    usdc_ata_tx = await _create_user_usdc_ata_tx(
-        usdc_ata_kp, 
+    ata_kp = Keypair()
+    ata_tx = await _create_user_ata_tx(
+        ata_kp, 
         provider, 
         usdc_mint, 
         user_clearing_house.authority
     )
-    user_clearing_house.usdc_ata = usdc_ata_kp.public_key
-    instructions += usdc_ata_tx.instructions
+    user_clearing_house.spot_market_atas[spot_market_index] = ata_kp.public_key
+    if spot_market_index == 0:
+        user_clearing_house.ata = ata_kp.public_key
+
+    instructions += ata_tx.instructions
 
     user_chs[user_index] = user_clearing_house
     user_chus[user_index] = ClearingHouseUser(user_clearing_house)
@@ -215,18 +243,18 @@ async def setup_user(
     mint_tx = _mint_usdc_tx(
         usdc_mint, 
         provider, 
-        deposit_amount + mint_amount, 
-        user_clearing_house.usdc_ata
+        int(deposit_amount + mint_amount), 
+        ata_kp.public_key
     )
     instructions += mint_tx.instructions
-    signers += [provider.wallet.payer, usdc_ata_kp]
+    signers += [provider.wallet.payer, ata_kp]
 
     if deposit_amount > 0:
         instructions += [
             await user_clearing_house.get_deposit_collateral_ix(
-                deposit_amount, 
-                0, 
-                user_clearing_house.usdc_ata
+                int(deposit_amount), 
+                spot_market_index, 
+                ata_kp.public_key
             )
         ]
         signers += user_clearing_house.signers
@@ -273,6 +301,46 @@ async def airdrop_sol_users(provider, events, user_path):
         await provider.connection.confirm_transaction(tx_sig, sleep_seconds=0.1)
     
     return users, liquidator_index
+
+async def setup_spot_market(
+    admin_clearing_house: Admin, 
+    oracle_program: Program, 
+    spot_market: dict, 
+    spot_market_index: int,
+):
+    i = spot_market_index
+    oracle_price = spot_market['init_price']
+
+    print(f"=> initializing spot market {i}...")
+    print('\t> init oracle price:', oracle_price)
+
+    oracle = await mock_oracle(oracle_program, oracle_price, -7)
+    mint = await _create_mint(admin_clearing_house.program.provider)
+
+    optimal_util = SPOT_WEIGHT_PRECISION // 2
+    optimal_weight = int(SPOT_WEIGHT_PRECISION * 20)
+    max_rate = int(SPOT_WEIGHT_PRECISION * 50)
+    
+    init_weight = int(SPOT_WEIGHT_PRECISION * 8 / 10)
+    main_weight = int(SPOT_WEIGHT_PRECISION * 9 / 10)
+
+    init_liab_weight = int(SPOT_WEIGHT_PRECISION * 12 / 10)
+    main_liab_weight = int(SPOT_WEIGHT_PRECISION * 11 / 10)
+
+    await admin_clearing_house.initialize_spot_market(
+        mint.public_key, 
+        oracle=oracle, 
+        optimal_utilization=optimal_util, 
+        optimal_rate=optimal_weight, 
+        max_rate=max_rate,
+        oracle_source=OracleSource.PYTH(),
+        initial_asset_weight=init_weight, 
+        maintenance_asset_weight=main_weight, 
+        initial_liability_weight=init_liab_weight, 
+        maintenance_liability_weight=main_liab_weight
+    )
+
+    return mint
 
 async def setup_market(
     admin_clearing_house: Admin, 
@@ -322,7 +390,7 @@ async def setup_bank(
     program: Program,
 ):
     # init usdc mint
-    usdc_mint = await _create_usdc_mint(program.provider)
+    usdc_mint = await _create_mint(program.provider)
 
     # init state + bank + market 
     clearing_house = Admin(program)

@@ -27,6 +27,7 @@ class ClearingHouse:
     fee_structure: FeeStructure
     users: dict = field(default_factory=dict)
     usernames: dict = field(default_factory=dict)
+    spot_markets: list[SimulationSpotMarket] = field(default_factory=lambda: [])
     time: int = 0 
     name: str = ''
             

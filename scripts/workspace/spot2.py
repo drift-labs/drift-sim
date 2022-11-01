@@ -1,10 +1,6 @@
 ## this notebook ensures the collateral of all users / lps add up if everyone 
 ## were to close 
 
-# %%
-# %reload_ext autoreload
-# %autoreload 2
-
 import pandas as pd
 pd.options.plotting.backend = "plotly"
 
@@ -79,7 +75,7 @@ def setup_ch(base_spread=0, strategies='', n_steps=100):
 
 def main():
     ## EXPERIMENTS PATH 
-    path = pathlib.Path('../../experiments/init/simple')
+    path = pathlib.Path('../../experiments/init/spot2')
     path.mkdir(exist_ok=True, parents=True)
     print(str(path.absolute()))
 
@@ -103,36 +99,18 @@ def main():
     n_markets = len(ch.markets)
     max_t = [len(market.amm.oracle) for market in ch.markets]
 
-    agents = []
-
-    for market_index in range(n_markets):
-        for user_idx in range(total_users):
-            # trader agents (open/close)
-            if user_idx < n_traders:
-                agent = MultipleAgent(
-                    lambda: OpenClose.random_init(max_t[market_index], user_idx, market_index, short_bias=0.5),
-                    n_times, 
-                )
-                agents.append(agent)
-
-            # LP agents (add/remove/settle) 
-            elif user_idx < n_traders + n_lps:
-                agent = MultipleAgent(
-                    lambda: AddRemoveLiquidity.random_init(max_t[market_index], user_idx, market_index, min_token_amount=100000),
-                    n_times, 
-                )
-                agents.append(agent)
-
-                agent = SettleLP.random_init(max_t[market_index], user_idx, market_index)
-                agents.append(agent)
-
-            # settle pnl 
-            agent = SettlePnL.random_init(max_t[market_index], user_idx, market_index)
-            agents.append(agent)
+    events = [ 
+        # user 0 deposits sudc 
+        DepositCollateralEvent(0, 0, 100 * QUOTE_PRECISION, 0, 0, 'a'),
+        # user 1 deposits sol
+        DepositCollateralEvent(0, 1, 100 * 1e9, 1, 0, 'a'),
+        # user 0 borrows sol 
+        WithdrawEvent(0, 0, 1, 100_00, False)
+    ]
 
     # !! 
-    from helpers import run_trial
-    run_trial(agents, ch, path)
+    from helpers import run_trial_events
+    run_trial_events(events, ch, path)
 
 if __name__ == '__main__':
     main()

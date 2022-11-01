@@ -1,0 +1,4 @@
+event_name,timestamp,parameters
+deposit_collateral,0,"{""deposit_amount"": 100000000, ""mint_amount"": 0, ""spot_market_index"": 0, ""user_index"": 0, ""username"": ""a""}"
+deposit_collateral,0,"{""deposit_amount"": 100000000000.0, ""mint_amount"": 0, ""spot_market_index"": 1, ""user_index"": 1, ""username"": ""a""}"
+withdraw_collateral,0,"{""reduce_only"": false, ""spot_market_index"": 1, ""user_index"": 0, ""username"": ""u"", ""withdraw_amount"": 10000}"

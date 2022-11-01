@@ -15,7 +15,7 @@ from driftpy.types import *
 from driftpy.types import PerpMarket
 from driftpy.constants.numeric_constants import *
 
-from driftpy.setup.helpers import _create_usdc_mint, mock_oracle, _airdrop_user, set_price_feed, set_price_feed_detailed, adjust_oracle_pretrade, _mint_usdc_tx, _create_user_usdc_ata_tx
+from driftpy.setup.helpers import _create_mint, mock_oracle, _airdrop_user, set_price_feed, set_price_feed_detailed, adjust_oracle_pretrade, _mint_usdc_tx, _create_user_ata_tx
 from driftpy.clearing_house import ClearingHouse
 from driftpy.admin import Admin
 from driftpy.types import OracleSource
@@ -28,7 +28,7 @@ from driftpy.math.amm import calculate_mark_price_amm
 from anchorpy import Provider, Program, create_workspace, close_workspace
 from sim.driftsim.clearing_house.state.market import SimulationAMM, SimulationMarket
 from tqdm import tqdm
-from driftpy.setup.helpers import _create_user_usdc_ata_tx
+from driftpy.setup.helpers import _create_user_ata_tx
 from driftpy.clearing_house_user import ClearingHouseUser
 from solana.keypair import Keypair
 
@@ -101,6 +101,7 @@ async def run_trial(
     protocol_path,
     events, 
     markets, 
+    spot_markets,
     trial_outpath, 
     state_path,
     user_path,
@@ -125,12 +126,24 @@ async def run_trial(
     if oracle_guard_rails is not None:
         await admin_clearing_house.update_oracle_guard_rails(oracle_guard_rails)
 
-    await admin_clearing_house.update_withdraw_guard_threshold(0, 2**64 - 1)
 
     # setup the markets
     init_leverage = 5
     n_markets = len(markets) 
+    n_spot_markets = len(spot_markets) + 1
     last_oracle_prices = []
+
+    spot_mints = [
+        usdc_mint
+    ]
+    for i, spot_market in enumerate(spot_markets):
+        spot_mint = await setup_spot_market(
+            admin_clearing_house, 
+            oracle_program, 
+            spot_market, 
+            i+1
+        )
+        spot_mints.append(spot_mint)
 
     for i, market in enumerate(markets):
         oracle_price = await setup_market(
@@ -155,6 +168,10 @@ async def run_trial(
             100_000_000 * QUOTE_PRECISION
         )
 
+    # update spot market stats 
+    for i in range(n_spot_markets):
+        await admin_clearing_house.update_withdraw_guard_threshold(i, 2**64 - 1)
+
     # save initial state
     await save_state_account(program, state_path)
 
@@ -162,7 +179,7 @@ async def run_trial(
 
     # initialize users + deposits
     users, liquidator_index = await airdrop_sol_users(provider, events, user_path)
-    user_chs, _user_chus, _init_total_collateral = await setup_usdc_deposits(events, program, usdc_mint, users, liquidator_index)
+    user_chs, _user_chus, _init_total_collateral = await setup_deposits(events, program, spot_mints, users, liquidator_index)
 
     # compute init collateral 
     async def get_token_amount(usdc_ata: PublicKey):
@@ -176,9 +193,12 @@ async def run_trial(
             chu: ClearingHouseUser = _user_chus[i]
             # get it all in $ amounts
             user_collateral = get_collateral_amount(chu)
-            token_amount = get_token_amount(ch.usdc_ata)
             promises.append(user_collateral)
-            promises.append(token_amount)
+
+            for i in ch.spot_market_atas.keys(): 
+                promises.append(
+                    get_token_amount(ch.spot_market_atas[i])
+                )
         all_user_collateral = sum(await asyncio.gather(*promises))
 
         return all_user_collateral
@@ -188,7 +208,6 @@ async def run_trial(
     assert int(init_total_collateral) == int(_init_total_collateral/QUOTE_PRECISION)
 
     liquidator = Liquidator(user_chs, n_markets, liquidator_index, send_ix)
-    n_fails = 0
 
     global LOGGER
     LOGGER = Logger(f'{trial_outpath}/ix_logs.csv')
@@ -231,7 +250,7 @@ async def run_trial(
 
             ch: SDKClearingHouse = user_chs[event.user_index]
             ix = await event.run_sdk(ch)
-            ix_args = add_liquidity_ix_args(ix)
+            ix_args = event.serialize_parameters()
             
         elif event.event_name == removeLiquidityEvent._event_name:
             event = Event.deserialize_from_row(removeLiquidityEvent, event)
@@ -241,7 +260,7 @@ async def run_trial(
             ch: SDKClearingHouse = user_chs[event.user_index]
             ix = await event.run_sdk(ch)
             if ix is None: continue
-            ix_args = remove_liquidity_ix_args(ix)
+            ix_args = event.serialize_parameters()
             print(f'=> {event.user_index} removing liquidity...')
 
         elif event.event_name == SettlePnLEvent._event_name:
@@ -249,65 +268,61 @@ async def run_trial(
             ch: SDKClearingHouse = user_chs[event.user_index]
             ix = await event.run_sdk(ch)
             if ix is None: continue
-            ix_args = settle_pnl_ix_args(ix[1])
             print(f'=> {event.user_index} settle pnl...')
+            ix_args = event.serialize_parameters()
 
         elif event.event_name == SettleLPEvent._event_name: 
             event = Event.deserialize_from_row(SettleLPEvent, event)
             print(f'=> {event.user_index} settle lp...')
             ch: SDKClearingHouse = user_chs[event.user_index]
             ix = await event.run_sdk(ch)
-            ix_args = settle_lp_ix_args(ix)
+            ix_args = event.serialize_parameters()
         
-        elif event.event_name == oraclePriceEvent._event_name: 
-            event = Event.deserialize_from_row(oraclePriceEvent, event)
+        elif event.event_name == PerpOracleUpdateEvent._event_name: 
+            event = Event.deserialize_from_row(PerpOracleUpdateEvent, event)
             event.slot = (await provider.connection.get_slot())['result']
             print(f'=> adjusting oracle: {colored(event.price, "red")}')
             ix = await event.run_sdk(program, oracle_program)
-            ix_args = {'oracle_price': event.price, 'market_index': event.market_index}
-            ch = admin_clearing_house
-            # # await send_ix(admin_clearing_house, ix1, 'oracle', {})
+            ix_args = event.serialize_parameters()
 
-            try:
-                await admin_clearing_house.update_amm([0])
-                n_fails = 0
-            except Exception:
-                n_fails += 1
-                assert n_fails < 5, f'n fails in a row {n_fails}'
-                print('=> update_amm n fails in a row:', n_fails)
-            
-            # print(f'=> updating amms: market {event.market_index}')
-            # ix2 = await admin_clearing_house.get_update_amm_ix([event.market_index])
-            # ix = [ix1, ix2]
-            # ch = admin_clearing_house
+        elif event.event_name == SpotOracleUpdateEvent._event_name: 
+            event = Event.deserialize_from_row(SpotOracleUpdateEvent, event)
+            event.slot = (await provider.connection.get_slot())['result']
+            print(f'=> adjusting spot oracle: {colored(event.price, "red")}')
+            ix = await event.run_sdk(program, oracle_program)
+            ix_args = event.serialize_parameters()
 
         elif event.event_name == 'liquidate':
-            print('=> liquidating...')
-            await liquidator.liquidate_loop()
-            continue
+            pass
 
         elif event.event_name == InitIfStakeEvent._event_name:
             event = Event.deserialize_from_row(InitIfStakeEvent, event)
             ch: SDKClearingHouse = user_chs[event.user_index]
             ix = await event.run_sdk(ch)
-            ix_args = {'spot_market_index': event.market_index}
+            ix_args = event.serialize_parameters()
 
         elif event.event_name == AddIfStakeEvent._event_name:
             event = Event.deserialize_from_row(AddIfStakeEvent, event)
             ch: SDKClearingHouse = user_chs[event.user_index]
             ix = await event.run_sdk(ch)
-            ix_args = {'spot_market_index': event.market_index, 'amount': event.amount}
+            ix_args = event.serialize_parameters()
         
         elif event.event_name == RemoveIfStakeEvent._event_name:
             event = Event.deserialize_from_row(RemoveIfStakeEvent, event)
             ch: SDKClearingHouse = user_chs[event.user_index]
             ix = await event.run_sdk(ch)
-            if ix is None: 
-                continue
-            ix_args = {'spot_market_index': event.market_index, 'amount': event.amount}
+            if ix is None: continue
+            ix_args = event.serialize_parameters()
+
+        elif event.event_name == WithdrawEvent._event_name:
+            event = Event.deserialize_from_row(WithdrawEvent, event)
+            ch: SDKClearingHouse = user_chs[event.user_index]
+            ix = await event.run_sdk(ch)
+            ix_args = event.serialize_parameters()
 
         elif event.event_name == NullEvent._event_name: 
             continue
+
         else:
             raise NotImplementedError
 
@@ -472,27 +487,34 @@ async def run_trial(
             user_withdraw_count = 0
 
             print(colored(f' =>> market {i}: withdraw attempt {attempt}', "blue"))
-            for (_, ch) in user_chs.items():
-                # dont let oracle go stale
-                slot = (await provider.connection.get_slot())['result']
-                market = await get_perp_market_account(program, i)
-                await set_price_feed_detailed(oracle_program, market.amm.oracle, last_oracle_price, 0, slot)
+            for (i, ch) in user_chs.items():
+                chu: ClearingHouseUser = _user_chus[i]
 
-                # withdraw all of collateral
-                ix = await ch.get_withdraw_collateral_ix(
-                    int(1e10 * 1e9), 
-                    QUOTE_ASSET_BANK_INDEX, 
-                    ch.usdc_ata,
-                    True
-                )
-                ix_args = withdraw_ix_args(ix)
-                failed = await send_ix(ch, ix, 'withdraw', ix_args, silent_success=True)
-                if not failed:
-                    user_withdraw_count += 1
-                    print(colored(f'withdraw success: {user_withdraw_count}/{n_users}', 'green'))
-                else: 
-                    print(colored(f'withdraw failed: {user_withdraw_count}/{n_users}', 'red'))
-                    success = False
+                # # dont let oracle go stale
+                # slot = (await provider.connection.get_slot())['result']
+                # market = await get_perp_market_account(program, i)
+                # await set_price_feed_detailed(oracle_program, market.amm.oracle, last_oracle_price, 0, slot)
+
+                for spot_market_index in ch.spot_market_atas.keys():
+                    if chu.get_user_spot_position(spot_market_index) is None: 
+                        continue
+
+                    # withdraw all of collateral
+                    ix = await ch.get_withdraw_collateral_ix(
+                        int(1e10 * 1e9), 
+                        spot_market_index, 
+                        ch.spot_market_atas[spot_market_index],
+                        True
+                    )
+                    ix_args = withdraw_ix_args(ix)
+                    failed = await send_ix(ch, ix, 'withdraw', ix_args, silent_success=True)
+
+                    if not failed:
+                        user_withdraw_count += 1
+                        print(colored(f'withdraw success: {user_withdraw_count}/{n_users}', 'green'))
+                    else: 
+                        print(colored(f'withdraw failed: {user_withdraw_count}/{n_users}', 'red'))
+                        success = False
 
     for i in range(n_markets):
         for (_, ch) in user_chs.items():
@@ -500,6 +522,9 @@ async def run_trial(
             if position is None: 
                 continue
             print(position)
+
+    # set spot market expiry 
+    #
 
     # skip for now
     # await admin_clearing_house.settle_expired_market_pools_to_revenue_pool(0)
@@ -535,22 +560,24 @@ async def run_trial(
 
     # compute total collateral at end of sim
     end_total_collateral = await compute_collateral_amount()
-    market = await get_perp_market_account(program, 0)
-    market_collateral = market.amm.total_fee_minus_distributions / 1e6
-    end_total_collateral += market_collateral
+
+    for i in range(n_markets):
+        market = await get_perp_market_account(program, i)
+        market_collateral = market.amm.total_fee_minus_distributions / 1e6
+        end_total_collateral += market_collateral
 
     print('---')
 
-    usdc_spot_market = await get_spot_market_account(program, 0)
-
-    print(
-        'usdc spot market info:',
-        'deposit_balance:', usdc_spot_market.deposit_balance, 
-        'borrow_balance:', usdc_spot_market.borrow_balance, 
-        'revenue_pool:', usdc_spot_market.revenue_pool.scaled_balance,
-        'spot_fee_pool:', usdc_spot_market.spot_fee_pool.scaled_balance,
-        'total if shares', usdc_spot_market.insurance_fund.total_shares
-    )
+    for i in range(n_spot_markets):
+        usdc_spot_market = await get_spot_market_account(program, i)
+        print(
+            'usdc spot market info:',
+            'deposit_balance:', usdc_spot_market.deposit_balance, 
+            'borrow_balance:', usdc_spot_market.borrow_balance, 
+            'revenue_pool:', usdc_spot_market.revenue_pool.scaled_balance,
+            'spot_fee_pool:', usdc_spot_market.spot_fee_pool.scaled_balance,
+            'total if shares', usdc_spot_market.insurance_fund.total_shares
+        )
 
     print('market $:', market_collateral)
     print(f'difference in $ {(end_total_collateral - init_total_collateral) / QUOTE_PRECISION:,}')
@@ -626,6 +653,8 @@ async def main(protocol_path, experiments_folder, geyser_path, trial):
     # read and load initial clearing house state (thats all we use chs.csv for...)
     with open(f'{experiments_folder}/markets_json.csv', 'r') as f:
         markets = json.load(f)
+    with open(f'{experiments_folder}/spot_markets_json.csv', 'r') as f:
+        spot_markets = json.load(f)
 
     experiment_name = Path(experiments_folder).stem
     trial_outpath = Path(f'{experiments_folder}/../../results/{experiment_name}/trial_{trial}')
@@ -642,6 +671,7 @@ async def main(protocol_path, experiments_folder, geyser_path, trial):
             protocol_path, 
             events, 
             markets, 
+            spot_markets,
             trial_outpath, 
             state_path,
             user_path,

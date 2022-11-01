@@ -85,6 +85,7 @@ class NullEvent(Event):
 class DepositCollateralEvent(Event): 
     user_index: int 
     deposit_amount: int
+    spot_market_index: int = 0
     mint_amount: int = 0
     username: str = "u"
     
@@ -107,16 +108,63 @@ class DepositCollateralEvent(Event):
         if not is_initialized:
             await user_clearing_house.intialize_user()
 
-        sig = await user_clearing_house.deposit(self.deposit_amount, 0, user_keypair.public_key)
+        sig = await user_clearing_house.deposit(self.deposit_amount, self.spot_market_index, user_keypair.public_key)
         return sig
-        
+
+@dataclass
+class WithdrawEvent(Event): 
+    user_index: int 
+    spot_market_index: int
+    withdraw_amount: int
+    reduce_only: bool
+    username: str = "u"
+    
+    _event_name: str = "withdraw_collateral"
+    
+    def run(self, clearing_house: ClearingHouse, verbose=False) -> ClearingHouse:
+        # pass
+        return clearing_house
+
+    async def run_sdk(self, clearing_house: ClearingHouseSDK):
+        # if not initialized .. initialize ... // mint + deposit ix 
+        print(
+            clearing_house.spot_market_atas
+        )
+        ix = await clearing_house.get_withdraw_collateral_ix(
+            self.withdraw_amount, 
+            self.spot_market_index, 
+            clearing_house.spot_market_atas[self.spot_market_index], 
+            self.reduce_only
+        )
+        return ix 
+
 @dataclass 
-class oraclePriceEvent(Event):
+class SpotOracleUpdateEvent(Event):
     market_index: int = 0 
     price: int = 0 
     conf: int = 0
     slot: int = 0
-    _event_name: str = "oracle_price"
+    _event_name: str = "spot_oracle_price"
+
+    def run(self, clearing_house: ClearingHouse, verbose=False) -> ClearingHouse:
+        pass
+
+    async def run_sdk(self, program, oracle_program): 
+        spot_market = await get_spot_market_account(
+            program,
+            self.market_index
+        )
+        return await get_set_price_feed_detailed_ix(
+            oracle_program, spot_market.oracle, self.price, self.conf, self.slot
+        )
+        
+@dataclass 
+class PerpOracleUpdateEvent(Event):
+    market_index: int = 0 
+    price: int = 0 
+    conf: int = 0
+    slot: int = 0
+    _event_name: str = "perp_oracle_price"
 
     def run(self, clearing_house: ClearingHouse, verbose=False) -> ClearingHouse:
         pass
@@ -154,11 +202,6 @@ class addLiquidityEvent(Event):
             self.token_amount, 
             self.market_index
         )
-
-        # return await clearing_house.add_liquidity(
-        #     self.token_amount, 
-        #     self.market_index
-        # )
 
 @dataclass
 class removeLiquidityEvent(Event):

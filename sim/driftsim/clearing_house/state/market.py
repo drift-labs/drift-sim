@@ -90,6 +90,32 @@ class SimulationAMM(AMM):
         self.last_funding_rate_ts = now
         self.mark_std = 0
 
+from solana.publickey import PublicKey
+from typing import Optional
+from driftpy.types import OracleSource
+
+@dataclass
+class SimulationSpotMarket(): 
+    mint: PublicKey = None
+    oracle: Optional[Oracle] = None
+    oracle_source: Optional[OracleSource] = None
+
+    optimal_utilization: int = SPOT_RATE_PRECISION // 2
+    optimal_rate: int = SPOT_RATE_PRECISION
+    max_rate: int = SPOT_RATE_PRECISION
+    initial_asset_weight: int = SPOT_WEIGHT_PRECISION
+    maintenance_asset_weight: int = SPOT_WEIGHT_PRECISION
+    initial_liability_weight: int = SPOT_WEIGHT_PRECISION
+    maintenance_liability_weight: int = SPOT_WEIGHT_PRECISION
+    imf_factor: int = 0
+    liquidation_fee: int = 0
+    active_status: bool = True
+    name: list = field(default_factory=lambda: [0]*32)
+
+    def __post_init__(self) -> None:
+        if self.oracle is None: 
+            assert self.oracle_source == OracleSource.QUOTE_ASSET(), 'only quote asset oracle can have oracle=None'
+
 @dataclass
 class SimulationMarket(Market): 
     amm: SimulationAMM

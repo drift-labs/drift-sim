@@ -32,13 +32,20 @@ from sim.events import *
 from sim.agents import * 
 from pathlib import Path
 
-def run_trial_events(events, ch, path: Path):
+def run_trial_events(events, ch: ClearingHouse, path: Path):
     path.mkdir(exist_ok=True, parents=True)
 
     ## save the initial markets!
     json_markets = [m.to_json(0) for m in ch.markets]
     with open(path/'markets_json.csv', 'w') as f:
         json.dump(json_markets, f)
+
+    ## save spot markets 
+    json_spot_market = [{
+        'init_price': int(sm.oracle.prices[0])
+    } for sm in ch.spot_markets]
+    with open(path/'spot_markets_json.csv', 'w') as f:
+        json.dump(json_spot_market, f)
 
     clearing_houses = []
     for e in tqdm(events):
@@ -61,33 +68,65 @@ def run_trial_events(events, ch, path: Path):
 
 def run_trial(agents, ch, path):
     path.mkdir(exist_ok=True, parents=True)
+    print('#agents:', len(agents))
 
-    n_markets = len(ch.markets)
     max_t = [len(market.amm.oracle) for market in ch.markets]
 
+    ch: ClearingHouse
     ## save the initial markets!
     json_markets = [m.to_json(0) for m in ch.markets]
     with open(path/'markets_json.csv', 'w') as f:
         json.dump(json_markets, f)
 
-    print('#agents:', len(agents))
+    ## save spot markets 
+    json_spot_market = [{
+        'init_price': int(sm.oracle.prices[0])
+    } for sm in ch.spot_markets]
+    with open(path/'spot_markets_json.csv', 'w') as f:
+        json.dump(json_spot_market, f)
+
+    @dataclass
+    class _Oracle: 
+        oracle: PublicKey
+        is_perp: bool 
+        index: int
+
+    oracles = []
+    for market in ch.markets: 
+        o = _Oracle(
+            market.amm.oracle, 
+            True, 
+            market.market_index
+        )
+        oracles.append(o)
+
+    for i, spot_market in enumerate(ch.spot_markets):
+        o = _Oracle(
+            spot_market.oracle, 
+            False, 
+            i+1, # zero is reserved
+        )
+        oracles.append(o)
+    last_oracle_price = [-1] * len(oracles)
 
     events = []
     clearing_houses = []
     differences = []
 
-    last_oracle_price = [-1] * n_markets
-    def adjust_oracle_price():
+    def adjust_oracle_prices():
         # adjust oracle pre events
-        for market in ch.markets:
-            oracle_price = market.amm.oracle.get_price(ch.time)
+        _oracle: _Oracle
+        for _oracle in oracles:
+            oracle_price = _oracle.oracle.get_price(ch.time)
             last_price = last_oracle_price[market.market_index]
 
             if oracle_price != last_price:
                 last_oracle_price[market.market_index] = oracle_price
-                events.append(
-                    oraclePriceEvent(ch.time, market.market_index, oracle_price)
-                )
+                if _oracle.is_perp:
+                    event = PerpOracleUpdateEvent(ch.time, _oracle.index, oracle_price)
+                else: 
+                    event = SpotOracleUpdateEvent(ch.time, _oracle.index, oracle_price)
+                events.append(event)
 
     # setup agents
     for agent in agents:        
@@ -100,14 +139,13 @@ def run_trial(agents, ch, path):
                 clearing_houses.append(copy.deepcopy(ch))
                 differences.append(0)
         
-        # adjust_oracle_price()
+        # adjust_oracle_prices()
         ch = ch.change_time(1)
 
     # run agents 
     settle_tracker = {}
     for (_, user) in ch.users.items(): 
         settle_tracker[user.user_index] = False 
-
 
     for x in tqdm(range(max(max_t))):
         if x < ch.time:
@@ -139,7 +177,7 @@ def run_trial(agents, ch, path):
             clearing_houses.append(copy.deepcopy(ch))
 
         if len(time_t_events) > 0:
-            adjust_oracle_price()
+            adjust_oracle_prices()
         
         ch = ch.change_time(1)
 
