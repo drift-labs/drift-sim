@@ -167,8 +167,9 @@ async def setup_deposits(
             mints[event.user_index] = mints.get(event.user_index, 0) + event.mint_amount
 
     # dont let the liquidator get liq'd 
-    spot_markets[0]['deposits'][liquidator_index] = 100_000_000 * QUOTE_PRECISION
-    spot_markets[0]['mints'][liquidator_index] = 0
+    for i in range(len(spot_markets)):
+        spot_markets[i]['deposits'][liquidator_index] = 1_000_000 * QUOTE_PRECISION
+        spot_markets[i]['mints'][liquidator_index] = 0
     user_indexs.append(liquidator_index)
 
     for spot_market_index in range(len(spot_mints)):

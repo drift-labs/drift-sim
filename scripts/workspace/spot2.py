@@ -64,7 +64,7 @@ def setup_ch(base_spread=0, strategies='', n_steps=100):
     spot_markets = []
     spot_markets.append(
         SimulationSpotMarket(
-            oracle=Oracle(prices=[1] * len(prices), timestamps=timestamps), 
+            oracle=Oracle(prices=[1], timestamps=timestamps), 
         )
     )
 
@@ -103,9 +103,13 @@ def main():
         # user 0 deposits sudc 
         DepositCollateralEvent(0, 0, 100 * QUOTE_PRECISION, 0, 0, 'a'),
         # user 1 deposits sol
-        DepositCollateralEvent(0, 1, 100 * 1e9, 1, 0, 'a'),
+        DepositCollateralEvent(0, 1, 100 * QUOTE_PRECISION, 1, 0, 'a'),
         # user 0 borrows sol 
-        WithdrawEvent(0, 0, 1, 100_00, False)
+        WithdrawEvent(0, 0, 1, 50 * QUOTE_PRECISION, False),
+        # oracle spikes 
+        SpotOracleUpdateEvent(0, 1, int(1e10), 0, -1),
+        # dude gets liqd
+        SpotOracleUpdateEvent(0, 1, int(1), 0, -1),
     ]
 
     # !! 

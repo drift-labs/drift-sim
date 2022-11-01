@@ -21,9 +21,10 @@ from helpers import *
 from setup import *
 from solana.rpc.core import RPCException
 from anchorpy.coder.common import _sighash
+from driftpy.clearing_house import ClearingHouse
 
 class Liquidator: 
-    def __init__(self, user_chs, n_markets, liquidator_index, send_ix_fcn) -> None:
+    def __init__(self, user_chs, n_markets, n_spot_markets, liquidator_index, send_ix_fcn) -> None:
         """class for a liquidator 
 
         Args:
@@ -35,15 +36,59 @@ class Liquidator:
         """
         self.user_chs = user_chs
         self.n_markets = n_markets
+        self.n_spot_markets = n_spot_markets
         self.liq_ch: ClearingHouse = user_chs[liquidator_index]
         self.send_ix = send_ix_fcn
         self.silent = True
 
     async def liquidate_loop(self):
+        await self.try_liquidate_spot()
         await self.try_liquidate_perp()
         await self.try_liquidate_pnl()
         await self.resolve_bankruptcies()
         await self.derisk()
+    
+    async def try_liquidate_spot(self):
+        promises = []
+        ixs_args = []
+
+        ch: ClearingHouse
+        for i, ch in self.user_chs.items(): 
+            authority = ch.authority
+            if authority == self.liq_ch.authority: continue
+
+            assets = []
+            liabilities = []
+            user = await ch.get_user()
+            for spot_position in user.spot_positions: 
+                if is_spot_position_available(spot_position): continue
+                match str(spot_position.balance_type):
+                    case "SpotBalanceType.Deposit()":
+                        assets.append(spot_position.market_index)
+                    case "SpotBalanceType.Borrow()":
+                        liabilities.append(spot_position.market_index)
+
+            if len(liabilities) > 0:
+                assert len(assets) > 0
+                # try to liq em 
+                promise = self.liq_ch.get_liquidate_spot_ix(
+                    authority, 
+                    # should be safe 
+                    assets[0],
+                    liabilities[0], 
+                    2**128 - 1 # maxxx
+                )
+                promises.append(promise)
+                ixs_args.append({'asset_index': assets[0], 'liab_index': liabilities[0], 'auth_user_index': i})
+
+        ixs = await asyncio.gather(*promises)
+        print(f'trying to spot liq {len(ixs)} users')
+
+        promises = []
+        for ix_args, ix in zip(ixs_args, ixs):
+            promise = self.send_ix(self.liq_ch, ix, 'liquidate_spot', ix_args, silent_fail=False)
+            promises.append(promise)
+        await asyncio.gather(*promises)
 
     async def try_liquidate_perp(self):
         ch: ClearingHouse
@@ -65,7 +110,7 @@ class Liquidator:
                     )
                     promises.append(promise)
         ixs = await asyncio.gather(*promises)
-        print(f'trying to liq {len(ixs)} users')
+        print(f'trying to perp liq {len(ixs)} users')
 
         promises = []
         for ix in ixs:

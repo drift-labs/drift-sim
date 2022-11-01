@@ -71,7 +71,7 @@ async def send_ix(
         else:
             sig = await ch.send_ixs(ix)
         failed = 0
-        if not args.ignore_compute or event_name == 'resolve_perp_bankruptcy':
+        if not args.ignore_compute:
             logs = view_logs(sig, provider, False)
 
     except RPCException as e:
@@ -86,6 +86,7 @@ async def send_ix(
     if logs: 
         try:
             logs = await logs
+            pprint.pprint(logs)
             for log in logs:
                 if 'compute units' in log: 
                     result = re.search(r'.* consumed (\d+) of (\d+)', log)
@@ -125,7 +126,6 @@ async def run_trial(
 
     if oracle_guard_rails is not None:
         await admin_clearing_house.update_oracle_guard_rails(oracle_guard_rails)
-
 
     # setup the markets
     init_leverage = 5
@@ -207,7 +207,7 @@ async def run_trial(
     print(f'> initial collateral: {init_total_collateral}')
     assert int(init_total_collateral) == int(_init_total_collateral/QUOTE_PRECISION)
 
-    liquidator = Liquidator(user_chs, n_markets, liquidator_index, send_ix)
+    liquidator = Liquidator(user_chs, n_markets, n_spot_markets, liquidator_index, send_ix)
 
     global LOGGER
     LOGGER = Logger(f'{trial_outpath}/ix_logs.csv')
@@ -284,6 +284,7 @@ async def run_trial(
             print(f'=> adjusting oracle: {colored(event.price, "red")}')
             ix = await event.run_sdk(program, oracle_program)
             ix_args = event.serialize_parameters()
+            ch = admin_clearing_house
 
         elif event.event_name == SpotOracleUpdateEvent._event_name: 
             event = Event.deserialize_from_row(SpotOracleUpdateEvent, event)
@@ -291,6 +292,7 @@ async def run_trial(
             print(f'=> adjusting spot oracle: {colored(event.price, "red")}')
             ix = await event.run_sdk(program, oracle_program)
             ix_args = event.serialize_parameters()
+            ch = admin_clearing_house
 
         elif event.event_name == 'liquidate':
             pass
@@ -333,14 +335,14 @@ async def run_trial(
         # try to liquidate traders after each timestep 
         await liquidator.liquidate_loop()
 
-        # print('levearged users:')
-        # for i, chu in _user_chus.items():
-        #     leverage = await chu.get_leverage()
-        #     if leverage != 0:
-        #         print(i, leverage/10_000)
-        # market = await get_perp_market_account(program, 0)
-        # twap = market.amm.historical_oracle_data.last_oracle_price_twap
-        # print('oracle twap:', twap)
+        print('levearged users:')
+        for i, chu in _user_chus.items():
+            leverage = await chu.get_leverage()
+            if leverage != 0:
+                print(i, leverage/10_000)
+        market = await get_perp_market_account(program, 0)
+        twap = market.amm.historical_oracle_data.last_oracle_price_twap
+        print('oracle twap:', twap)
 
     print('delisting market...')
     slot = (await provider.connection.get_slot())['result']
@@ -456,7 +458,9 @@ async def run_trial(
     for i in range(n_markets):
         success = False
         attempt = -1
-        last_oracle_price = last_oracle_prices[i]
+
+        market = await get_perp_market_account(program, i)
+        last_oracle_price = (await get_feed_data(oracle_program, market.amm.oracle)).price
 
         while not success:
             attempt += 1
@@ -469,7 +473,6 @@ async def run_trial(
 
                 # dont let oracle go stale
                 slot = (await provider.connection.get_slot())['result']
-                market = await get_perp_market_account(program, i)
                 await set_price_feed_detailed(oracle_program, market.amm.oracle, last_oracle_price, 0, slot)
 
                 # settle expired position
@@ -501,6 +504,10 @@ async def run_trial(
     for spot_market_index in range(n_spot_markets):
         success = False
         attempt = -1
+        if spot_market_index != 0:
+            market = await get_spot_market_account(program, spot_market_index)
+            last_oracle_price = (await get_feed_data(oracle_program, market.oracle)).price
+
         while not success:
             attempt += 1
             success = True
@@ -509,6 +516,11 @@ async def run_trial(
             print(colored(f' =>> market {spot_market_index}: withdraw attempt {attempt}', "blue"))
             for (i, ch) in user_chs.items():
                 chu: ClearingHouseUser = _user_chus[i]
+
+                # dont let oracle go stale
+                if spot_market_index != 0:
+                    slot = (await provider.connection.get_slot())['result']
+                    await set_price_feed_detailed(oracle_program, market.oracle, last_oracle_price, 0, slot)
 
                 position = await chu.get_user_spot_position(spot_market_index)
                 if position is None: 
@@ -522,11 +534,18 @@ async def run_trial(
                     True
                 )
                 ix_args = withdraw_ix_args(ix)
-                failed = await send_ix(ch, ix, WithdrawEvent._event_name, ix_args, silent_success=True)
+                failed = await send_ix(ch, ix, WithdrawEvent._event_name, ix_args)
 
                 if not failed:
                     user_withdraw_count += 1
                     print(colored(f'withdraw success: {user_withdraw_count}/{n_users}', 'green'))
+                    spot_position = await ch.get_user_spot_position(spot_market_index)
+                    if spot_position is not None: 
+                        print(
+                            spot_position
+                        )
+                        success = False
+
                 else: 
                     print(colored(f'withdraw failed: {user_withdraw_count}/{n_users}', 'red'))
                     success = False

@@ -127,9 +127,6 @@ class WithdrawEvent(Event):
 
     async def run_sdk(self, clearing_house: ClearingHouseSDK):
         # if not initialized .. initialize ... // mint + deposit ix 
-        print(
-            clearing_house.spot_market_atas
-        )
         ix = await clearing_house.get_withdraw_collateral_ix(
             self.withdraw_amount, 
             self.spot_market_index, 
@@ -147,7 +144,7 @@ class SpotOracleUpdateEvent(Event):
     _event_name: str = "spot_oracle_price"
 
     def run(self, clearing_house: ClearingHouse, verbose=False) -> ClearingHouse:
-        pass
+        return clearing_house
 
     async def run_sdk(self, program, oracle_program): 
         spot_market = await get_spot_market_account(
@@ -167,7 +164,7 @@ class PerpOracleUpdateEvent(Event):
     _event_name: str = "perp_oracle_price"
 
     def run(self, clearing_house: ClearingHouse, verbose=False) -> ClearingHouse:
-        pass
+        return clearing_house
 
     async def run_sdk(self, program, oracle_program): 
         market = await get_perp_market_account(
