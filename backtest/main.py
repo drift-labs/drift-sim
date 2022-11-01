@@ -347,16 +347,38 @@ async def run_trial(
     dtime: int = (await provider.connection.get_block_time(slot))['result']
 
     # + N seconds
-    print('updating market expiry...')
+    print('updating perp/spot market expiry...')
     seconds_time = 5
     sigs = []
     for i in range(n_markets):
         sig = await admin_clearing_house.update_perp_market_expiry(i, dtime + seconds_time)
         sigs.append(sig)
-
         LOGGER.log(slot, 'update_perp_market_expiry', {'market_index': i, 'expiry_time': dtime + seconds_time}, None, -1)
 
+    for i in range(n_spot_markets):
+        sig = await admin_clearing_house.update_spot_market_expiry(i, dtime + seconds_time)
+        sigs.append(sig)
+        LOGGER.log(slot, 'update_spot_market_expiry', {'spot_market_index': i, 'expiry_time': dtime + seconds_time}, None, -1)
+
+    # repay withdraws 
+    print('repaying withdraws...')
+    routines = []
+    for i in range(n_spot_markets):
+        for (_, ch) in user_chs.items():
+            position = await ch.get_user_spot_position(i)
+            if position is None: continue
+            if str(position.balance_type) == "SpotBalanceType.Borrow()":
+                # pay back 
+                routines.append(ch.deposit(
+                    int(1e19), 
+                    i, 
+                    ch.spot_market_atas[i],
+                    reduce_only=True
+                ))
+    await asyncio.gather(*routines)
+
     # close out all the LPs 
+    print('closing LPs...')
     routines = []
     routine_chs = []
     for i in range(n_markets):
@@ -476,61 +498,56 @@ async def run_trial(
                         print(colored(f'settled expired position failed: {user_count}/{n_users}', 'red'))
                         success = False
 
-    for i in range(n_markets):
+    for spot_market_index in range(n_spot_markets):
         success = False
         attempt = -1
-        last_oracle_price = last_oracle_prices[i]
-
         while not success:
             attempt += 1
             success = True
             user_withdraw_count = 0
 
-            print(colored(f' =>> market {i}: withdraw attempt {attempt}', "blue"))
+            print(colored(f' =>> market {spot_market_index}: withdraw attempt {attempt}', "blue"))
             for (i, ch) in user_chs.items():
                 chu: ClearingHouseUser = _user_chus[i]
 
-                # # dont let oracle go stale
-                # slot = (await provider.connection.get_slot())['result']
-                # market = await get_perp_market_account(program, i)
-                # await set_price_feed_detailed(oracle_program, market.amm.oracle, last_oracle_price, 0, slot)
+                position = await chu.get_user_spot_position(spot_market_index)
+                if position is None: 
+                    continue
 
-                for spot_market_index in ch.spot_market_atas.keys():
-                    if chu.get_user_spot_position(spot_market_index) is None: 
-                        continue
+                # withdraw all of collateral
+                ix = await ch.get_withdraw_collateral_ix(
+                    int(1e10 * 1e9), 
+                    spot_market_index, 
+                    ch.spot_market_atas[spot_market_index],
+                    True
+                )
+                ix_args = withdraw_ix_args(ix)
+                failed = await send_ix(ch, ix, WithdrawEvent._event_name, ix_args, silent_success=True)
 
-                    # withdraw all of collateral
-                    ix = await ch.get_withdraw_collateral_ix(
-                        int(1e10 * 1e9), 
-                        spot_market_index, 
-                        ch.spot_market_atas[spot_market_index],
-                        True
-                    )
-                    ix_args = withdraw_ix_args(ix)
-                    failed = await send_ix(ch, ix, 'withdraw', ix_args, silent_success=True)
+                if not failed:
+                    user_withdraw_count += 1
+                    print(colored(f'withdraw success: {user_withdraw_count}/{n_users}', 'green'))
+                else: 
+                    print(colored(f'withdraw failed: {user_withdraw_count}/{n_users}', 'red'))
+                    success = False
 
-                    if not failed:
-                        user_withdraw_count += 1
-                        print(colored(f'withdraw success: {user_withdraw_count}/{n_users}', 'green'))
-                    else: 
-                        print(colored(f'withdraw failed: {user_withdraw_count}/{n_users}', 'red'))
-                        success = False
-
-    for i in range(n_markets):
-        for (_, ch) in user_chs.items():
+    for (_, ch) in user_chs.items():
+        for i in range(n_markets):
             position = await ch.get_user_position(i)
-            if position is None: 
-                continue
+            if position is None: continue
             print(position)
-
-    # set spot market expiry 
-    #
+        
+        for i in range(n_spot_markets):
+            position = await ch.get_user_spot_position(i)
+            if position is None: continue
+            print(position)
 
     # skip for now
     # await admin_clearing_house.settle_expired_market_pools_to_revenue_pool(0)
 
-    market = await get_perp_market_account(program, i)
-    print(market.status)
+    for i in range(n_markets):
+        market = await get_perp_market_account(program, i)
+        print('=> market', i, market.status)
 
     # df = pd.DataFrame(df_rows)
     # df.to_csv('tmp.csv', index=False)

@@ -171,35 +171,31 @@ async def setup_deposits(
     spot_markets[0]['mints'][liquidator_index] = 0
     user_indexs.append(liquidator_index)
 
-    routines = [] 
-    for i in spot_markets.keys():
-        mint = spot_mints[i]
-        deposit_amounts = spot_markets[i]['deposits']
-        mint_amounts = spot_markets[i]['mints']
+    for spot_market_index in range(len(spot_mints)):
+        mint = spot_mints[spot_market_index]
+        deposit_amounts = spot_markets[spot_market_index]['deposits']
+        mint_amounts = spot_markets[spot_market_index]['mints']
 
         for user_index in user_indexs:
             deposit_amount = deposit_amounts.get(user_index, 0)
             mint_amount = mint_amounts.get(user_index, 0)
             user_kp = users[user_index][0]
-            print(f'=> user {user_index} depositing in spot {i}: {deposit_amount / QUOTE_PRECISION:,.0f}...')
+            print(f'=> user {user_index} depositing in spot {spot_market_index}: {deposit_amount / QUOTE_PRECISION:,.0f}...')
 
-            routine = setup_user(
+            await setup_user(
                 user_chs,
                 user_chus,
                 user_index, 
                 program, 
                 mint, 
-                i,
+                spot_market_index,
                 deposit_amount, 
                 mint_amount,
                 user_kp
             )
-            routines.append(routine)
 
             # track collateral 
             init_total_collateral += deposit_amount + mint_amount
-
-    await asyncio.gather(*routines)
 
     return user_chs, user_chus, init_total_collateral
 
@@ -220,8 +216,11 @@ async def setup_user(
     provider: Provider = program.provider
 
     # initialize user 
-    user_clearing_house = SDKClearingHouse(program, user_kp)
-    await user_clearing_house.intialize_user()
+    if user_index not in user_chs:
+        user_clearing_house = SDKClearingHouse(program, user_kp)
+        await user_clearing_house.intialize_user()
+    else: 
+        user_clearing_house = user_chs[user_index]
 
     ata_kp = Keypair()
     ata_tx = await _create_user_ata_tx(

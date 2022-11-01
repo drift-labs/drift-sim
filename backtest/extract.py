@@ -86,9 +86,7 @@ class Extractor:
             rows.append(r)
         return type_history, rows
  
-    def extract_token_account(self, pk: PublicKey, name: str):
-        i = 0 # only one supported rn
-
+    def extract_token_account(self, pk: PublicKey, name: str, i: int):
         vaults = []
         type_rows = self.df[self.df['pk'] == str(pk)]
         for _, r in type_rows.iterrows():
@@ -215,9 +213,6 @@ def main(
     n_markets = state['number_of_markets']
     n_spot_markets = state['number_of_spot_markets']
 
-    if n_spot_markets != 1:
-        print('WARNING: only 1 spot market sims fully supported...')
-
     user_auths = [PublicKey(u) for u in users.values()]
     users = [get_user_account_public_key(program_id, auth) for auth in user_auths]
     user_stats = [
@@ -230,16 +225,18 @@ def main(
     state = get_state_public_key(program_id)
 
     # spot 
-    spot_market = get_spot_market_public_key(program_id, 0)
-    extractor.extract_spot_market(spot_market, 0)
+    for i in range(n_spot_markets):
+        pk = get_spot_market_public_key(program_id, i)
+        extractor.extract_spot_market(pk, i)
 
     # vaults 
-    i = 0
-    spot_vault_public_key = get_spot_market_vault_public_key(program_id, i)
-    insurance_vault_public_key = get_insurance_fund_vault_public_key(program_id, i)
+    for i in range(n_spot_markets):
+        spot_vault_public_key = get_spot_market_vault_public_key(program_id, i)
+        insurance_vault_public_key = get_insurance_fund_vault_public_key(program_id, i)
 
-    extractor.extract_token_account(spot_vault_public_key, 'spot_vault')
-    extractor.extract_token_account(insurance_vault_public_key, 'insurance_vault')
+        extractor.extract_token_account(spot_vault_public_key, 'spot_vault', i)
+        extractor.extract_token_account(insurance_vault_public_key, 'insurance_vault', i)
+
     extractor.extract_state_account(state)
 
     for i, pk in enumerate(perp_markets):
