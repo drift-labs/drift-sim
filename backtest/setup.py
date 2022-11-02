@@ -145,29 +145,31 @@ async def setup_deposits(
     spot_markets = {}
     user_indexs = []
 
+    for i in range(len(spot_mints)):
+        spot_markets[i] = {
+            'mints': {},
+            'deposits': {}
+        }
+
     for i in tqdm(range(len(events))):
         event = events.iloc[i]
         if event.event_name == DepositCollateralEvent._event_name:
             event = Event.deserialize_from_row(DepositCollateralEvent, event)
 
             spot_market_index = event.spot_market_index
-            if spot_market_index not in spot_markets: 
-                spot_markets[spot_market_index] = {
-                    'mints': {},
-                    'deposits': {}
-                }
 
             sm = spot_markets[spot_market_index]
             mints = sm['mints']
             deposits = sm['deposits']
 
-            user_indexs.append(event.user_index)
+            if event.user_index not in user_indexs:
+                user_indexs.append(event.user_index)
 
             deposits[event.user_index] = deposits.get(event.user_index, 0) + event.deposit_amount
             mints[event.user_index] = mints.get(event.user_index, 0) + event.mint_amount
 
     # dont let the liquidator get liq'd 
-    for i in range(len(spot_markets)):
+    for i in range(len(spot_mints)):
         spot_markets[i]['deposits'][liquidator_index] = 1_000_000 * QUOTE_PRECISION
         spot_markets[i]['mints'][liquidator_index] = 0
     user_indexs.append(liquidator_index)
@@ -220,6 +222,7 @@ async def setup_user(
     if user_index not in user_chs:
         user_clearing_house = SDKClearingHouse(program, user_kp)
         await user_clearing_house.intialize_user()
+        user_clearing_house.user_index = user_index
     else: 
         user_clearing_house = user_chs[user_index]
 

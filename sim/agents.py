@@ -38,12 +38,14 @@ def default_user_deposit(
     user_index: int, 
     clearing_house: ClearingHouse,
     deposit_amount:int = 10_000_000 * QUOTE_PRECISION,
+    spot_market_index=0,
     username: str = "u",
 ) -> DepositCollateralEvent:
     event = DepositCollateralEvent(
         user_index=user_index, 
         deposit_amount=deposit_amount, # $10M
         timestamp=clearing_house.time, 
+        spot_market_index=spot_market_index,
         username=username
     )
     return event
@@ -79,6 +81,79 @@ class MultipleAgent(Agent):
             events += agent.run(state_i)
         
         return events
+
+@dataclass
+class Borrower(Agent):
+    asset_spot_index: int 
+    liability_spot_index: int 
+    deposit_amount: int 
+    borrow_amount: int
+    user_index: int
+
+    start_time: int = 0
+    duration: int = -1 
+    name: str = 'borrower'
+    has_opened: bool = False
+
+    @staticmethod
+    def random_init(max_t, n_spot_markets, user_index): 
+        start = np.random.randint(0, max_t - 2)
+        dur = np.random.randint(0, max_t - start - 1)
+
+        deposit_amount = np.random.randint(0, QUOTE_PRECISION * 100)
+        borrow_amount = np.random.randint(0, QUOTE_PRECISION * 100)
+
+        spots = list(range(n_spot_markets))
+        asset_spot = np.random.choice(spots)
+        spots.pop(spots.index(asset_spot))
+        liab_spot = np.random.choice(spots)
+
+        return Borrower(
+            asset_spot, 
+            liab_spot, 
+            deposit_amount, 
+            borrow_amount, 
+            start_time=start,
+            duration=dur,
+        )
+    
+    def setup(self, state_i: ClearingHouse) -> list[Event]: 
+        event = default_user_deposit(
+            self.user_index, 
+            state_i, 
+            username=self.name, 
+            deposit_amount=self.deposit_amount,
+            spot_market_index=self.asset_spot_index
+        )
+        event = [event]
+        return event
+
+    def run(self, state_i: ClearingHouse) -> list[Event]:
+        now = state_i.time
+        
+        if (now == self.start_time) or (now > self.start_time and not self.has_opened): 
+            self.deposit_start = now
+            self.has_opened = True
+            event = WithdrawEvent(
+                timestamp=now, 
+                user_index=self.user_index, 
+                spot_market_index=self.liability_spot_index, 
+                withdraw_amount=self.borrow_amount, 
+                reduce_only=False,
+            )
+        elif self.has_opened and self.duration > 0 and now - self.deposit_start == self.duration:
+            event = DepositCollateralEvent(
+                timestamp=now, 
+                user_index=self.user_index, 
+                spot_market_index=self.liability_spot_index, 
+                deposit_amount=self.borrow_amount,
+                reduce_only=True,
+            )
+        else: 
+            event = NullEvent(now)
+
+        return [event]
+
 
 @dataclass
 class IFStaker(Agent):

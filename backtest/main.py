@@ -55,6 +55,7 @@ async def send_ix(
     ix_args: dict, 
     silent_fail=False, 
     silent_success=False,
+    view_logs_flag=False,
 ):
     global LOGGER
     global args
@@ -71,7 +72,7 @@ async def send_ix(
         else:
             sig = await ch.send_ixs(ix)
         failed = 0
-        if not args.ignore_compute:
+        if not args.ignore_compute or view_logs_flag:
             logs = view_logs(sig, provider, False)
 
     except RPCException as e:
@@ -86,7 +87,8 @@ async def send_ix(
     if logs: 
         try:
             logs = await logs
-            pprint.pprint(logs)
+            if view_logs_flag:
+                pprint.pprint(logs)
             for log in logs:
                 if 'compute units' in log: 
                     result = re.search(r'.* consumed (\d+) of (\d+)', log)
@@ -94,6 +96,7 @@ async def send_ix(
         except Exception as e:
             pprint.pprint(e)
 
+    ix_args['user_index'] = ch.user_index
     LOGGER.log(slot, event_name, ix_args, err, compute_used)
     
     return failed
@@ -222,6 +225,14 @@ async def run_trial(
         ix: TransactionInstruction
         if event.event_name == DepositCollateralEvent._event_name:
             continue
+
+        elif event.event_name == MidSimDepositEvent._event_name:
+            event = Event.deserialize_from_row(MidSimDepositEvent, event)
+            assert event.user_index in user_chs, 'user doesnt exist'
+            ch: SDKClearingHouse = user_chs[event.user_index]
+            ix = await event.run_sdk(ch)
+            ix_args = event.serialize_parameters()
+            print(f'=> {event.user_index} depositing...')
 
         elif event.event_name == OpenPositionEvent._event_name: 
             event = Event.deserialize_from_row(OpenPositionEvent, event)
@@ -362,6 +373,8 @@ async def run_trial(
         sigs.append(sig)
         LOGGER.log(slot, 'update_spot_market_expiry', {'spot_market_index': i, 'expiry_time': dtime + seconds_time}, None, -1)
 
+    await liquidator.liquidate_loop()
+
     # repay withdraws 
     print('repaying withdraws...')
     routines = []
@@ -468,7 +481,7 @@ async def run_trial(
             user_count = 0
 
             print(colored(f' =>> market {i}: settle attempt {attempt}', "blue"))
-            for (_, ch) in user_chs.items():
+            for (user_index, ch) in user_chs.items():
                 position = await ch.get_user_position(i)
 
                 # dont let oracle go stale
@@ -480,14 +493,9 @@ async def run_trial(
                     user_count += 1
                     print(colored(f'settled expired position success: {user_count}/{n_users}', 'green'))
                 else:
-                    user = await ch.get_user()
-                    print(
-                        user.is_bankrupt,
-                        user.is_being_liquidated
-                    )
-
                     ix = await ch.get_settle_pnl_ix(ch.authority, i)
                     ix_args = settle_pnl_ix_args(ix[1])
+
                     failed = await send_ix(ch, ix, SettlePnLEvent._event_name, ix_args, silent_success=True)
                     if not failed:
                         user_count += 1
@@ -507,6 +515,7 @@ async def run_trial(
         if spot_market_index != 0:
             market = await get_spot_market_account(program, spot_market_index)
             last_oracle_price = (await get_feed_data(oracle_program, market.oracle)).price
+        spot_market = await get_spot_market_account(program, spot_market_index)
 
         while not success:
             attempt += 1
@@ -515,6 +524,7 @@ async def run_trial(
 
             print(colored(f' =>> market {spot_market_index}: withdraw attempt {attempt}', "blue"))
             for (i, ch) in user_chs.items():
+                print(f'=> user {i} (is_liq: {i == liquidator_index})')
                 chu: ClearingHouseUser = _user_chus[i]
 
                 # dont let oracle go stale
@@ -524,11 +534,24 @@ async def run_trial(
 
                 position = await chu.get_user_spot_position(spot_market_index)
                 if position is None: 
+                    user_withdraw_count += 1
+                    print(colored(f'withdraw success: {user_withdraw_count}/{n_users}', 'green'))
                     continue
+                
+                from driftpy.clearing_house_user import get_token_amount as sdk_token_amount
+                # # balance: int, spot_market: SpotMarket, balance_type: SpotBalanceType
+                spot_market = await get_spot_market_account(program, spot_market_index)
+                token_amount = int(sdk_token_amount(
+                    position.scaled_balance, 
+                    spot_market,
+                    position.balance_type
+                ))
 
                 # withdraw all of collateral
+                print('token amount', token_amount)
                 ix = await ch.get_withdraw_collateral_ix(
-                    int(1e10 * 1e9), 
+                    # token_amount, 
+                    int(1e12),
                     spot_market_index, 
                     ch.spot_market_atas[spot_market_index],
                     True
@@ -541,9 +564,7 @@ async def run_trial(
                     print(colored(f'withdraw success: {user_withdraw_count}/{n_users}', 'green'))
                     spot_position = await ch.get_user_spot_position(spot_market_index)
                     if spot_position is not None: 
-                        print(
-                            spot_position
-                        )
+                        print(spot_position)
                         success = False
 
                 else: 
@@ -602,19 +623,42 @@ async def run_trial(
         market_collateral = market.amm.total_fee_minus_distributions / 1e6
         end_total_collateral += market_collateral
 
+        print(
+            f'market {i} info:',
+            "\n\t net baa & net unsettled:", 
+            market.amm.base_asset_amount_with_amm,
+            market.amm.base_asset_amount_with_unsettled_lp,
+            market.amm.base_asset_amount_with_amm + market.amm.base_asset_amount_with_unsettled_lp,
+            '\n\t net long/short',
+            market.amm.base_asset_amount_long, 
+            market.amm.base_asset_amount_short, 
+            market.amm.user_lp_shares, 
+            '\n\t cumulative_social_loss / funding:',
+            market.amm.total_social_loss, 
+            market.amm.cumulative_funding_rate_long, 
+            market.amm.cumulative_funding_rate_short, 
+            market.amm.last_funding_rate_long, 
+            market.amm.last_funding_rate_short, 
+            '\n\t market pool balances:',
+            '\n\t fee pool:', market.amm.fee_pool.scaled_balance, 
+            '\n\t pnl pool:', market.pnl_pool.scaled_balance
+        )
+
     print('---')
 
     for i in range(n_spot_markets):
-        usdc_spot_market = await get_spot_market_account(program, i)
+        spot_market = await get_spot_market_account(program, i)
+
         print(
-            'usdc spot market info:',
-            'deposit_balance:', usdc_spot_market.deposit_balance, 
-            'borrow_balance:', usdc_spot_market.borrow_balance, 
-            'revenue_pool:', usdc_spot_market.revenue_pool.scaled_balance,
-            'spot_fee_pool:', usdc_spot_market.spot_fee_pool.scaled_balance,
-            'total if shares', usdc_spot_market.insurance_fund.total_shares
+            f'spot market {i} info:', '\n\t',
+            'deposit_balance:', spot_market.deposit_balance, '\n\t',
+            'borrow_balance:', spot_market.borrow_balance, '\n\t',
+            'revenue_pool:', spot_market.revenue_pool.scaled_balance,'\n\t',
+            'spot_fee_pool:', spot_market.spot_fee_pool.scaled_balance,'\n\t',
+            'total if shares', spot_market.insurance_fund.total_shares,
         )
 
+    print('---')
     print('market $:', market_collateral)
     print(f'difference in $ {(end_total_collateral - init_total_collateral) / QUOTE_PRECISION:,}')
     print(
@@ -622,34 +666,6 @@ async def run_trial(
         (end_total_collateral, init_total_collateral)
     )
 
-    print(
-        "net baa & net unsettled:",
-        market.amm.base_asset_amount_with_amm, 
-        market.amm.base_asset_amount_with_unsettled_lp,
-        market.amm.base_asset_amount_with_amm + market.amm.base_asset_amount_with_unsettled_lp
-    )
-
-    print(
-        'net long/short',
-        market.amm.base_asset_amount_long, 
-        market.amm.base_asset_amount_short, 
-        market.amm.user_lp_shares, 
-    )
-
-    print(
-        'cumulative_social_loss / funding:',
-        market.amm.cumulative_social_loss, 
-        market.amm.cumulative_funding_rate_long, 
-        market.amm.cumulative_funding_rate_short, 
-        market.amm.last_funding_rate_long, 
-        market.amm.last_funding_rate_short, 
-    )
-
-    print(
-        'market pool balances:: ',
-        'fee pool:', market.amm.fee_pool.scaled_balance, 
-        'pnl pool:', market.pnl_pool.scaled_balance
-    )
 
     print(
         'total time (seconds):',
@@ -691,6 +707,9 @@ async def main(protocol_path, experiments_folder, geyser_path, trial):
         markets = json.load(f)
     with open(f'{experiments_folder}/spot_markets_json.csv', 'r') as f:
         spot_markets = json.load(f)
+
+    if len(spot_markets) > 5:
+        print('WARNING: ONLY UP TO FIVE SPOT MARKETS SUPPORTED (check db_path/update_config.py)')
 
     experiment_name = Path(experiments_folder).stem
     trial_outpath = Path(f'{experiments_folder}/../../results/{experiment_name}/trial_{trial}')

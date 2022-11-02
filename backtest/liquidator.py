@@ -68,8 +68,7 @@ class Liquidator:
                     case "SpotBalanceType.Borrow()":
                         liabilities.append(spot_position.market_index)
 
-            if len(liabilities) > 0:
-                assert len(assets) > 0
+            if len(liabilities) > 0 and len(assets) > 0:
                 # try to liq em 
                 promise = self.liq_ch.get_liquidate_spot_ix(
                     authority, 
@@ -86,7 +85,7 @@ class Liquidator:
 
         promises = []
         for ix_args, ix in zip(ixs_args, ixs):
-            promise = self.send_ix(self.liq_ch, ix, 'liquidate_spot', ix_args, silent_fail=False)
+            promise = self.send_ix(self.liq_ch, ix, 'liquidate_spot', ix_args, silent_fail=True)
             promises.append(promise)
         await asyncio.gather(*promises)
 
@@ -158,25 +157,39 @@ class Liquidator:
             chs.append(ch)
         users = await asyncio.gather(*user_promises)
 
+        ix_names = []
+        ix_args = []
         promises = []
         user: User
         for ch, user in zip(chs, users):
-            if user.is_bankrupt:
+            if str(user.status) == "UserStatus.Bankrupt()":
                 for i in range(self.n_markets):
                     position = await ch.get_user_position(i)
-                    if not is_available(position):
+                    if position is not None and not is_available(position):
                         promise = self.liq_ch.get_resolve_perp_bankruptcy_ix(
                             user.authority, i
                         )
+                        ix_args.append({'market_index': i, 'authority': user.authority})
+                        ix_names.append('perp_bankruptcy')
+                        promises.append(promise)
+                    
+                for i in range(self.n_spot_markets):
+                    position = await ch.get_user_spot_position(i)
+                    if position is not None and not is_spot_position_available(position):
+                        promise = self.liq_ch.get_resolve_spot_bankruptcy_ix(
+                            user.authority, i
+                        )
+                        ix_args.append({'market_index': i, 'authority': user.authority})
+                        ix_names.append('spot_bankruptcy')
                         promises.append(promise)
 
         ixs = await asyncio.gather(*promises)
         print(f'trying to resolve {len(ixs)} users bankruptcies')
         p = []
-        for ix in ixs:
-            args = resolve_perp_bankruptcy_ix_args(ix)
+        for args, ix, name in zip(ix_args, ixs, ix_names):
+            # args = resolve_perp_bankruptcy_ix_args(ix)
             p.append(
-                self.send_ix(self.liq_ch, ix, 'resolve_perp_bankruptcy', args, silent_fail=self.silent)
+                self.send_ix(self.liq_ch, ix, name, args, silent_fail=self.silent)
             )
         await asyncio.gather(*p)
         

@@ -12,7 +12,7 @@ import sys
 sys.path.insert(0, '../driftpy/src/')
 
 sys.path.insert(0, '../')
-from backtest.helpers import serialize_perp_market_2, serialize_spot_market
+from backtest.helpers import *
 from spl.token._layouts import ACCOUNT_LAYOUT
 
 import json
@@ -160,7 +160,8 @@ class Extractor:
         user_history, user_rows = self.decode_type_to_object(pk, "User")
         user_df = []
         for user, r in zip(user_history, user_rows):
-            d = user.__dict__
+            # d = user.__dict__
+            d = serialize_user(user)
 
             # add time information to dict
             d['slot'] = r['slot']
@@ -169,7 +170,7 @@ class Extractor:
 
             user_df.append(d)
 
-        user_df = pd.DataFrame(user_df)
+        user_df = pd.concat(user_df)
         user_df.to_csv(self.save_path/f"user_{i}.csv", index=False)
 
     def extract_user_stats(self, pk: PublicKey, i: int):
@@ -249,9 +250,8 @@ def main(
     print('done!')
 
 if __name__ == '__main__':
-    # v2_path = '../driftpy/protocol-v2'
-    v2_path = '../../protocol-v2'
-    experiment_name = 'if_stake'
+    v2_path = '../driftpy/protocol-v2'
+    experiment_name = 'spot3'
     experiment_type_name = 'trial_no_oracle_guards'
 
     user_path = f'../experiments/results/{experiment_name}/{experiment_type_name}/users.json'

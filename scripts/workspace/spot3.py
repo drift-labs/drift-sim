@@ -62,9 +62,11 @@ def setup_ch(base_spread=0, strategies='', n_steps=100):
     markets = [market]
 
     spot_markets = []
+    prices = [1, 1, 100, 100, 1]
+    time = np.array(list(range(len(prices))))
     spot_markets.append(
         SimulationSpotMarket(
-            oracle=Oracle(prices=[1], timestamps=timestamps), 
+            oracle=Oracle(prices=prices, timestamps=time)
         )
     )
 
@@ -75,7 +77,7 @@ def setup_ch(base_spread=0, strategies='', n_steps=100):
 
 def main():
     ## EXPERIMENTS PATH 
-    path = pathlib.Path('../../experiments/init/spot2')
+    path = pathlib.Path('../../experiments/init/spot3')
     path.mkdir(exist_ok=True, parents=True)
     print(str(path.absolute()))
 
@@ -89,23 +91,40 @@ def main():
         n_steps=20,
         base_spread=0,
     )
-
-    events = [ 
-        # user 0 deposits usdc 
-        DepositCollateralEvent(0, 0, 100 * QUOTE_PRECISION, 0, 0, 'a'),
-        # user 1 deposits sol
-        DepositCollateralEvent(0, 1, 100 * QUOTE_PRECISION, 1, 0, 'a'),
-        # user 0 borrows sol 
-        WithdrawEvent(0, 0, 1, 50 * QUOTE_PRECISION, False),
-        # oracle spikes 
-        SpotOracleUpdateEvent(0, 1, int(1e10), 0, -1),
-        # dude gets liqd
-        SpotOracleUpdateEvent(0, 1, int(1), 0, -1),
+    max_t = [len(market.amm.oracle) for market in ch.markets]
+    
+    agents = [
+        Borrower(
+            0, 
+            1, 
+            100 * QUOTE_PRECISION, 
+            50 * QUOTE_PRECISION, 
+            0,
+            start_time=0, 
+            duration=100, 
+        ), 
+        OpenClose(
+            start_time=0, 
+            duration=2, 
+        ),
     ]
 
+    # events = [ 
+    #     # user 0 deposits usdc 
+    #     DepositCollateralEvent(0, 0, 100 * QUOTE_PRECISION, 0, 0, 'a'),
+    #     # user 1 deposits sol
+    #     DepositCollateralEvent(0, 1, 100 * QUOTE_PRECISION, 1, 0, 'a'),
+    #     # user 0 borrows sol 
+    #     WithdrawEvent(0, 0, 1, 50 * QUOTE_PRECISION, False),
+    #     # oracle spikes 
+    #     SpotOracleUpdateEvent(0, 1, int(1e10), 0, -1),
+    #     # dude gets liqd
+    #     SpotOracleUpdateEvent(0, 1, int(1), 0, -1),
+    # ]
+
     # !! 
-    from helpers import run_trial_events
-    run_trial_events(events, ch, path)
+    from helpers import run_trial
+    run_trial(agents, ch, path)
 
 if __name__ == '__main__':
     main()

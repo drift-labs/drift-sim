@@ -80,7 +80,7 @@ class NullEvent(Event):
 
     def run_sdk(self):
         pass
-    
+
 @dataclass
 class DepositCollateralEvent(Event): 
     user_index: int 
@@ -110,6 +110,20 @@ class DepositCollateralEvent(Event):
 
         sig = await user_clearing_house.deposit(self.deposit_amount, self.spot_market_index, user_keypair.public_key)
         return sig
+
+@dataclass 
+class MidSimDepositEvent(DepositCollateralEvent):
+    def __post_init__(self):
+        self._event_name = '_withdraw_collateral'
+
+    async def run_sdk(self, clearing_house: ClearingHouseSDK):
+        sig = await clearing_house.deposit(
+            self.deposit_amount,
+            self.spot_market_index,
+            clearing_house.spot_market_atas[self.spot_market_index],
+        )
+        return sig
+
 
 @dataclass
 class WithdrawEvent(Event): 

@@ -70,8 +70,6 @@ def run_trial(agents, ch, path):
     path.mkdir(exist_ok=True, parents=True)
     print('#agents:', len(agents))
 
-    max_t = [len(market.amm.oracle) for market in ch.markets]
-
     ch: ClearingHouse
     ## save the initial markets!
     json_markets = [m.to_json(0) for m in ch.markets]
@@ -87,7 +85,7 @@ def run_trial(agents, ch, path):
 
     @dataclass
     class _Oracle: 
-        oracle: PublicKey
+        oracle: Oracle
         is_perp: bool 
         index: int
 
@@ -108,6 +106,9 @@ def run_trial(agents, ch, path):
         )
         oracles.append(o)
     last_oracle_price = [-1] * len(oracles)
+
+    max_t = [len(o.oracle) for o in oracles]
+    print('max_t:', max_t)
 
     events = []
     clearing_houses = []

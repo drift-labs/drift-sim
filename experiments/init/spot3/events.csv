@@ -1,0 +1,10 @@
+event_name,timestamp,parameters
+deposit_collateral,0,"{""deposit_amount"": 100000000, ""mint_amount"": 0, ""spot_market_index"": 0, ""user_index"": 0, ""username"": ""borrower""}"
+deposit_collateral,1,"{""deposit_amount"": 100000000, ""mint_amount"": 0, ""spot_market_index"": 0, ""user_index"": 0, ""username"": ""openclose""}"
+withdraw_collateral,2,"{""reduce_only"": false, ""spot_market_index"": 1, ""user_index"": 0, ""username"": ""u"", ""withdraw_amount"": 50000000}"
+open_position,2,"{""direction"": ""long"", ""market_index"": 0, ""quote_amount"": 100000000, ""user_index"": 0}"
+perp_oracle_price,2,"{""conf"": 0, ""market_index"": 0, ""price"": 12.179382815591637, ""slot"": 0}"
+spot_oracle_price,2,"{""conf"": 0, ""market_index"": 1, ""price"": 100.0, ""slot"": 0}"
+close_position,4,"{""market_index"": 0, ""user_index"": 0}"
+perp_oracle_price,4,"{""conf"": 0, ""market_index"": 0, ""price"": 13.061009269799058, ""slot"": 0}"
+spot_oracle_price,4,"{""conf"": 0, ""market_index"": 1, ""price"": 1.0, ""slot"": 0}"

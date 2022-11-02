@@ -232,6 +232,24 @@ def serialize_perp_market_2(market: PerpMarket):
     result_df = pd.concat([market_df, amm_df, amm_hist_oracle_df, market_amm_pool_df, market_if_df, market_pool_df],axis=1)
     return result_df
 
+def serialize_user(user: User):
+    user_df = pd.json_normalize(user.__dict__).drop(['spot_positions', 'perp_positions'], axis=1)
+
+    d = {}
+    for i in range(len(user.spot_positions)):
+        pos = user.spot_positions[i]
+        d[f'user.spot_positions_{i}'] = pos.__dict__
+    spot_position_df = pd.json_normalize(d)
+
+    d = {}
+    for i in range(len(user.perp_positions)):
+        pos = user.perp_positions[i]
+        d[f'user.perp_positions_{i}'] = pos.__dict__
+    perp_position_df = pd.json_normalize(d)
+
+    result_df = pd.concat([user_df, spot_position_df, perp_position_df], axis=1)
+    return result_df
+
 def serialize_spot_market(spot_market: SpotMarket):
     spot_market_df = pd.json_normalize(spot_market.__dict__).drop([
         'historical_oracle_data', 'historical_index_data',
