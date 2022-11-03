@@ -4,6 +4,7 @@ sys.path.insert(0, '../driftpy/src/')
 
 import pandas as pd 
 import numpy as np 
+import time
 
 from driftpy.math.amm import *
 from driftpy.math.trade import *
@@ -97,6 +98,215 @@ async def send_ix(
     LOGGER.log(slot, event_name, ix_args, err, compute_used)
     
     return failed
+
+
+async def delist_markets(
+    program: Program,
+    provider: Provider,
+    admin_clearing_house: ClearingHouse,
+    liquidator: ClearingHouse,
+    user_chs: list,
+    n_markets: int,
+    oracle_program: Program,
+    last_oracle_prices: list,
+):
+
+    print('delisting market...')
+    slot = (await provider.connection.get_slot())['result']
+    dtime: int = (await provider.connection.get_block_time(slot))['result']
+
+    # + N seconds
+    print('updating market expiry...')
+    seconds_time = 5
+    sigs = []
+    for i in range(n_markets):
+        sig = await admin_clearing_house.update_perp_market_expiry(i, dtime + seconds_time)
+        sigs.append(sig)
+
+        LOGGER.log(slot, 'update_perp_market_expiry', {'market_index': i, 'expiry_time': dtime + seconds_time}, None, -1)
+
+    # close out all the LPs 
+    routines = []
+    routine_chs = []
+    for i in range(n_markets):
+        for (_, ch) in user_chs.items():
+            position = await ch.get_user_position(i)
+            if position is None: 
+                continue
+            if position.lp_shares > 0:
+                print(f'removing {position.lp_shares} lp shares...')
+                ix = ch.get_remove_liquidity_ix(
+                    position.lp_shares, position.market_index
+                )
+                routines.append(ix)
+                routine_chs.append(ch)
+    ixs = await asyncio.gather(*routines)
+
+    promises = []
+    for ix, ch in zip(ixs, routine_chs):
+        ix_args = remove_liquidity_ix_args(ix)
+        promises.append(
+            send_ix(ch, ix, removeLiquidityEvent._event_name, ix_args)
+        )
+    await asyncio.gather(*promises)
+
+    print('waiting for expiry...')
+    for sig in sigs:
+        await provider.connection.confirm_transaction(sig, commitment.Confirmed)
+        market = await get_perp_market_account(program, i)
+        assert market.expiry_ts != 0, f'{market.expiry_ts} {dtime + seconds_time}'
+
+    while True:
+        slot = (await provider.connection.get_slot())['result']
+        new_dtime: int = (await provider.connection.get_block_time(slot))['result']
+        time.sleep(0.2)
+        if new_dtime > dtime + seconds_time: 
+            break 
+
+    print('settling expired market')
+    for i in range(n_markets):
+        await admin_clearing_house.settle_expired_market(i)
+        LOGGER.log(slot, 'settle_expired_market', {'market_index': i}, None, -1)
+
+        market = await get_perp_market_account(
+            program, i
+        )
+        print(
+            f'market {i} expiry_price vs twap/price', 
+            market.expiry_price, 
+            market.amm.historical_oracle_data.last_oracle_price_twap,
+            market.amm.historical_oracle_data.last_oracle_price
+        )
+
+    # liquidate em + resolve bankrupts
+    await liquidator.liquidate_loop()
+
+    # settle expired positions 
+    print('settling expired positions')
+    for i in range(n_markets):
+        number_positions = 0
+        for (_, ch) in user_chs.items():
+            position = await ch.get_user_position(i)
+            if position is None: continue
+            number_positions += 1
+        print(f'market {i}: number of positions:', number_positions)
+
+        market = await get_perp_market_account(program, i)
+        print(
+            f'market {i} net long/short',
+            market.amm.base_asset_amount_long, 
+            market.amm.base_asset_amount_short, 
+            market.number_of_users, 
+        )
+
+    n_users = len(list(user_chs.keys()))
+    for i in range(n_markets):
+        success = False
+        attempt = -1
+        last_oracle_price = last_oracle_prices[i]
+
+        while not success:
+            attempt += 1
+            success = True
+            user_count = 0
+
+            print(colored(f' =>> market {i}: settle attempt {attempt}', "blue"))
+            for (_, ch) in user_chs.items():
+                position = await ch.get_user_position(i)
+
+                # dont let oracle go stale
+                slot = (await provider.connection.get_slot())['result']
+                market = await get_perp_market_account(program, i)
+                await set_price_feed_detailed(oracle_program, market.amm.oracle, last_oracle_price, 0, slot)
+
+                # settle expired position
+                if position is None or is_available(position): 
+                    user_count += 1
+                    print(colored(f'settled expired position success: {user_count}/{n_users}', 'green'))
+                else:
+                    user = await ch.get_user()
+                    print(
+                        user.is_bankrupt,
+                        user.is_being_liquidated
+                    )
+
+                    ix = await ch.get_settle_pnl_ix(ch.authority, i)
+                    ix_args = settle_pnl_ix_args(ix[1])
+                    failed = await send_ix(ch, ix, SettlePnLEvent._event_name, ix_args, silent_success=True)
+                    if not failed:
+                        user_count += 1
+                        print(colored(f'settled expired position success: {user_count}/{n_users}', 'green'))
+                    else: 
+                        settling_position = await ch.get_user_position(i)
+                        scaled_balance = (await ch.get_user()).spot_positions[0].scaled_balance
+                        print('user', i, str(ch.authority), ': ', '$',scaled_balance/SPOT_BALANCE_PRECISION)
+                        print('settling position:', settling_position)
+
+                        print(colored(f'settled expired position failed: {user_count}/{n_users}', 'red'))
+                        success = False
+
+    for i in range(n_markets):
+        success = False
+        attempt = -1
+        last_oracle_price = last_oracle_prices[i]
+
+        while not success:
+            attempt += 1
+            success = True
+            user_withdraw_count = 0
+
+            print(colored(f' =>> market {i}: withdraw attempt {attempt}', "blue"))
+            for (_, ch) in user_chs.items():
+                # dont let oracle go stale
+                slot = (await provider.connection.get_slot())['result']
+                market = await get_perp_market_account(program, i)
+                await set_price_feed_detailed(oracle_program, market.amm.oracle, last_oracle_price, 0, slot)
+
+                # withdraw all of collateral
+                ix = await ch.get_withdraw_collateral_ix(
+                    int(1e10 * 1e9), 
+                    QUOTE_ASSET_BANK_INDEX, 
+                    ch.usdc_ata,
+                    True
+                )
+                ix_args = withdraw_ix_args(ix)
+                failed = await send_ix(ch, ix, 'withdraw', ix_args, silent_success=True)
+                if not failed:
+                    user_withdraw_count += 1
+                    print(colored(f'withdraw success: {user_withdraw_count}/{n_users}', 'green'))
+                else: 
+                    print(colored(f'withdraw failed: {user_withdraw_count}/{n_users}', 'red'))
+                    success = False
+
+    for i in range(n_markets):
+        for (_, ch) in user_chs.items():
+            position = await ch.get_user_position(i)
+            if position is None: 
+                continue
+            print(position)
+
+    market = await get_perp_market_account(program, i)
+    print(market.status)
+
+    print('do delisting by `settle_expired_market_pools_to_revenue_pool`')
+    await admin_clearing_house.update_state_settlement_duration(1)
+    time.sleep(5)
+    await admin_clearing_house.settle_expired_market_pools_to_revenue_pool(0)
+
+    market = await get_perp_market_account(program, i)
+    print(market.status)
+
+    print('reactivate market -> Market Status Active')
+    await admin_clearing_house.update_perp_market_status(i, MarketStatus.ACTIVE())
+    market = await get_perp_market_account(program, i)
+    print(market.status)
+
+    await liquidator.open_position(PositionDirection.LONG, 0, 1e6, 0)
+    await liquidator.close_position(PositionDirection.SHORT, 0, 1e6, 0)
+
+    print('quick delist again market')
+
+
 
 async def run_trial(
     protocol_path,
