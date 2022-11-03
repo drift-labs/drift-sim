@@ -26,10 +26,11 @@ class Event:
             )
             return json.loads(params)
         except Exception as e:
+            print(self._event_name)
             print(e)
             print("ERRRRR")
             print(self.__dict__)
-            print([(x, type(x)) for key,x in self.__dict__.items()])
+            print([(x, type(x)) for key, x in self.__dict__.items()])
             return {}
         
     def serialize_to_row(self):
@@ -113,17 +114,19 @@ class DepositCollateralEvent(Event):
 
 @dataclass 
 class MidSimDepositEvent(DepositCollateralEvent):
+    reduce_only: bool = True
+
     def __post_init__(self):
-        self._event_name = '_withdraw_collateral'
+        self._event_name = '_mid_sim_deposit_collateral'
 
     async def run_sdk(self, clearing_house: ClearingHouseSDK):
-        sig = await clearing_house.deposit(
+        ix = await clearing_house.get_deposit_collateral_ix(
             self.deposit_amount,
             self.spot_market_index,
             clearing_house.spot_market_atas[self.spot_market_index],
+            reduce_only=self.reduce_only
         )
-        return sig
-
+        return ix
 
 @dataclass
 class WithdrawEvent(Event): 

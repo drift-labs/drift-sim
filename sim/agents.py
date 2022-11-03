@@ -37,7 +37,7 @@ class Agent:
 def default_user_deposit(
     user_index: int, 
     clearing_house: ClearingHouse,
-    deposit_amount:int = 10_000_000 * QUOTE_PRECISION,
+    deposit_amount:int = 100_000 * QUOTE_PRECISION,
     spot_market_index=0,
     username: str = "u",
 ) -> DepositCollateralEvent:
@@ -103,16 +103,17 @@ class Borrower(Agent):
         deposit_amount = np.random.randint(0, QUOTE_PRECISION * 100)
         borrow_amount = np.random.randint(0, QUOTE_PRECISION * 100)
 
-        spots = list(range(n_spot_markets))
-        asset_spot = np.random.choice(spots)
-        spots.pop(spots.index(asset_spot))
-        liab_spot = np.random.choice(spots)
+        all_spot_markets = list(range(n_spot_markets))
+        # sample two idxs => one for asset/liability 
+        asset, liab = np.random.choice(all_spot_markets, size=(2,), replace=False)
+        asset, liab = int(asset), int(liab)
 
         return Borrower(
-            asset_spot, 
-            liab_spot, 
+            asset, 
+            liab, 
             deposit_amount, 
             borrow_amount, 
+            user_index=user_index,
             start_time=start,
             duration=dur,
         )
@@ -142,12 +143,12 @@ class Borrower(Agent):
                 reduce_only=False,
             )
         elif self.has_opened and self.duration > 0 and now - self.deposit_start == self.duration:
-            event = DepositCollateralEvent(
+            event = MidSimDepositEvent(
                 timestamp=now, 
                 user_index=self.user_index, 
                 spot_market_index=self.liability_spot_index, 
-                deposit_amount=self.borrow_amount,
-                reduce_only=True,
+                deposit_amount=self.borrow_amount, 
+                reduce_only=True
             )
         else: 
             event = NullEvent(now)

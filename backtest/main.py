@@ -148,6 +148,9 @@ async def run_trial(
         )
         spot_mints.append(spot_mint)
 
+        await admin_clearing_house.update_update_insurance_fund_unstaking_period(i+1, 0)
+        await admin_clearing_house.update_withdraw_guard_threshold(i+1, 2**64 - 1)
+
     for i, market in enumerate(markets):
         oracle_price = await setup_market(
             admin_clearing_house, 
@@ -171,10 +174,6 @@ async def run_trial(
             100_000_000 * QUOTE_PRECISION
         )
 
-    # update spot market stats 
-    for i in range(n_spot_markets):
-        await admin_clearing_house.update_withdraw_guard_threshold(i, 2**64 - 1)
-
     # save initial state
     await save_state_account(program, state_path)
 
@@ -182,33 +181,36 @@ async def run_trial(
 
     # initialize users + deposits
     users, liquidator_index = await airdrop_sol_users(provider, events, user_path)
-    user_chs, _user_chus, _init_total_collateral = await setup_deposits(events, program, spot_mints, users, liquidator_index)
+    user_chs, _user_chus, _init_total_collateral = await setup_deposits(events, program, spot_mints, spot_markets, users, liquidator_index)
 
     # compute init collateral 
-    async def get_token_amount(usdc_ata: PublicKey):
-        return (await provider.connection.get_token_account_balance(usdc_ata))['result']['value']['uiAmount']
+    async def get_token_amount(usdc_ata: PublicKey, price: int):
+        return (await provider.connection.get_token_account_balance(usdc_ata))['result']['value']['uiAmount'] * price
     async def get_collateral_amount(chu: ClearingHouseUser):
         return (await chu.get_total_collateral()) / QUOTE_PRECISION
     async def compute_collateral_amount():
         promises = []
         ch: ClearingHouse
-        for (i, ch) in user_chs.items():
-            chu: ClearingHouseUser = _user_chus[i]
+        for (user_idx, ch) in user_chs.items():
+            chu: ClearingHouseUser = _user_chus[user_idx]
             # get it all in $ amounts
             user_collateral = get_collateral_amount(chu)
             promises.append(user_collateral)
 
             for i in ch.spot_market_atas.keys(): 
+                price = 1 if i == 0 else spot_markets[i-1]['init_price']
                 promises.append(
-                    get_token_amount(ch.spot_market_atas[i])
+                    get_token_amount(ch.spot_market_atas[i], price)
                 )
-        all_user_collateral = sum(await asyncio.gather(*promises))
+
+        all_user_collateral = await asyncio.gather(*promises)
+        all_user_collateral = sum(all_user_collateral)
 
         return all_user_collateral
 
     init_total_collateral = await compute_collateral_amount()
     print(f'> initial collateral: {init_total_collateral}')
-    assert int(init_total_collateral) == int(_init_total_collateral/QUOTE_PRECISION)
+    assert int(init_total_collateral) == int(_init_total_collateral/QUOTE_PRECISION), f"{init_total_collateral} {_init_total_collateral/QUOTE_PRECISION}"
 
     liquidator = Liquidator(user_chs, n_markets, n_spot_markets, liquidator_index, send_ix)
 
@@ -625,6 +627,8 @@ async def run_trial(
 
         print(
             f'market {i} info:',
+            "\n\t market.amm.total_fee_minus_distributions:", 
+            market.amm.total_fee_minus_distributions,
             "\n\t net baa & net unsettled:", 
             market.amm.base_asset_amount_with_amm,
             market.amm.base_asset_amount_with_unsettled_lp,
@@ -639,11 +643,9 @@ async def run_trial(
             market.amm.cumulative_funding_rate_short, 
             market.amm.last_funding_rate_long, 
             market.amm.last_funding_rate_short, 
-            '\n\t market pool balances:',
             '\n\t fee pool:', market.amm.fee_pool.scaled_balance, 
             '\n\t pnl pool:', market.pnl_pool.scaled_balance
         )
-
     print('---')
 
     for i in range(n_spot_markets):
@@ -657,18 +659,14 @@ async def run_trial(
             'spot_fee_pool:', spot_market.spot_fee_pool.scaled_balance,'\n\t',
             'total if shares', spot_market.insurance_fund.total_shares,
         )
-
     print('---')
-    print('market $:', market_collateral)
-    print(f'difference in $ {(end_total_collateral - init_total_collateral) / QUOTE_PRECISION:,}')
-    print(
-        "=> end/init collateral",
-        (end_total_collateral, init_total_collateral)
-    )
 
+    print(f'collateral information:')
+    print(f'\tcollateral before: {end_total_collateral} \n\t collateral after: {end_total_collateral}')
+    print(f'\tdifference in collateral: {(end_total_collateral - init_total_collateral) / QUOTE_PRECISION:,}')
 
     print(
-        'total time (seconds):',
+        'total sim time (seconds):',
         time.time() - start
     )
     

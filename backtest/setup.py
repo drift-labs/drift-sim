@@ -132,6 +132,7 @@ async def setup_deposits(
     events: pd.DataFrame, 
     program: Program, 
     spot_mints: list[Keypair], 
+    spot_markets_price: list,
     users: list, 
     liquidator_index: int
 ):
@@ -183,7 +184,7 @@ async def setup_deposits(
             deposit_amount = deposit_amounts.get(user_index, 0)
             mint_amount = mint_amounts.get(user_index, 0)
             user_kp = users[user_index][0]
-            print(f'=> user {user_index} depositing in spot {spot_market_index}: {deposit_amount / QUOTE_PRECISION:,.0f}...')
+            print(f'=> user {user_index} depositing in spot {spot_market_index}: {deposit_amount / QUOTE_PRECISION:,.0f} + mint: {mint_amount / QUOTE_PRECISION:,.0f}...')
 
             await setup_user(
                 user_chs,
@@ -198,7 +199,8 @@ async def setup_deposits(
             )
 
             # track collateral 
-            init_total_collateral += deposit_amount + mint_amount
+            price = 1 if spot_market_index == 0 else spot_markets_price[spot_market_index-1]['init_price']
+            init_total_collateral += (deposit_amount + mint_amount) * price
 
     return user_chs, user_chus, init_total_collateral
 
