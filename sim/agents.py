@@ -100,8 +100,8 @@ class Borrower(Agent):
         start = np.random.randint(0, max_t - 2)
         dur = np.random.randint(0, max_t - start - 1)
 
-        deposit_amount = np.random.randint(0, QUOTE_PRECISION * 100)
-        borrow_amount = np.random.randint(0, QUOTE_PRECISION * 100)
+        deposit_amount = np.random.randint(0, QUOTE_PRECISION * 100_000)
+        borrow_amount = np.random.randint(0, deposit_amount)
 
         all_spot_markets = list(range(n_spot_markets))
         # sample two idxs => one for asset/liability 
@@ -131,10 +131,37 @@ class Borrower(Agent):
 
     def run(self, state_i: ClearingHouse) -> list[Event]:
         now = state_i.time
+        events = []
         
         if (now == self.start_time) or (now > self.start_time and not self.has_opened): 
             self.deposit_start = now
             self.has_opened = True
+
+            # compute price of both asset and liab 
+            if self.asset_spot_index == 0:
+                asset_price = 1
+            else:
+                asset_price = state_i.spot_markets[self.asset_spot_index].oracle.get_price(now)
+            
+            if self.liability_spot_index == 0:
+                liab_price = 1
+            else:
+                liab_price = state_i.spot_markets[self.liability_spot_index].oracle.get_price(now)
+            
+            total_collateral = self.deposit_amount * asset_price
+            liability_price = self.borrow_amount * liab_price
+
+            # add more so we can withdraw
+            if liability_price > total_collateral: 
+                event = MidSimDepositEvent(
+                    timestamp=now, 
+                    user_index=self.user_index, 
+                    spot_market_index=self.asset_spot_index, 
+                    deposit_amount=(liability_price - total_collateral), 
+                    reduce_only=False
+                )
+                events.append(event)
+
             event = WithdrawEvent(
                 timestamp=now, 
                 user_index=self.user_index, 
@@ -152,8 +179,9 @@ class Borrower(Agent):
             )
         else: 
             event = NullEvent(now)
-
-        return [event]
+        
+        events.append(event)
+        return events
 
 
 @dataclass
@@ -185,7 +213,8 @@ class IFStaker(Agent):
             self.user_index, 
             state_i, 
             username=self.name, 
-            deposit_amount=self.stake_amount
+            deposit_amount=self.stake_amount,
+            spot_market_index=self.spot_market_index
         )
         event.mint_amount = event.deposit_amount
         event.deposit_amount = 0

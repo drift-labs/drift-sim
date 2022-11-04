@@ -5,7 +5,7 @@ solana-keygen new -o $(pwd)/anchor.json --silent --force --no-bip39-passphrase &
 export ANCHOR_WALLET=$(pwd)/anchor.json && 
 
 clearinghouse_id=$(cat $protocol_path/programs/drift/src/lib.rs | grep declare_id! | tail -n 1) &&
-clearinghouse_id=${clearinghouse_id:13:44} && 
+clearinghouse_id=${clearinghouse_id:13:43} && 
 
 pyth_id=$(cat $protocol_path/programs/pyth/src/lib.rs | grep declare_id! | tail -n 1) &&
 pyth_id=${pyth_id:13:43} && 

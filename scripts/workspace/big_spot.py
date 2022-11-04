@@ -62,7 +62,7 @@ def setup_ch(base_spread=0, strategies='', n_steps=100):
     markets = [market]
 
     spot_markets = []
-    prices, time = rand_heterosk_oracle(90, n_steps=n_steps)
+    prices, time = rand_heterosk_oracle(1, n_steps=n_steps)
     # prices = [1, 1, 100, 100, 1]
     # time = np.array(list(range(len(prices))))
     spot_markets.append(
@@ -89,7 +89,7 @@ def main():
 
     # setup markets + clearing houses
     ch = setup_ch(
-        n_steps=20,
+        n_steps=50,
         base_spread=0,
     )
     n_markets = len(ch.markets)
@@ -97,11 +97,11 @@ def main():
     max_t = [len(market.amm.oracle) for market in ch.markets]
 
     # test agents seperate rn then do multiple agents on a sinlge user later
-    n_lps = 2
-    n_traders = 3
-    n_stakers = 10
-    n_borrows = 1
-    n_times = 2
+    n_lps = 5
+    n_traders = 5
+    n_stakers = 5
+    n_borrows = 20
+    n_times = 3
     total_users = n_lps + n_traders + n_stakers + n_borrows
 
     agents = []

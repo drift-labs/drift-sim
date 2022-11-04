@@ -31,6 +31,7 @@ from sim.driftsim.clearing_house.lib import *
 
 from sim.events import * 
 from sim.agents import * 
+from sim.driftsim.clearing_house.state import *
 
 def setup_ch(base_spread=0, strategies='', n_steps=100):
     # market one 

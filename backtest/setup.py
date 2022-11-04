@@ -171,7 +171,7 @@ async def setup_deposits(
 
     # dont let the liquidator get liq'd 
     for i in range(len(spot_mints)):
-        spot_markets[i]['deposits'][liquidator_index] = 1_000_000 * QUOTE_PRECISION
+        spot_markets[i]['deposits'][liquidator_index] = 100_000 * QUOTE_PRECISION
         spot_markets[i]['mints'][liquidator_index] = 0
     user_indexs.append(liquidator_index)
 
@@ -184,7 +184,7 @@ async def setup_deposits(
             deposit_amount = deposit_amounts.get(user_index, 0)
             mint_amount = mint_amounts.get(user_index, 0)
             user_kp = users[user_index][0]
-            print(f'=> user {user_index} depositing in spot {spot_market_index}: {deposit_amount / QUOTE_PRECISION:,.0f} + mint: {mint_amount / QUOTE_PRECISION:,.0f}...')
+            print(f'=> user {user_index}: spot {spot_market_index}: depositing: {deposit_amount / QUOTE_PRECISION:,.0f} + mint: {mint_amount / QUOTE_PRECISION:,.0f}...')
 
             await setup_user(
                 user_chs,
@@ -237,7 +237,7 @@ async def setup_user(
     )
     user_clearing_house.spot_market_atas[spot_market_index] = ata_kp.public_key
     if spot_market_index == 0:
-        user_clearing_house.ata = ata_kp.public_key
+        user_clearing_house.usdc_ata = ata_kp.public_key
 
     instructions += ata_tx.instructions
 
@@ -345,7 +345,7 @@ async def setup_spot_market(
         maintenance_liability_weight=main_liab_weight
     )
 
-    return mint
+    return mint, oracle_price
 
 async def setup_market(
     admin_clearing_house: Admin, 

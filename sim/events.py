@@ -112,14 +112,46 @@ class DepositCollateralEvent(Event):
         sig = await user_clearing_house.deposit(self.deposit_amount, self.spot_market_index, user_keypair.public_key)
         return sig
 
+from driftpy.clearing_house_user import get_token_amount
+from driftpy.setup.helpers import _mint_usdc_tx
+
 @dataclass 
 class MidSimDepositEvent(DepositCollateralEvent):
     reduce_only: bool = True
+    _event_name: str = '_mid_sim_deposit_collateral'
 
-    def __post_init__(self):
-        self._event_name = '_mid_sim_deposit_collateral'
+    async def run_sdk(self, clearing_house: ClearingHouseSDK, admin_clearing_house: ClearingHouseSDK, spot_mints: list[int]):
+        # # balance: int, spot_market: SpotMarket, balance_type: SpotBalanceType
+        spot_market = await get_spot_market_account(clearing_house.program, self.spot_market_index)
 
-    async def run_sdk(self, clearing_house: ClearingHouseSDK):
+        position = await clearing_house.get_user_spot_position(self.spot_market_index)
+        if position is not None and str(position.balance_type) == "SpotBalanceType.Borrow()":
+            token_amount = int(get_token_amount(
+                position.scaled_balance, 
+                spot_market,
+                position.balance_type
+            ))
+            # pay back full debt here 
+            self.deposit_amount = token_amount
+
+            connection = clearing_house.program.provider.connection
+            current_amount = (await connection.get_token_account_balance(
+                clearing_house.spot_market_atas[self.spot_market_index]
+            ))['result']['value']['amount']
+
+            difference_amount = token_amount - int(current_amount)
+            if difference_amount > 0:
+                difference_amount = int(difference_amount) + 1
+
+                print(f'minting an extra {difference_amount}...')
+                mint_tx = _mint_usdc_tx(
+                    spot_mints[self.spot_market_index], 
+                    clearing_house.program.provider, 
+                    difference_amount, 
+                    clearing_house.spot_market_atas[self.spot_market_index]
+                )
+                await admin_clearing_house.send_ixs(mint_tx.instructions)
+
         ix = await clearing_house.get_deposit_collateral_ix(
             self.deposit_amount,
             self.spot_market_index,
@@ -491,13 +523,13 @@ class RemoveIfStakeEvent(Event):
         return clearing_house
 
     async def run_sdk(self, clearing_house: ClearingHouseSDK):
-        spot = await get_spot_market_account(clearing_house.program, 0)
+        spot = await get_spot_market_account(clearing_house.program, self.market_index)
         total_shares = spot.insurance_fund.total_shares
-        if_stake = await get_if_stake_account(clearing_house.program, clearing_house.authority, 0)
+        if_stake = await get_if_stake_account(clearing_house.program, clearing_house.authority, self.market_index)
         n_shares = if_stake.if_shares
 
         conn = clearing_house.program.provider.connection
-        vault_pk = get_insurance_fund_vault_public_key(clearing_house.program_id, 0)
+        vault_pk = get_insurance_fund_vault_public_key(clearing_house.program_id, self.market_index)
         v_amount = int((await conn.get_token_account_balance(vault_pk))['result']['value']['amount'])
 
         print(
@@ -505,8 +537,6 @@ class RemoveIfStakeEvent(Event):
         )
 
         withdraw_amount = int(v_amount * n_shares / total_shares)
-        if withdraw_amount > 1:
-            withdraw_amount = 0
         
         if withdraw_amount == 0:
             print('WARNING: if_stake withdraw amount == 0')

@@ -19,6 +19,7 @@ from driftpy.setup.helpers import _create_mint, mock_oracle, _airdrop_user, set_
 from driftpy.clearing_house import ClearingHouse
 from driftpy.admin import Admin
 from driftpy.types import OracleSource
+from driftpy.clearing_house_user import get_token_amount as sdk_token_amount
 
 from sim.events import * 
 from driftpy.clearing_house import ClearingHouse as SDKClearingHouse
@@ -82,6 +83,7 @@ async def send_ix(
         print(colored(f'> {event_name} success', "green"))
     elif failed and not silent_fail:
         print(colored(f'> {event_name} failed', "red"))
+        pprint.pprint(ix_args)
         pprint.pprint(err)
 
     if logs: 
@@ -119,6 +121,8 @@ async def run_trial(
     program: Program = workspace["drift"]
     oracle_program: Program = workspace["pyth"]
     provider: Provider = program.provider
+    from solana.rpc.async_api import AsyncClient
+    connection: AsyncClient = provider.connection
 
     admin_clearing_house, usdc_mint = await setup_bank(program)
 
@@ -135,21 +139,24 @@ async def run_trial(
     n_markets = len(markets) 
     n_spot_markets = len(spot_markets) + 1
     last_oracle_prices = []
+    last_spot_oracle_prices = [1,]
 
     spot_mints = [
         usdc_mint
     ]
     for i, spot_market in enumerate(spot_markets):
-        spot_mint = await setup_spot_market(
+        spot_mint, price = await setup_spot_market(
             admin_clearing_house, 
             oracle_program, 
             spot_market, 
             i+1
         )
         spot_mints.append(spot_mint)
+        last_spot_oracle_prices.append(price)
 
-        await admin_clearing_house.update_update_insurance_fund_unstaking_period(i+1, 0)
-        await admin_clearing_house.update_withdraw_guard_threshold(i+1, 2**64 - 1)
+    for i in range(n_spot_markets):
+        await admin_clearing_house.update_update_insurance_fund_unstaking_period(i, 0)
+        await admin_clearing_house.update_withdraw_guard_threshold(i, 2**64 - 1)
 
     for i, market in enumerate(markets):
         oracle_price = await setup_market(
@@ -232,7 +239,7 @@ async def run_trial(
             event = Event.deserialize_from_row(MidSimDepositEvent, event)
             assert event.user_index in user_chs, 'user doesnt exist'
             ch: SDKClearingHouse = user_chs[event.user_index]
-            ix = await event.run_sdk(ch)
+            ix = await event.run_sdk(ch, admin_clearing_house, spot_mints)
             ix_args = event.serialize_parameters()
             print(f'=> {event.user_index} depositing...')
 
@@ -307,6 +314,8 @@ async def run_trial(
             ix_args = event.serialize_parameters()
             ch = admin_clearing_house
 
+            last_spot_oracle_prices[event.market_index] = event.price
+
         elif event.event_name == 'liquidate':
             pass
 
@@ -332,6 +341,14 @@ async def run_trial(
         elif event.event_name == WithdrawEvent._event_name:
             event = Event.deserialize_from_row(WithdrawEvent, event)
             ch: SDKClearingHouse = user_chs[event.user_index]
+            
+            # make sure the oracle isnt stale            
+            if event.spot_market_index != 0:
+                spot_market = await get_spot_market_account(ch.program, event.spot_market_index)
+                last_oracle_price = (await get_feed_data(oracle_program, spot_market.oracle)).price
+                slot = (await provider.connection.get_slot())['result']
+                await set_price_feed_detailed(oracle_program, spot_market.oracle, last_oracle_price, 0, slot)
+
             ix = await event.run_sdk(ch)
             ix_args = event.serialize_parameters()
 
@@ -339,7 +356,8 @@ async def run_trial(
             continue
 
         else:
-            raise NotImplementedError
+            print('event:', event)
+            raise NotImplementedError 
 
         need_to_send_ix = ix_args is not None 
         if need_to_send_ix:
@@ -348,14 +366,14 @@ async def run_trial(
         # try to liquidate traders after each timestep 
         await liquidator.liquidate_loop()
 
-        print('levearged users:')
-        for i, chu in _user_chus.items():
-            leverage = await chu.get_leverage()
-            if leverage != 0:
-                print(i, leverage/10_000)
-        market = await get_perp_market_account(program, 0)
-        twap = market.amm.historical_oracle_data.last_oracle_price_twap
-        print('oracle twap:', twap)
+        # print('levearged users:')
+        # for i, chu in _user_chus.items():
+        #     leverage = await chu.get_leverage()
+        #     if leverage != 0:
+        #         print(i, leverage/10_000)
+        # market = await get_perp_market_account(program, 0)
+        # twap = market.amm.historical_oracle_data.last_oracle_price_twap
+        # print('oracle twap:', twap)
 
     print('delisting market...')
     slot = (await provider.connection.get_slot())['result']
@@ -381,17 +399,49 @@ async def run_trial(
     print('repaying withdraws...')
     routines = []
     for i in range(n_spot_markets):
-        for (_, ch) in user_chs.items():
+
+        for (user_idx, ch) in user_chs.items():
             position = await ch.get_user_spot_position(i)
             if position is None: continue
+            
+            spot_market = await get_spot_market_account(program, i)
             if str(position.balance_type) == "SpotBalanceType.Borrow()":
+                token_amount = sdk_token_amount(
+                    position.scaled_balance, 
+                    spot_market, 
+                    position.balance_type
+                )
+                print(f'{user_idx}: paying back {token_amount}...')
+
+                current_amount = (await connection.get_token_account_balance(
+                    ch.spot_market_atas[i]
+                ))['result']['value']['amount']
+
+                difference_amount = token_amount - int(current_amount)
+                if difference_amount > 0:
+                    # +100 just in case
+                    difference_amount = int(difference_amount) + 100 * QUOTE_PRECISION
+
+                    print(f'minting an extra {difference_amount}...')
+                    mint_tx = _mint_usdc_tx(
+                        spot_mints[i], 
+                        provider, 
+                        difference_amount, 
+                        ch.spot_market_atas[i]
+                    )
+                    await admin_clearing_house.send_ixs(mint_tx.instructions)
+
                 # pay back 
-                routines.append(ch.deposit(
-                    int(1e19), 
+                ix = await ch.get_deposit_collateral_ix(
+                    int(1e19),
                     i, 
                     ch.spot_market_atas[i],
                     reduce_only=True
-                ))
+                )
+                ix_args = {'event_name': 'deposit', 'amount': int(1e19), 'reduce_only': True }
+                promise = send_ix(ch, ix, 'deposit_collateral', ix_args, view_logs_flag=True)
+                routines.append(promise)
+
     await asyncio.gather(*routines)
 
     # close out all the LPs 
@@ -469,6 +519,26 @@ async def run_trial(
             market.number_of_users, 
         )
 
+    # remove if stakes 
+    for i in range(n_spot_markets):
+        for (user_index, ch) in user_chs.items():
+            if_position_pk = get_insurance_fund_stake_public_key(
+                ch.program_id, ch.authority, i
+            )
+            resp = await ch.program.provider.connection.get_account_info(
+                if_position_pk
+            )
+            if resp["result"]["value"] is None: continue # if stake doesnt exist 
+
+            if_account = await get_if_stake_account(ch.program, ch.authority, i)
+            if if_account.if_shares > 0:
+                event = RemoveIfStakeEvent(-1, user_index, i, -1)
+                ix = await event.run_sdk(ch)
+                if ix is None: continue
+                ix_args = event.serialize_parameters()
+
+                await send_ix(ch, ix, event._event_name, ix_args)        
+
     n_users = len(list(user_chs.keys()))
     for i in range(n_markets):
         success = False
@@ -514,10 +584,9 @@ async def run_trial(
     for spot_market_index in range(n_spot_markets):
         success = False
         attempt = -1
-        if spot_market_index != 0:
-            market = await get_spot_market_account(program, spot_market_index)
-            last_oracle_price = (await get_feed_data(oracle_program, market.oracle)).price
         spot_market = await get_spot_market_account(program, spot_market_index)
+        if spot_market_index != 0:
+            last_oracle_price = (await get_feed_data(oracle_program, spot_market.oracle)).price
 
         while not success:
             attempt += 1
@@ -532,15 +601,13 @@ async def run_trial(
                 # dont let oracle go stale
                 if spot_market_index != 0:
                     slot = (await provider.connection.get_slot())['result']
-                    await set_price_feed_detailed(oracle_program, market.oracle, last_oracle_price, 0, slot)
+                    await set_price_feed_detailed(oracle_program, spot_market.oracle, last_oracle_price, 0, slot)
 
                 position = await chu.get_user_spot_position(spot_market_index)
                 if position is None: 
                     user_withdraw_count += 1
-                    print(colored(f'withdraw success: {user_withdraw_count}/{n_users}', 'green'))
                     continue
                 
-                from driftpy.clearing_house_user import get_token_amount as sdk_token_amount
                 # # balance: int, spot_market: SpotMarket, balance_type: SpotBalanceType
                 spot_market = await get_spot_market_account(program, spot_market_index)
                 token_amount = int(sdk_token_amount(
@@ -559,7 +626,7 @@ async def run_trial(
                     True
                 )
                 ix_args = withdraw_ix_args(ix)
-                failed = await send_ix(ch, ix, WithdrawEvent._event_name, ix_args)
+                failed = await send_ix(ch, ix, WithdrawEvent._event_name, ix_args, view_logs_flag=True)
 
                 if not failed:
                     user_withdraw_count += 1
@@ -620,10 +687,13 @@ async def run_trial(
     # compute total collateral at end of sim
     end_total_collateral = await compute_collateral_amount()
 
+    total_market_money = 0
     for i in range(n_markets):
         market = await get_perp_market_account(program, i)
         market_collateral = market.amm.total_fee_minus_distributions / 1e6
         end_total_collateral += market_collateral
+
+        total_market_money += market.amm.fee_pool.scaled_balance + market.pnl_pool.scaled_balance
 
         print(
             f'market {i} info:',
@@ -659,6 +729,10 @@ async def run_trial(
             'spot_fee_pool:', spot_market.spot_fee_pool.scaled_balance,'\n\t',
             'total if shares', spot_market.insurance_fund.total_shares,
         )
+        if i == 0:
+            total_balance = spot_market.revenue_pool.scaled_balance + total_market_money
+            print('total balance (should = deposit balance):', total_balance)
+
     print('---')
 
     print(f'collateral information:')
@@ -679,8 +753,7 @@ async def main(protocol_path, experiments_folder, geyser_path, trial):
 
     no_oracle_guard_rails = OracleGuardRails(
         price_divergence=PriceDivergenceGuardRails(1, 1), 
-        validity=ValidityGuardRails(10, 10, 100, 2**63 - 1),
-        use_for_liquidations=True,
+        validity=ValidityGuardRails(10, 10, 100, 2**63 - 1)
     )
 
     trial_guard_rails = None

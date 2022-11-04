@@ -47,6 +47,7 @@ from sim.agents import *
 import pathlib 
 import pandas as pd 
 import random 
+from sim.driftsim.clearing_house.state import *
 
 def setup_ch():
     markets = []

@@ -32,6 +32,7 @@ from sim.events import *
 from sim.agents import * 
 from pathlib import Path
 
+
 def run_trial_events(events, ch: ClearingHouse, path: Path):
     path.mkdir(exist_ok=True, parents=True)
 
