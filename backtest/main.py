@@ -140,12 +140,13 @@ async def run_trial(
     n_spot_markets = len(spot_markets) + 1
     last_oracle_prices = []
     last_spot_oracle_prices = [1,]
+    oracle_addrs = []
 
     spot_mints = [
         usdc_mint
     ]
     for i, spot_market in enumerate(spot_markets):
-        spot_mint, price = await setup_spot_market(
+        spot_mint, price, oracle = await setup_spot_market(
             admin_clearing_house, 
             oracle_program, 
             spot_market, 
@@ -153,13 +154,14 @@ async def run_trial(
         )
         spot_mints.append(spot_mint)
         last_spot_oracle_prices.append(price)
+        oracle_addrs.append(oracle)
 
     for i in range(n_spot_markets):
         await admin_clearing_house.update_update_insurance_fund_unstaking_period(i, 0)
         await admin_clearing_house.update_withdraw_guard_threshold(i, 2**64 - 1)
 
     for i, market in enumerate(markets):
-        oracle_price = await setup_market(
+        oracle_price, oracle = await setup_market(
             admin_clearing_house, 
             oracle_program, 
             market, 
@@ -168,6 +170,7 @@ async def run_trial(
             spread
         )
         last_oracle_prices.append(oracle_price)
+        oracle_addrs.append(oracle)
 
         # allow IF to pay bankruptcies
         await admin_clearing_house.update_perp_market_contract_tier(
@@ -187,8 +190,8 @@ async def run_trial(
     start = time.time()
 
     # initialize users + deposits
-    users, liquidator_index = await airdrop_sol_users(provider, events, user_path)
-    user_chs, _user_chus, _init_total_collateral = await setup_deposits(events, program, spot_mints, spot_markets, users, liquidator_index)
+    users = await airdrop_sol_users(provider, events, user_path)
+    user_chs, _user_chus, _init_total_collateral = await setup_deposits(events, program, spot_mints, spot_markets, users)
 
     # compute init collateral 
     async def get_token_amount(usdc_ata: PublicKey, price: int):
@@ -219,7 +222,6 @@ async def run_trial(
     print(f'> initial collateral: {init_total_collateral}')
     assert int(init_total_collateral) == int(_init_total_collateral/QUOTE_PRECISION), f"{init_total_collateral} {_init_total_collateral/QUOTE_PRECISION}"
 
-    liquidator = Liquidator(user_chs, n_markets, n_spot_markets, liquidator_index, send_ix)
 
     global LOGGER
     LOGGER = Logger(f'{trial_outpath}/ix_logs.csv')
@@ -316,8 +318,11 @@ async def run_trial(
 
             last_spot_oracle_prices[event.market_index] = event.price
 
-        elif event.event_name == 'liquidate':
-            pass
+        elif event.event_name == LiquidateEvent._event_name:
+            event = Event.deserialize_from_row(LiquidateEvent, event)
+            liquidator = Liquidator(user_chs, n_markets, n_spot_markets, event.user_index, send_ix)
+            await liquidator.liquidate_loop()
+            continue
 
         elif event.event_name == InitIfStakeEvent._event_name:
             event = Event.deserialize_from_row(InitIfStakeEvent, event)
@@ -342,12 +347,11 @@ async def run_trial(
             event = Event.deserialize_from_row(WithdrawEvent, event)
             ch: SDKClearingHouse = user_chs[event.user_index]
             
-            # make sure the oracle isnt stale            
-            if event.spot_market_index != 0:
-                spot_market = await get_spot_market_account(ch.program, event.spot_market_index)
-                last_oracle_price = (await get_feed_data(oracle_program, spot_market.oracle)).price
+            # make sure the oracle isnt stale across all markets they're in 
+            for oracle in oracle_addrs:
+                last_oracle_price = (await get_feed_data(oracle_program, oracle)).price
                 slot = (await provider.connection.get_slot())['result']
-                await set_price_feed_detailed(oracle_program, spot_market.oracle, last_oracle_price, 0, slot)
+                await set_price_feed_detailed(oracle_program, oracle, last_oracle_price, 0, slot)
 
             ix = await event.run_sdk(ch)
             ix_args = event.serialize_parameters()
@@ -362,9 +366,6 @@ async def run_trial(
         need_to_send_ix = ix_args is not None 
         if need_to_send_ix:
             await send_ix(ch, ix, event._event_name, ix_args)        
-
-        # try to liquidate traders after each timestep 
-        await liquidator.liquidate_loop()
 
         # print('levearged users:')
         # for i, chu in _user_chus.items():
@@ -595,7 +596,6 @@ async def run_trial(
 
             print(colored(f' =>> market {spot_market_index}: withdraw attempt {attempt}', "blue"))
             for (i, ch) in user_chs.items():
-                print(f'=> user {i} (is_liq: {i == liquidator_index})')
                 chu: ClearingHouseUser = _user_chus[i]
 
                 # dont let oracle go stale
@@ -620,13 +620,13 @@ async def run_trial(
                 print('token amount', token_amount)
                 ix = await ch.get_withdraw_collateral_ix(
                     # token_amount, 
-                    int(1e12),
+                    int(1e19),
                     spot_market_index, 
                     ch.spot_market_atas[spot_market_index],
                     True
                 )
                 ix_args = withdraw_ix_args(ix)
-                failed = await send_ix(ch, ix, WithdrawEvent._event_name, ix_args, view_logs_flag=True)
+                failed = await send_ix(ch, ix, WithdrawEvent._event_name, ix_args)
 
                 if not failed:
                     user_withdraw_count += 1

@@ -134,7 +134,6 @@ async def setup_deposits(
     spot_mints: list[Keypair], 
     spot_markets_price: list,
     users: list, 
-    liquidator_index: int
 ):
     user_chs = {}
     user_chus = {}
@@ -169,24 +168,19 @@ async def setup_deposits(
             deposits[event.user_index] = deposits.get(event.user_index, 0) + event.deposit_amount
             mints[event.user_index] = mints.get(event.user_index, 0) + event.mint_amount
 
-    # dont let the liquidator get liq'd 
-    for i in range(len(spot_mints)):
-        spot_markets[i]['deposits'][liquidator_index] = 100_000 * QUOTE_PRECISION
-        spot_markets[i]['mints'][liquidator_index] = 0
-    user_indexs.append(liquidator_index)
-
     for spot_market_index in range(len(spot_mints)):
         mint = spot_mints[spot_market_index]
         deposit_amounts = spot_markets[spot_market_index]['deposits']
         mint_amounts = spot_markets[spot_market_index]['mints']
 
+        promises = []
         for user_index in user_indexs:
             deposit_amount = deposit_amounts.get(user_index, 0)
             mint_amount = mint_amounts.get(user_index, 0)
             user_kp = users[user_index][0]
             print(f'=> user {user_index}: spot {spot_market_index}: depositing: {deposit_amount / QUOTE_PRECISION:,.0f} + mint: {mint_amount / QUOTE_PRECISION:,.0f}...')
 
-            await setup_user(
+            promise = setup_user(
                 user_chs,
                 user_chus,
                 user_index, 
@@ -197,10 +191,12 @@ async def setup_deposits(
                 mint_amount,
                 user_kp
             )
+            promises.append(promise)
 
             # track collateral 
             price = 1 if spot_market_index == 0 else spot_markets_price[spot_market_index-1]['init_price']
             init_total_collateral += (deposit_amount + mint_amount) * price
+        await asyncio.gather(*promises)
 
     return user_chs, user_chus, init_total_collateral
 
@@ -286,9 +282,6 @@ async def airdrop_sol_users(provider, events, user_path):
     user_indexs = np.unique([json.loads(e['parameters'])['user_index'] for _, e in events.iterrows() if 'user_index' in json.loads(e['parameters'])])
     user_indexs = list(np.sort(user_indexs))
 
-    liquidator_index = len(user_indexs)
-    user_indexs.append(liquidator_index) # liquidator
-
     users = {}
     for user_index in tqdm(user_indexs):
         user, tx_sig = await _airdrop_user(provider)
@@ -305,7 +298,7 @@ async def airdrop_sol_users(provider, events, user_path):
     for user, tx_sig in tqdm(users.values()):
         await provider.connection.confirm_transaction(tx_sig, sleep_seconds=0.1)
     
-    return users, liquidator_index
+    return users
 
 async def setup_spot_market(
     admin_clearing_house: Admin, 
@@ -345,7 +338,7 @@ async def setup_spot_market(
         maintenance_liability_weight=main_liab_weight
     )
 
-    return mint, oracle_price
+    return mint, oracle_price, oracle
 
 async def setup_market(
     admin_clearing_house: Admin, 
@@ -374,7 +367,7 @@ async def setup_market(
         oracle, 
         init_reserves, 
         init_reserves, 
-        60, 
+        1, 
         int(peg), 
         OracleSource.PYTH(), 
         # default is 5x
@@ -389,7 +382,7 @@ async def setup_market(
     await admin_clearing_house.update_perp_market_max_fill_reserve_fraction(i, 1)
     await admin_clearing_house.update_perp_market_step_size_and_tick_size(i, int(AMM_RESERVE_PRECISION/1e4), 1)
 
-    return oracle_price
+    return oracle_price, oracle
 
 async def setup_bank(
     program: Program,

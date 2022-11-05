@@ -10,7 +10,7 @@
             "request": "launch",
             "cwd": "${workspaceFolder}/backtest",
             "program": "main.py",
-            "args": ["--events", "tmp2", "--protocol", "../driftpy/protocol-v2"],
+            "args": ["--events", "../experiments/init/bigspot", "-t", "no_oracle_guards", "--ignore-compute"],
             "console": "integratedTerminal",
             "justMyCode": false 
         }

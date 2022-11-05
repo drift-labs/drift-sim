@@ -47,12 +47,7 @@ import random
 def setup_ch(base_spread=0, strategies='', n_steps=100):
 
     # market one 
-    # prices, timestamps = rand_heterosk_oracle(90, n_steps=n_steps)
-
-    oracle_df = pd.read_csv('../../experiments/init/dogeMoon/oracle.csv', index_col=[0])    
-    prices = oracle_df.values
-    timestamps = (oracle_df.index-oracle_df.index[0])
-
+    prices, timestamps = rand_heterosk_oracle(90, n_steps=n_steps)
     oracle = Oracle(prices=prices, timestamps=timestamps)
     amm = SimulationAMM(
         oracle=oracle, 
@@ -83,7 +78,7 @@ def setup_ch(base_spread=0, strategies='', n_steps=100):
 
 def main():
     ## EXPERIMENTS PATH 
-    path = pathlib.Path('../../experiments/init/bigspot')
+    path = pathlib.Path(f'../../experiments/init/{pathlib.Path(__file__).stem}')
     path.mkdir(exist_ok=True, parents=True)
     print(str(path.absolute()))
 
@@ -94,7 +89,7 @@ def main():
 
     # setup markets + clearing houses
     ch = setup_ch(
-        n_steps=50,
+        n_steps=13,
         base_spread=0,
     )
     n_markets = len(ch.markets)
@@ -111,43 +106,30 @@ def main():
 
     agents = []
 
-    agents = []
+    # liquidator borrows
+    agent = Liquidator(0, deposits=[100_000 * QUOTE_PRECISION, 0], every_t_times=1)
+    agents.append(agent)
+    agent = Borrower(
+        0,
+        1,
+        0,
+        70_000 * QUOTE_PRECISION,
+        user_index=0,
+        start_time=0,
+        duration=10,
+    )
+    agents.append(agent)
 
-    for market_index in range(n_markets):
-        for user_idx in range(total_users):
-            # trader agents (open/close)
-            if user_idx < n_traders:
-                agent = MultipleAgent(
-                    lambda: OpenClose.random_init(max_t[market_index], user_idx, market_index, short_bias=0.7),
-                    n_times, 
-                )
-                agents.append(agent)
-
-            # LP agents (add/remove/settle) 
-            elif user_idx < n_traders + n_lps:
-                agent = MultipleAgent(
-                    lambda: AddRemoveLiquidity.random_init(max_t[market_index], user_idx, market_index, min_token_amount=100000),
-                    n_times, 
-                )
-                agents.append(agent)
-
-                agent = SettleLP.random_init(max_t[market_index], user_idx, market_index)
-                agents.append(agent)
-
-            elif user_idx < n_traders + n_lps + n_stakers:
-                if market_index == 0: # only add stakers once
-                    for spot_idx in range(n_spot_markets):
-                        agent = IFStaker.random_init(max_t[0], user_idx, spot_idx)
-                        agents.append(agent)
-
-            elif user_idx < n_traders + n_lps + n_stakers + n_borrows: 
-                if market_index == 0: # only add borrowers once 
-                    agent = Borrower.random_init(max_t[0], n_spot_markets, user_idx)
-                    agents.append(agent)
-
-            # settle pnl 
-            agent = SettlePnL.random_init(max_t[market_index], user_idx, market_index)
-            agents.append(agent)
+    agent = Borrower(
+        1, 
+        0, 
+        100_000 * QUOTE_PRECISION, 
+        70_000 * QUOTE_PRECISION, 
+        user_index=1,
+        start_time=0,  
+        duration=10,
+    )
+    agents.append(agent)
 
     # !! 
     from helpers import run_trial

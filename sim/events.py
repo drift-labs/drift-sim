@@ -153,7 +153,7 @@ class MidSimDepositEvent(DepositCollateralEvent):
                 await admin_clearing_house.send_ixs(mint_tx.instructions)
 
         ix = await clearing_house.get_deposit_collateral_ix(
-            self.deposit_amount,
+            int(self.deposit_amount),
             self.spot_market_index,
             clearing_house.spot_market_atas[self.spot_market_index],
             reduce_only=self.reduce_only
@@ -509,6 +509,17 @@ class AddIfStakeEvent(Event):
             self.market_index, 
             self.amount
         )
+
+@dataclass
+class LiquidateEvent(Event): 
+    user_index: int 
+    _event_name: str = "liquidate"
+
+    def run(self, _): 
+        return _
+    
+    def run_sdk(self, _): 
+        return _
 
 @dataclass
 class RemoveIfStakeEvent(Event): 

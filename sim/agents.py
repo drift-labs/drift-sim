@@ -119,14 +119,17 @@ class Borrower(Agent):
         )
     
     def setup(self, state_i: ClearingHouse) -> list[Event]: 
-        event = default_user_deposit(
-            self.user_index, 
-            state_i, 
-            username=self.name, 
-            deposit_amount=self.deposit_amount,
-            spot_market_index=self.asset_spot_index
-        )
-        event = [event]
+        if self.deposit_amount > 0:
+            event = default_user_deposit(
+                self.user_index, 
+                state_i, 
+                username=self.name, 
+                deposit_amount=self.deposit_amount,
+                spot_market_index=self.asset_spot_index
+            )
+            event = [event]
+        else: 
+            event = []
         return event
 
     def run(self, state_i: ClearingHouse) -> list[Event]:
@@ -141,12 +144,12 @@ class Borrower(Agent):
             if self.asset_spot_index == 0:
                 asset_price = 1
             else:
-                asset_price = state_i.spot_markets[self.asset_spot_index].oracle.get_price(now)
-            
+                asset_price = state_i.spot_markets[self.asset_spot_index-1].oracle.get_price(now)
+
             if self.liability_spot_index == 0:
                 liab_price = 1
             else:
-                liab_price = state_i.spot_markets[self.liability_spot_index].oracle.get_price(now)
+                liab_price = state_i.spot_markets[self.liability_spot_index-1].oracle.get_price(now)
             
             total_collateral = self.deposit_amount * asset_price
             liability_price = self.borrow_amount * liab_price
@@ -250,6 +253,36 @@ class IFStaker(Agent):
             event = NullEvent(now)
 
         return [event]
+
+@dataclass
+class Liquidator(Agent):
+    user_index: int
+    deposits: list[int] # spot market deposits
+    every_t_times: int = 1
+    name = 'liquidator'
+
+    def setup(self, state_i: ClearingHouse) -> list[Event]: 
+        events = []
+        for i, deposit in enumerate(self.deposits):
+            event = default_user_deposit(
+                self.user_index, 
+                state_i, 
+                username=self.name, 
+                deposit_amount=deposit,
+                spot_market_index=i
+            )
+            events.append(event)
+        return events
+
+    def run(self, state_i: ClearingHouse):
+        now = state_i.time
+        if now % self.every_t_times == 0:
+            return [LiquidateEvent(
+                now, 
+                self.user_index, 
+            )]
+        else: 
+            return [NullEvent(now)]
 
 class OpenClose(Agent):
     def __init__(
