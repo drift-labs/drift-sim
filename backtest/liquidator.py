@@ -189,7 +189,7 @@ class Liquidator:
         for args, ix, name in zip(ix_args, ixs, ix_names):
             # args = resolve_perp_bankruptcy_ix_args(ix)
             p.append(
-                self.send_ix(self.liq_ch, ix, name, args, silent_fail=self.silent)
+                self.send_ix(self.liq_ch, ix, name, args, silent_fail=False, view_logs_flag=True)
             )
         await asyncio.gather(*p)
         

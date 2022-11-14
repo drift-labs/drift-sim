@@ -81,7 +81,7 @@ async def send_ix(
     
     if not failed and not silent_success: 
         print(colored(f'> {event_name} success', "green"))
-    elif failed and not silent_fail:
+    elif failed and not silent_fail or view_logs_flag:
         print(colored(f'> {event_name} failed', "red"))
         pprint.pprint(ix_args)
         pprint.pprint(err)
@@ -135,7 +135,9 @@ async def run_trial(
         await admin_clearing_house.update_oracle_guard_rails(oracle_guard_rails)
 
     # setup the markets
-    init_leverage = 5
+    init_leverage = 2 # set to None if you dont want this 
+    perp_market_init_leverage = 5 
+
     n_markets = len(markets) 
     n_spot_markets = len(spot_markets) + 1
     last_oracle_prices = []
@@ -166,7 +168,7 @@ async def run_trial(
             oracle_program, 
             market, 
             i,
-            init_leverage, 
+            perp_market_init_leverage, 
             spread
         )
         last_oracle_prices.append(oracle_price)
@@ -208,7 +210,12 @@ async def run_trial(
             promises.append(user_collateral)
 
             for i in ch.spot_market_atas.keys(): 
-                price = 1 if i == 0 else spot_markets[i-1]['init_price']
+                if i == 0:
+                    price = 1
+                else:
+                    spot = await get_spot_market_account(program, i)
+                    price = (await get_feed_data(oracle_program, spot.oracle)).price
+
                 promises.append(
                     get_token_amount(ch.spot_market_atas[i], price)
                 )
@@ -222,9 +229,10 @@ async def run_trial(
     print(f'> initial collateral: {init_total_collateral}')
     assert int(init_total_collateral) == int(_init_total_collateral/QUOTE_PRECISION), f"{init_total_collateral} {_init_total_collateral/QUOTE_PRECISION}"
 
-
     global LOGGER
     LOGGER = Logger(f'{trial_outpath}/ix_logs.csv')
+
+    last_event = DepositCollateralEvent
 
     # process events 
     for i in tqdm(range(len(events))):
@@ -319,6 +327,10 @@ async def run_trial(
             last_spot_oracle_prices[event.market_index] = event.price
 
         elif event.event_name == LiquidateEvent._event_name:
+            # continue
+            if last_event._event_name == LiquidateEvent._event_name: 
+                continue
+
             event = Event.deserialize_from_row(LiquidateEvent, event)
             liquidator = Liquidator(user_chs, n_markets, n_spot_markets, event.user_index, send_ix)
             await liquidator.liquidate_loop()
@@ -366,12 +378,14 @@ async def run_trial(
         need_to_send_ix = ix_args is not None 
         if need_to_send_ix:
             await send_ix(ch, ix, event._event_name, ix_args)        
+            last_event = event
 
-        # print('levearged users:')
-        # for i, chu in _user_chus.items():
-        #     leverage = await chu.get_leverage()
-        #     if leverage != 0:
-        #         print(i, leverage/10_000)
+        print('levearged users:')
+        for i, chu in _user_chus.items():
+            leverage = await chu.get_leverage()
+            if leverage != 0:
+                print(i, leverage/10_000)
+
         # market = await get_perp_market_account(program, 0)
         # twap = market.amm.historical_oracle_data.last_oracle_price_twap
         # print('oracle twap:', twap)
@@ -394,56 +408,73 @@ async def run_trial(
         sigs.append(sig)
         LOGGER.log(slot, 'update_spot_market_expiry', {'spot_market_index': i, 'expiry_time': dtime + seconds_time}, None, -1)
 
-    await liquidator.liquidate_loop()
-
     # repay withdraws 
     print('repaying withdraws...')
-    routines = []
-    for i in range(n_spot_markets):
+    async def payback_borrows():
+        collateral_change = 0
 
-        for (user_idx, ch) in user_chs.items():
-            position = await ch.get_user_spot_position(i)
-            if position is None: continue
-            
-            spot_market = await get_spot_market_account(program, i)
-            if str(position.balance_type) == "SpotBalanceType.Borrow()":
-                token_amount = sdk_token_amount(
-                    position.scaled_balance, 
-                    spot_market, 
-                    position.balance_type
-                )
-                print(f'{user_idx}: paying back {token_amount}...')
+        for i in range(n_spot_markets):
+            success = False
+            attempt = 0
+            while not success:
+                routines = []
+                attempt += 1
+                success = True
+                print(colored(f' =>> repaying spot market debt {i} attempt {attempt}', "blue"))
 
-                current_amount = (await connection.get_token_account_balance(
-                    ch.spot_market_atas[i]
-                ))['result']['value']['amount']
+                for (user_idx, ch) in user_chs.items():
+                    position = await ch.get_user_spot_position(i)
+                    if position is None: 
+                        continue
+                    
+                    spot_market = await get_spot_market_account(program, i)
+                    if str(position.balance_type) == "SpotBalanceType.Borrow()":
+                        success = False
 
-                difference_amount = token_amount - int(current_amount)
-                if difference_amount > 0:
-                    # +100 just in case
-                    difference_amount = int(difference_amount) + 100 * QUOTE_PRECISION
+                        token_amount = sdk_token_amount(
+                            position.scaled_balance, 
+                            spot_market, 
+                            position.balance_type
+                        )
+                        print(f'{user_idx}: paying back {token_amount}...')
 
-                    print(f'minting an extra {difference_amount}...')
-                    mint_tx = _mint_usdc_tx(
-                        spot_mints[i], 
-                        provider, 
-                        difference_amount, 
-                        ch.spot_market_atas[i]
-                    )
-                    await admin_clearing_house.send_ixs(mint_tx.instructions)
+                        current_amount = (await connection.get_token_account_balance(
+                            ch.spot_market_atas[i]
+                        ))['result']['value']['amount']
 
-                # pay back 
-                ix = await ch.get_deposit_collateral_ix(
-                    int(1e19),
-                    i, 
-                    ch.spot_market_atas[i],
-                    reduce_only=True
-                )
-                ix_args = {'event_name': 'deposit', 'amount': int(1e19), 'reduce_only': True }
-                promise = send_ix(ch, ix, 'deposit_collateral', ix_args, view_logs_flag=True)
-                routines.append(promise)
+                        difference_amount = token_amount - int(current_amount)
+                        if difference_amount > 0:
+                            # +100 just in case
+                            difference_amount = int(difference_amount) + 100 * QUOTE_PRECISION
 
-    await asyncio.gather(*routines)
+                            price = (await get_feed_data(oracle_program, spot_market.oracle)).price if i != 0 else 1
+                            collateral_change += difference_amount * price / QUOTE_PRECISION
+
+                            print(f'minting an extra {difference_amount}...')
+                            mint_tx = _mint_usdc_tx(
+                                spot_mints[i], 
+                                provider, 
+                                difference_amount, 
+                                ch.spot_market_atas[i]
+                            )
+                            await admin_clearing_house.send_ixs(mint_tx.instructions)
+
+                        # pay back 
+                        ix = await ch.get_deposit_collateral_ix(
+                            int(1e19),
+                            i, 
+                            ch.spot_market_atas[i],
+                            reduce_only=True
+                        )
+                        ix_args = {'event_name': 'deposit', 'amount': int(1e19), 'reduce_only': True }
+                        promise = send_ix(ch, ix, 'deposit_collateral', ix_args)
+                        routines.append(promise)
+
+                await asyncio.gather(*routines)
+        return collateral_change
+
+    collateral_change = await payback_borrows()
+    init_total_collateral += collateral_change
 
     # close out all the LPs 
     print('closing LPs...')
@@ -503,7 +534,7 @@ async def run_trial(
     await liquidator.liquidate_loop()
 
     # settle expired positions 
-    print('settling expired positions')
+    print('settling expired positions...')
     for i in range(n_markets):
         number_positions = 0
         for (_, ch) in user_chs.items():
@@ -582,6 +613,10 @@ async def run_trial(
                         print(colored(f'settled expired position failed: {user_count}/{n_users}', 'red'))
                         success = False
 
+    # some positions go into borrow after expired position is at a loss
+    collateral_change = await payback_borrows()
+    init_total_collateral += collateral_change
+
     for spot_market_index in range(n_spot_markets):
         success = False
         attempt = -1
@@ -607,7 +642,7 @@ async def run_trial(
                 if position is None: 
                     user_withdraw_count += 1
                     continue
-                
+
                 # # balance: int, spot_market: SpotMarket, balance_type: SpotBalanceType
                 spot_market = await get_spot_market_account(program, spot_market_index)
                 token_amount = int(sdk_token_amount(
@@ -618,6 +653,7 @@ async def run_trial(
 
                 # withdraw all of collateral
                 print('token amount', token_amount)
+
                 ix = await ch.get_withdraw_collateral_ix(
                     # token_amount, 
                     int(1e19),
@@ -635,7 +671,6 @@ async def run_trial(
                     if spot_position is not None: 
                         print(spot_position)
                         success = False
-
                 else: 
                     print(colored(f'withdraw failed: {user_withdraw_count}/{n_users}', 'red'))
                     success = False
@@ -731,7 +766,7 @@ async def run_trial(
         )
         if i == 0:
             total_balance = spot_market.revenue_pool.scaled_balance + total_market_money
-            print('total balance (should = deposit balance):', total_balance)
+            print(f'total balance (should == deposit balance? {total_balance == spot_market.deposit_balance}):', total_balance)
 
     print('---')
 

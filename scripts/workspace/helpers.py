@@ -118,12 +118,12 @@ def run_trial(agents, ch, path):
     def adjust_oracle_prices():
         # adjust oracle pre events
         _oracle: _Oracle
-        for _oracle in oracles:
+        for i, _oracle in enumerate(oracles):
             oracle_price = _oracle.oracle.get_price(ch.time)
-            last_price = last_oracle_price[market.market_index]
+            last_price = last_oracle_price[i]
 
             if oracle_price != last_price:
-                last_oracle_price[market.market_index] = oracle_price
+                last_oracle_price[i] = oracle_price
                 if _oracle.is_perp:
                     event = PerpOracleUpdateEvent(ch.time, _oracle.index, oracle_price)
                 else: 
@@ -172,13 +172,18 @@ def run_trial(agents, ch, path):
                     time_t_events.append(event_i)
             
 
+        update_oracle_flag = False
+        e: Event
         for e in time_t_events:
             ch = e.run(ch)
+
+            if e._event_name != 'liquidate':
+                update_oracle_flag = True
 
             events.append(e)
             clearing_houses.append(copy.deepcopy(ch))
 
-        if len(time_t_events) > 0:
+        if len(time_t_events) > 0 and update_oracle_flag:
             adjust_oracle_prices()
         
         ch = ch.change_time(1)
@@ -186,6 +191,19 @@ def run_trial(agents, ch, path):
     _, _events, _chs, _ = collateral_difference(ch, 0, verbose=False) 
     events += _events
     clearing_houses += _chs
+
+    # remove multiple liquidations 
+    _events = []
+    last_was_liq = False
+    for e in events: 
+        if e._event_name == 'liquidate':
+            if last_was_liq: 
+                continue
+            last_was_liq = True
+        else: 
+            last_was_liq = False
+        _events.append(e)
+    events = _events
 
     print('number of events:', len(events))
 

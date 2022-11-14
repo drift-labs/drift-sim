@@ -316,14 +316,19 @@ async def setup_spot_market(
     mint = await _create_mint(admin_clearing_house.program.provider)
 
     optimal_util = SPOT_WEIGHT_PRECISION // 2
+    # optimal_util = SPOT_WEIGHT_PRECISION 
     optimal_weight = int(SPOT_WEIGHT_PRECISION * 20)
     max_rate = int(SPOT_WEIGHT_PRECISION * 50)
     
     init_weight = int(SPOT_WEIGHT_PRECISION * 8 / 10)
     main_weight = int(SPOT_WEIGHT_PRECISION * 9 / 10)
-
     init_liab_weight = int(SPOT_WEIGHT_PRECISION * 12 / 10)
     main_liab_weight = int(SPOT_WEIGHT_PRECISION * 11 / 10)
+    
+    # init_weight = SPOT_WEIGHT_PRECISION - 1
+    # main_weight = SPOT_WEIGHT_PRECISION - 1
+    # init_liab_weight = SPOT_WEIGHT_PRECISION + 2
+    # main_liab_weight = SPOT_WEIGHT_PRECISION + 2
 
     await admin_clearing_house.initialize_spot_market(
         mint.public_key, 

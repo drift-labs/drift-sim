@@ -15,7 +15,7 @@ from sim.agents import *
 from sim.driftsim.clearing_house.state.market import SimulationMarket
 from sim.driftsim.clearing_house.state.user import MarketPosition
 
-def random_walk_oracle(start_price, n_steps=100):
+def random_walk_oracle(start_price, n_steps=100, down_up_probs=[.5, .5], std=1):
     prices = []
     timestamps = []
     
@@ -25,8 +25,8 @@ def random_walk_oracle(start_price, n_steps=100):
         prices.append(price)
         timestamps.append(time)
 
-        sign = np.random.choice([-1, 1])
-        price = price + sign * np.random.normal()
+        sign = np.random.choice([-1, 1], p=down_up_probs)
+        price = price + sign * abs(np.random.normal(scale=std))
         time = time + np.random.randint(low=1, high=10)
 
     # normalize prices 

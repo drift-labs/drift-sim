@@ -352,7 +352,10 @@ class OpenPositionEvent(Event):
             user = await clearing_house.get_user()
             from driftpy.clearing_house_user import ClearingHouseUser
             chu = ClearingHouseUser(clearing_house) 
-            collateral = await chu.get_total_collateral()
+            collateral = await chu.get_free_collateral()
+            print('free collateral: ', collateral/QUOTE_PRECISION)
+            if collateral <= 0: 
+                return None
 
             pos = None
             for position in user.perp_positions:
@@ -364,9 +367,10 @@ class OpenPositionEvent(Event):
                 if pos.open_orders > 15:
                     return await clearing_house.cancel_orders()
 
-            max_baa = collateral * init_leverage / price
+            max_baa = (collateral * init_leverage / price) / QUOTE_PRECISION * AMM_RESERVE_PRECISION
             # update 
-            baa = int(min(max_baa, baa))
+            # baa = int(min(max_baa, market.amm.base_asset_reserve // 2))
+            baa = int(max_baa)
 
         if baa == 0:
             print('trying to open position with baa == 0 : early exiting open position')

@@ -154,16 +154,17 @@ class Borrower(Agent):
             total_collateral = self.deposit_amount * asset_price
             liability_price = self.borrow_amount * liab_price
 
-            # add more so we can withdraw
-            if liability_price > total_collateral: 
-                event = MidSimDepositEvent(
-                    timestamp=now, 
-                    user_index=self.user_index, 
-                    spot_market_index=self.asset_spot_index, 
-                    deposit_amount=(liability_price - total_collateral), 
-                    reduce_only=False
-                )
-                events.append(event)
+            # # add more so we can withdraw
+            ## todo: support minting in mid sim deposit
+            # if liability_price > total_collateral: 
+            #     event = MidSimDepositEvent(
+            #         timestamp=now, 
+            #         user_index=self.user_index, 
+            #         spot_market_index=self.asset_spot_index, 
+            #         deposit_amount=(liability_price - total_collateral), 
+            #         reduce_only=False
+            #     )
+            #     events.append(event)
 
             event = WithdrawEvent(
                 timestamp=now, 
@@ -290,6 +291,7 @@ class OpenClose(Agent):
         start_time: int = 0, 
         duration: int = -1, 
         quote_amount: int = 100 * QUOTE_PRECISION, 
+        spot_market: int = 0,
         direction: str = 'long',
         user_index: int = 0,
         market_index: int = 0,
@@ -303,6 +305,7 @@ class OpenClose(Agent):
         self.market_index = market_index
         self.has_opened = False
         self.deposit_start = None
+        self.spot_market = spot_market
 
         self.deposit_amount = deposit_amount
         if deposit_amount is None: 
@@ -311,7 +314,7 @@ class OpenClose(Agent):
         self.name = 'openclose'
 
     @staticmethod
-    def random_init(max_t, user_index, market_index, short_bias, leave_open_odds=0.5, leverage=1):
+    def random_init(max_t, user_index, market_index, spot_market_index=0, short_bias=0.5, leave_open_odds=0.5, leverage=1):
         assert short_bias <= 1 and short_bias >= 0, "invalid short bias value"
         assert leave_open_odds <= 1 and leave_open_odds >= 0, "invalid leave open odds value"
         
@@ -332,7 +335,8 @@ class OpenClose(Agent):
             quote_amount=quote_amount, 
             deposit_amount=quote_amount//leverage,
             user_index=user_index, 
-            market_index=market_index
+            market_index=market_index,
+            spot_market=spot_market_index,
         )
         
     def setup(self, state_i: ClearingHouse) -> list[Event]: 
@@ -340,7 +344,8 @@ class OpenClose(Agent):
             self.user_index, 
             state_i, 
             username=self.name, 
-            deposit_amount=self.deposit_amount
+            deposit_amount=self.deposit_amount,
+            spot_market_index=self.spot_market,
         )
         event = [event]
         return event
@@ -381,6 +386,7 @@ class AddRemoveLiquidity(Agent):
         lp_duration: int = -1, 
         token_amount: int = 100 * 1e13, 
         user_index: int = 0,
+        spot_market: int = 0,
         market_index: int = 0,
     ) -> None:
         self.lp_start_time = lp_start_time
@@ -393,13 +399,14 @@ class AddRemoveLiquidity(Agent):
         
         self.has_deposited = False 
         self.deposit_start = None
+        self.spot_market = spot_market
 
         # TODO match margin req: 
         self.deposit_amount = 10_000_000 * QUOTE_PRECISION
         self.name = 'liquidity-provider'
 
     @staticmethod
-    def random_init(max_t, user_index, market_index, min_token_amount=0, max_token_amount=100 * AMM_RESERVE_PRECISION, leverage=1):
+    def random_init(max_t, user_index, market_index, min_token_amount=0, spot_market=0, max_token_amount=100 * AMM_RESERVE_PRECISION, leverage=1):
         start = np.random.randint(0, max_t - 2)
         dur = np.random.randint(0, max_t - start - 1)
         token_amount = np.random.randint(min_token_amount, max_token_amount)
@@ -410,6 +417,7 @@ class AddRemoveLiquidity(Agent):
             token_amount=token_amount, 
             user_index=user_index, 
             market_index=market_index, 
+            spot_market=spot_market,
         )
         
     def setup(self, state_i: ClearingHouse) -> list[Event]: 
@@ -418,11 +426,11 @@ class AddRemoveLiquidity(Agent):
             self.user_index,
             state_i,
             username='LP',
-            deposit_amount=self.deposit_amount
+            deposit_amount=self.deposit_amount,
+            spot_market_index=self.spot_market,
         )
         
-        # # TODO: update this to meet margin requirements
-        # event = NullEvent(state_i.time)
+        # TODO: update this to meet margin requirements
         
         event = [event]
         return event
