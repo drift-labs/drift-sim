@@ -60,7 +60,7 @@ def setup_ch(base_spread=0, strategies='', n_steps=100):
         oracle=oracle, 
         base_asset_reserve=367_621 * AMM_RESERVE_PRECISION,
         quote_asset_reserve=367_621 * AMM_RESERVE_PRECISION,
-        funding_period=3600,
+        funding_period=1,
         peg_multiplier=int(oracle.get_price(0)*PEG_PRECISION),
         base_spread=base_spread,
         strategies=strategies,
@@ -94,7 +94,7 @@ def main():
     print('seed', seed)
 
     # setup markets + clearing houses
-    n_steps = 50
+    n_steps = 300
     ch: ClearingHouse = setup_ch(
         n_steps=n_steps,
         base_spread=0,
@@ -106,7 +106,7 @@ def main():
 
     # test agents seperate rn then do multiple agents on a sinlge user later
     n_lps = 5
-    n_traders = 1
+    n_traders = 10
     n_stakers = 5
     n_borrows = 5
     n_times = 3
@@ -118,23 +118,26 @@ def main():
     agent = Liquidator(0, deposits=[100_000 * QUOTE_PRECISION, 0], every_t_times=1)
     agents.append(agent)
 
-    # k updates
-    new_sqrt_1 = int(ch.markets[0].amm.sqrt_k * 1.0000002)
-    k_updates = [
-        UpdateKEvent(
-            30, 
-            new_sqrt_1,
-            0
-        ),
-        UpdateKEvent(
-            40, 
-            int(new_sqrt_1 * 0.99998),
-            0
-        )
-    ]
+    # sqrt k updates
+    n_k_updates = 10
+    k_updates = []
+    last_sqrt_k = int(ch.markets[0].amm.sqrt_k)
+    for i in range(n_k_updates):
+        sqrt_up = 1 if np.random.randint(0, 1) else 0
+        if sqrt_up:
+            new_sqrt_1 = int(last_sqrt_k * 1.0000002)
+            k = UpdateKEvent(100 + i * 50, new_sqrt_1, 0)
+        else:
+            new_sqrt_1 = int(last_sqrt_k * 0.99998)
+            k = UpdateKEvent(100 + i * 50, new_sqrt_1, 0)
+
+        assert new_sqrt_1 != last_sqrt_k
+        last_sqrt_k = new_sqrt_1
+        k_updates.append(k)
+
     repegs = [
         RepegEvent(
-            35, 
+            100, 
             -1,
             0
         )

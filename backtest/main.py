@@ -392,15 +392,12 @@ async def run_trial(
             await send_ix(ch, ix, event._event_name, ix_args)        
             last_event = event
 
-        print('levearged users:')
-        for i, chu in _user_chus.items():
-            leverage = await chu.get_leverage()
-            if leverage != 0:
-                print(i, leverage/10_000)
+        # print('levearged users:')
+        # for i, chu in _user_chus.items():
+        #     leverage = await chu.get_leverage()
+        #     if leverage != 0:
+        #         print(i, leverage/10_000)
 
-        # market = await get_perp_market_account(program, 0)
-        # twap = market.amm.historical_oracle_data.last_oracle_price_twap
-        # print('oracle twap:', twap)
 
     print('delisting market...')
     slot = (await provider.connection.get_slot())['result']
