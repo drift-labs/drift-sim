@@ -515,6 +515,40 @@ class AddIfStakeEvent(Event):
         )
 
 @dataclass
+class UpdateKEvent(Event): 
+    sqrt_k: int
+    market_index: int
+    _event_name: str = "update_k"
+    
+    def run(self, clearing_house: ClearingHouse, verbose=False) -> ClearingHouse:
+        pass 
+        # not implemented yet... 
+        return clearing_house
+
+    async def run_sdk(self, clearing_house: ClearingHouseSDK):
+        return await clearing_house.update_k_ix(
+            self.sqrt_k, 
+            self.market_index,
+        )
+
+@dataclass
+class RepegEvent(Event): 
+    peg: int
+    market_index: int
+    _event_name: str = "repeg"
+    
+    def run(self, clearing_house: ClearingHouse) -> ClearingHouse:
+        pass 
+        # not implemented yet... 
+        return clearing_house
+
+    async def run_sdk(self, clearing_house: ClearingHouseSDK):
+        return await clearing_house.repeg_curve_ix(
+            self.peg, 
+            self.market_index,
+        )
+
+@dataclass
 class LiquidateEvent(Event): 
     user_index: int 
     _event_name: str = "liquidate"

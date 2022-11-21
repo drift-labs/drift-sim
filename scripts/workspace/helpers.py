@@ -208,10 +208,14 @@ def run_trial(agents, ch, path):
     print('number of events:', len(events))
 
     # save trial results 
-    json_events = [e.serialize_to_row() for e in events if e._event_name != 'null']
-    df = pd.DataFrame(json_events)
-    df.to_csv(path/'events.csv', index=False)
+    def save_events(events):
+        json_events = [e.serialize_to_row() for e in events if e._event_name != 'null']
+        df = pd.DataFrame(json_events)
+        df.to_csv(path/'events.csv', index=False)
+    save_events(events)
 
     json_chs = [e.to_json() for e in clearing_houses]
     df = pd.DataFrame(json_chs)
     df.to_csv(path/'chs.csv', index=False)
+
+    return events, save_events

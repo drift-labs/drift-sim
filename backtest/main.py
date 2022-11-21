@@ -135,7 +135,7 @@ async def run_trial(
         await admin_clearing_house.update_oracle_guard_rails(oracle_guard_rails)
 
     # setup the markets
-    init_leverage = 2 # set to None if you dont want this 
+    init_leverage = 0.0002 # set to None if you dont want this 
     perp_market_init_leverage = 5 
 
     n_markets = len(markets) 
@@ -368,6 +368,18 @@ async def run_trial(
             ix = await event.run_sdk(ch)
             ix_args = event.serialize_parameters()
 
+        elif event.event_name == UpdateKEvent._event_name:
+            event = Event.deserialize_from_row(UpdateKEvent, event) 
+            ix = await event.run_sdk(admin_clearing_house)
+            ix_args = event.serialize_parameters()
+            ch = admin_clearing_house
+
+        elif event.event_name == RepegEvent._event_name:
+            event = Event.deserialize_from_row(RepegEvent, event) 
+            ix = await event.run_sdk(admin_clearing_house)
+            ix_args = event.serialize_parameters()
+            ch = admin_clearing_house
+
         elif event.event_name == NullEvent._event_name: 
             continue
 
@@ -520,9 +532,7 @@ async def run_trial(
         await admin_clearing_house.settle_expired_market(i)
         LOGGER.log(slot, 'settle_expired_market', {'market_index': i}, None, -1)
 
-        market = await get_perp_market_account(
-            program, i
-        )
+        market = await get_perp_market_account(program, i)
         print(
             f'market {i} expiry_price vs twap/price', 
             market.expiry_price, 
@@ -593,7 +603,7 @@ async def run_trial(
                 await set_price_feed_detailed(oracle_program, market.amm.oracle, last_oracle_price, 0, slot)
 
                 # settle expired position
-                if position is None or is_available(position): 
+                if position is None: 
                     user_count += 1
                     print(colored(f'settled expired position success: {user_count}/{n_users}', 'green'))
                 else:

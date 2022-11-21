@@ -256,6 +256,47 @@ class IFStaker(Agent):
         return [event]
 
 @dataclass
+class Admin(Agent):
+    k_updates: list[UpdateKEvent]
+    repegs: list[RepegEvent]
+    
+    def __init__(self, k_updates, repegs):
+        self.k_updates = k_updates
+        self.repegs = repegs
+        self.k_dones = [0] * len(self.k_updates)
+        self.r_dones = [0] * len(self.repegs)
+
+    def setup(self, state_i): 
+        # nothing 
+        return []
+    
+    def run(self, state_i: ClearingHouse):
+        events = []
+        for i, (d, update) in enumerate(zip(self.k_dones, self.k_updates)): 
+            if state_i.time > update.timestamp and not d:
+                events.append(update)
+                self.k_dones[i] = 1
+
+        for i, (d, update) in enumerate(zip(self.r_dones, self.repegs)): 
+            if state_i.time > update.timestamp and not d:
+                if update.peg == -1:
+                    # get oracle price 
+                    oracle_price = state_i.markets[0].amm.oracle.get_price(state_i.time)
+                    current_peg = state_i.markets[0].amm.peg_multiplier / PEG_PRECISION
+                    if current_peg > oracle_price:
+                        update.peg = int(current_peg * 0.98 * PEG_PRECISION)
+                    else:
+                        update.peg = int(current_peg * 1.02 * PEG_PRECISION)
+                    print(
+                        f'oracle: {oracle_price} peg: {current_peg} new peg: {update.peg}'
+                    )
+
+                events.append(update)
+                self.r_dones[i] = 1
+
+        return events
+
+@dataclass
 class Liquidator(Agent):
     user_index: int
     deposits: list[int] # spot market deposits

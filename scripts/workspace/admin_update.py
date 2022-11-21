@@ -94,8 +94,8 @@ def main():
     print('seed', seed)
 
     # setup markets + clearing houses
-    n_steps = 500
-    ch = setup_ch(
+    n_steps = 50
+    ch: ClearingHouse = setup_ch(
         n_steps=n_steps,
         base_spread=0,
     )
@@ -106,7 +106,7 @@ def main():
 
     # test agents seperate rn then do multiple agents on a sinlge user later
     n_lps = 5
-    n_traders = 5
+    n_traders = 1
     n_stakers = 5
     n_borrows = 5
     n_times = 3
@@ -117,80 +117,47 @@ def main():
     # liquidator deposits in 0 and borrows from 1 
     agent = Liquidator(0, deposits=[100_000 * QUOTE_PRECISION, 0], every_t_times=1)
     agents.append(agent)
-    agent = Borrower(
-        0,
-        1,
-        0,
-        70_000 * QUOTE_PRECISION,
-        user_index=0,
-        start_time=0,
-        duration=max_max_t,
+
+    # k updates
+    new_sqrt_1 = int(ch.markets[0].amm.sqrt_k * 1.0000002)
+    k_updates = [
+        UpdateKEvent(
+            30, 
+            new_sqrt_1,
+            0
+        ),
+        UpdateKEvent(
+            40, 
+            int(new_sqrt_1 * 0.99998),
+            0
+        )
+    ]
+    repegs = [
+        RepegEvent(
+            35, 
+            -1,
+            0
+        )
+    ]
+    agent = Admin(
+        k_updates, 
+        repegs,
     )
     agents.append(agent)
 
-    # agent deposits in 1 and borrows from 0 
-    # 30K left in spot 0
-    agent = Borrower(
-        1, 
-        0, 
-        100_000 * QUOTE_PRECISION, 
-        70_000 * QUOTE_PRECISION, 
-        user_index=1,
-        start_time=0,  
-        duration=max_max_t,
-    )
-    agents.append(agent)
-    
-    # agent2 deposits in 1 and borrows from 0 -- spot0 utilization at 99.99%
-    agent = Borrower(
-        1, 
-        0, 
-        100_000 * QUOTE_PRECISION, 
-        29_999 * QUOTE_PRECISION, # interest
-        user_index=2,
-        start_time=0,  
-        duration=max_max_t,
-    )
-    agents.append(agent)
-
-    # trader - opens short - price goes up and he gets settled 
     for i in range(n_traders):
-        agent = SettlePnL(3+i, 0, 50)
-        agents.append(agent)
+        # agent = SettlePnL(1+i, 0, 50)
+        # agents.append(agent)
 
-        agent = OpenClose.random_init(100, 3+i, 0, spot_market_index=1, short_bias=1.)
+        agent = OpenClose.random_init(100, 1+i, 0, spot_market_index=1, short_bias=1.)
         agent.start_time = min(100, n_steps//2)
-        agent.duration = n_steps # dont close until end
+        agent.duration = 10 if i % 2 else n_steps # dont close until end
         agents.append(agent)
-
-    # # traders -- trade with spot 1 (note pnl is settled in spot0)
-    # for i in range(n_traders):
-    #     user_idx = 3+i
-    #     agent = MultipleAgent(
-    #         lambda: OpenClose.random_init(max_t[0], user_idx, 0, 1, short_bias=0.9),
-    #         n_times, 
-    #     )
-    #     agents.append(agent)
-
-    for i in range(n_traders, n_traders + n_lps):
-        agent = MultipleAgent(
-            lambda: AddRemoveLiquidity.random_init(max_t[0], 3 + i, 0, min_token_amount=100000, spot_market=1),
-            n_times, 
-        )
-
-    #     update_every = np.random.randint(1, max_t[0] // 4)
-    #     agents.append(
-    #         SettlePnL.random_init(max_t[0], 3+i, 0, update_every)
-    #     )
-
-    for i in range(n_stakers):
-        agents.append(
-            IFStaker.random_init(max(max_t), i, 0)
-        )
 
     # !! 
     from helpers import run_trial
     run_trial(agents, ch, path)
+
 
 if __name__ == '__main__':
     main()
