@@ -81,26 +81,25 @@ class Liquidator:
 
                 if len(liabilities) > 0 and len(assets) > 0:
                     # try to liq em 
-                    promise = self.liq_ch.get_liquidate_spot_ix(
+                    promise = await self.liq_ch.get_liquidate_spot_ix(
                         authority, 
-                        # should be safe 
                         assets[0],
                         liabilities[0], 
                         2**128 - 1, # maxxx,
                         user_subaccount_id=sid,
                         liq_subaccount_id=self.liquidator_subacc,
                     )
+
                     promises.append(promise)
                     ixs_args.append({'asset_index': assets[0], 'liab_index': liabilities[0], 'auth_user_index': i})
 
-        ixs = await asyncio.gather(*promises)
+        # ixs = await asyncio.gather(*promises)
+        ixs = promises
         print(f'trying to spot liq {len(ixs)} users')
 
         promises = []
         for ix_args, ix in zip(ixs_args, ixs):
-            promise = self.send_ix(self.liq_ch, ix, 'liquidate_spot', ix_args, silent_fail=True)
-            promises.append(promise)
-        await asyncio.gather(*promises)
+            promise = await self.send_ix(self.liq_ch, ix, 'liquidate_spot', ix_args, silent_fail=False)
 
     async def try_liquidate_perp(self):
         ch: ClearingHouse
@@ -116,7 +115,7 @@ class Liquidator:
                     # print('user position:', position)
 
                     if position and position.base_asset_amount != 0:
-                        promise = self.liq_ch.get_liquidate_perp_ix(
+                        promise = await self.liq_ch.get_liquidate_perp_ix(
                             authority, 
                             i, 
                             abs(position.base_asset_amount),
@@ -124,15 +123,15 @@ class Liquidator:
                             liq_subaccount_id=self.liquidator_subacc,
                         )
                         promises.append(promise)
-        ixs = await asyncio.gather(*promises)
+        # ixs = await asyncio.gather(*promises)
+        ixs = promises
         print(f'trying to perp liq {len(ixs)} users')
 
         promises = []
         for ix in ixs:
             ix_args = liq_perp_ix_args(ix)
-            promise = self.send_ix(self.liq_ch, ix, 'liquidate_perp', ix_args, silent_fail=self.silent)
-            promises.append(promise)
-        await asyncio.gather(*promises)
+            promise = await self.send_ix(self.liq_ch, ix, 'liquidate_perp', ix_args, silent_fail=self.silent)
+        
 
     async def try_liquidate_pnl(self):
         promises = []
@@ -145,7 +144,7 @@ class Liquidator:
                     position = await ch.get_user_position(i, sid)
 
                     if position and position.base_asset_amount == 0 and position.quote_asset_amount < 0:
-                        promise = self.liq_ch.get_liquidate_perp_pnl_for_deposit_ix(
+                        promise = await self.liq_ch.get_liquidate_perp_pnl_for_deposit_ix(
                             authority,
                             i,
                             QUOTE_SPOT_MARKET_INDEX,
@@ -154,14 +153,13 @@ class Liquidator:
                             liq_subaccount_id=self.liquidator_subacc,
                         )
                         promises.append(promise)
-        ixs = await asyncio.gather(*promises)
+        # ixs = await asyncio.gather(*promises)
+        ixs = promises
 
         promises = []
         for ix in ixs:
             ix_args = liquidate_perp_pnl_for_deposit_ix_args(ix)
-            promise = self.send_ix(self.liq_ch, ix, 'liquidate_perp_pnl_for_deposit', ix_args, silent_fail=self.silent)
-            promises.append(promise)
-        await asyncio.gather(*promises)
+            promise = await self.send_ix(self.liq_ch, ix, 'liquidate_perp_pnl_for_deposit', ix_args, silent_fail=self.silent)
 
     async def resolve_bankruptcies(self):
         ch: ClearingHouse
@@ -172,10 +170,11 @@ class Liquidator:
             if authority == self.liq_ch.authority: 
                 continue
             for sid in ch.subaccounts:
-                user = ch.get_user(sid)
+                user = await ch.get_user(sid)
                 user_promises.append(user)
                 chs.append(ch)
-        users = await asyncio.gather(*user_promises)
+        users = user_promises
+        # users = await asyncio.gather(*user_promises)
 
         ix_names = []
         ix_args = []
@@ -186,7 +185,7 @@ class Liquidator:
                 for i in range(self.n_markets):
                     position = await ch.get_user_position(i)
                     if position is not None and not is_available(position):
-                        promise = self.liq_ch.get_resolve_perp_bankruptcy_ix(
+                        promise = await self.liq_ch.get_resolve_perp_bankruptcy_ix(
                             user.authority, i, user_subaccount_id=user.sub_account_id, liq_subaccount_id=self.liquidator_subacc,
                         )
                         ix_args.append({'market_index': i, 'authority': user.authority, 'subaccount_id': user.sub_account_id})
@@ -196,22 +195,18 @@ class Liquidator:
                 for i in range(self.n_spot_markets):
                     position = await ch.get_user_spot_position(i)
                     if position is not None and not is_spot_position_available(position):
-                        promise = self.liq_ch.get_resolve_spot_bankruptcy_ix(
+                        promise = await self.liq_ch.get_resolve_spot_bankruptcy_ix(
                             user.authority, i, user_subaccount_id=user.sub_account_id, liq_subaccount_id=self.liquidator_subacc,
                         )
                         ix_args.append({'market_index': i, 'authority': user.authority, 'subaccount_id': user.sub_account_id})
                         ix_names.append('spot_bankruptcy')
                         promises.append(promise)
 
-        ixs = await asyncio.gather(*promises)
+        # ixs = await asyncio.gather(*promises)
+        ixs = promises
         print(f'trying to resolve {len(ixs)} users bankruptcies')
-        p = []
         for args, ix, name in zip(ix_args, ixs, ix_names):
-            # args = resolve_perp_bankruptcy_ix_args(ix)
-            p.append(
-                self.send_ix(self.liq_ch, ix, name, args, silent_fail=False, view_logs_flag=True)
-            )
-        await asyncio.gather(*p)
+            await self.send_ix(self.liq_ch, ix, name, args, silent_fail=False, view_logs_flag=True)
         
     async def derisk(self):
         ch: ClearingHouse = self.liq_ch
