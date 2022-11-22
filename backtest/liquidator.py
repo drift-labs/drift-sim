@@ -16,15 +16,24 @@ from driftpy.types import *
 from driftpy.types import PerpMarket
 from driftpy.constants.numeric_constants import *
 
-from parsing import *
-from helpers import *
-from setup import *
+from .parsing import *
+from .helpers import *
+from .setup import *
+
 from solana.rpc.core import RPCException
 from anchorpy.coder.common import _sighash
 from driftpy.clearing_house import ClearingHouse
 
 class Liquidator: 
-    def __init__(self, user_chs, n_markets, n_spot_markets, liquidator_index, send_ix_fcn) -> None:
+    def __init__(
+        self, 
+        user_chs, 
+        n_markets, 
+        n_spot_markets, 
+        liquidator_index, 
+        send_ix_fcn,
+        liquidator_subacc_id: int = 0,
+    ) -> None:
         """class for a liquidator 
 
         Args:
@@ -38,6 +47,7 @@ class Liquidator:
         self.n_markets = n_markets
         self.n_spot_markets = n_spot_markets
         self.liq_ch: ClearingHouse = user_chs[liquidator_index]
+        self.liquidator_subacc = liquidator_subacc_id
         self.send_ix = send_ix_fcn
         self.silent = True
 
@@ -78,6 +88,7 @@ class Liquidator:
                         liabilities[0], 
                         2**128 - 1, # maxxx,
                         user_subaccount_id=sid,
+                        liq_subaccount_id=self.liquidator_subacc,
                     )
                     promises.append(promise)
                     ixs_args.append({'asset_index': assets[0], 'liab_index': liabilities[0], 'auth_user_index': i})
@@ -109,7 +120,8 @@ class Liquidator:
                             authority, 
                             i, 
                             abs(position.base_asset_amount),
-                            user_subaccount_id=sid
+                            user_subaccount_id=sid,
+                            liq_subaccount_id=self.liquidator_subacc,
                         )
                         promises.append(promise)
         ixs = await asyncio.gather(*promises)
@@ -138,7 +150,8 @@ class Liquidator:
                             i,
                             QUOTE_SPOT_MARKET_INDEX,
                             abs(position.quote_asset_amount), # take it fully on
-                            user_subaccount_id=sid
+                            user_subaccount_id=sid,
+                            liq_subaccount_id=self.liquidator_subacc,
                         )
                         promises.append(promise)
         ixs = await asyncio.gather(*promises)
@@ -174,7 +187,7 @@ class Liquidator:
                     position = await ch.get_user_position(i)
                     if position is not None and not is_available(position):
                         promise = self.liq_ch.get_resolve_perp_bankruptcy_ix(
-                            user.authority, i, user_subaccount_id=user.sub_account_id
+                            user.authority, i, user_subaccount_id=user.sub_account_id, liq_subaccount_id=self.liquidator_subacc,
                         )
                         ix_args.append({'market_index': i, 'authority': user.authority, 'subaccount_id': user.sub_account_id})
                         ix_names.append('perp_bankruptcy')
@@ -184,7 +197,7 @@ class Liquidator:
                     position = await ch.get_user_spot_position(i)
                     if position is not None and not is_spot_position_available(position):
                         promise = self.liq_ch.get_resolve_spot_bankruptcy_ix(
-                            user.authority, i, user_subaccount_id=user.sub_account_id
+                            user.authority, i, user_subaccount_id=user.sub_account_id, liq_subaccount_id=self.liquidator_subacc,
                         )
                         ix_args.append({'market_index': i, 'authority': user.authority, 'subaccount_id': user.sub_account_id})
                         ix_names.append('spot_bankruptcy')

@@ -38,18 +38,18 @@ from subprocess import Popen
 import time 
 from solana.transaction import TransactionInstruction
 
-from parsing import *
-from helpers import *
-from setup import *
-from liquidator import Liquidator
+from .parsing import *
+from .helpers import *
+from .setup import *
+from .liquidator import Liquidator
 from solana.rpc.core import RPCException
 from anchorpy.coder.common import _sighash
 import re 
 
 # set inside run_trail()
 LOGGER: Logger = None
-    
-async def send_ix(
+
+async def _send_ix(
     ch: ClearingHouse, 
     ix: TransactionInstruction, 
     event_name: str, 
@@ -58,9 +58,6 @@ async def send_ix(
     silent_success=False,
     view_logs_flag=False,
 ):
-    global LOGGER
-    global args
-
     failed = 1 # 1 = fail, 0 = success
     provider: Provider = ch.program.provider
     slot = (await provider.connection.get_slot())['result']
@@ -73,7 +70,7 @@ async def send_ix(
         else:
             sig = await ch.send_ixs(ix)
         failed = 0
-        if not args.ignore_compute or view_logs_flag:
+        if view_logs_flag:
             logs = view_logs(sig, provider, False)
 
     except RPCException as e:
@@ -99,8 +96,31 @@ async def send_ix(
             pprint.pprint(e)
 
     ix_args['user_index'] = ch.user_index
-    LOGGER.log(slot, event_name, ix_args, err, compute_used)
     
+    return failed, (slot, event_name, ix_args, err, compute_used)
+    
+async def send_ix(
+    ch: ClearingHouse, 
+    ix: TransactionInstruction, 
+    event_name: str, 
+    ix_args: dict, 
+    silent_fail=False, 
+    silent_success=False,
+    view_logs_flag=False,
+):
+    global LOGGER
+    global args
+
+    failed, log_args = _send_ix(
+        ch, 
+        ix, 
+        event_name, 
+        ix_args, 
+        silent_fail, 
+        silent_success,
+        view_logs_flag or not args.ignore_compute,
+    )
+    LOGGER.log(*log_args)
     return failed
 
 async def run_trial(
