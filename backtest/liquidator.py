@@ -99,7 +99,7 @@ class Liquidator:
 
         promises = []
         for ix_args, ix in zip(ixs_args, ixs):
-            promise = await self.send_ix(self.liq_ch, ix, 'liquidate_spot', ix_args, silent_fail=False)
+            promise = await self.send_ix(self.liq_ch, ix, 'liquidate_spot', ix_args, silent_fail=self.silent)
 
     async def try_liquidate_perp(self):
         ch: ClearingHouse
