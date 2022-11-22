@@ -59,26 +59,28 @@ class Liquidator:
 
             assets = []
             liabilities = []
-            user = await ch.get_user()
-            for spot_position in user.spot_positions: 
-                if is_spot_position_available(spot_position): continue
-                match str(spot_position.balance_type):
-                    case "SpotBalanceType.Deposit()":
-                        assets.append(spot_position.market_index)
-                    case "SpotBalanceType.Borrow()":
-                        liabilities.append(spot_position.market_index)
+            for sid in ch.subaccounts:
+                user = await ch.get_user(sid)
+                for spot_position in user.spot_positions: 
+                    if is_spot_position_available(spot_position): continue
+                    match str(spot_position.balance_type):
+                        case "SpotBalanceType.Deposit()":
+                            assets.append(spot_position.market_index)
+                        case "SpotBalanceType.Borrow()":
+                            liabilities.append(spot_position.market_index)
 
-            if len(liabilities) > 0 and len(assets) > 0:
-                # try to liq em 
-                promise = self.liq_ch.get_liquidate_spot_ix(
-                    authority, 
-                    # should be safe 
-                    assets[0],
-                    liabilities[0], 
-                    2**128 - 1 # maxxx
-                )
-                promises.append(promise)
-                ixs_args.append({'asset_index': assets[0], 'liab_index': liabilities[0], 'auth_user_index': i})
+                if len(liabilities) > 0 and len(assets) > 0:
+                    # try to liq em 
+                    promise = self.liq_ch.get_liquidate_spot_ix(
+                        authority, 
+                        # should be safe 
+                        assets[0],
+                        liabilities[0], 
+                        2**128 - 1, # maxxx,
+                        user_subaccount_id=sid,
+                    )
+                    promises.append(promise)
+                    ixs_args.append({'asset_index': assets[0], 'liab_index': liabilities[0], 'auth_user_index': i})
 
         ixs = await asyncio.gather(*promises)
         print(f'trying to spot liq {len(ixs)} users')
@@ -94,20 +96,22 @@ class Liquidator:
         promises = []
 
         for ch in self.user_chs.values(): 
-            for i in range(self.n_markets):
-                authority = ch.authority
-                if authority == self.liq_ch.authority: 
-                    continue
-                position = await ch.get_user_position(i)
-                # print('user position:', position)
+            for sid in ch.subaccounts:
+                for i in range(self.n_markets):
+                    authority = ch.authority
+                    if authority == self.liq_ch.authority: 
+                        continue
+                    position = await ch.get_user_position(i, sid)
+                    # print('user position:', position)
 
-                if position and position.base_asset_amount != 0:
-                    promise = self.liq_ch.get_liquidate_perp_ix(
-                        authority, 
-                        i, 
-                        abs(position.base_asset_amount)
-                    )
-                    promises.append(promise)
+                    if position and position.base_asset_amount != 0:
+                        promise = self.liq_ch.get_liquidate_perp_ix(
+                            authority, 
+                            i, 
+                            abs(position.base_asset_amount),
+                            user_subaccount_id=sid
+                        )
+                        promises.append(promise)
         ixs = await asyncio.gather(*promises)
         print(f'trying to perp liq {len(ixs)} users')
 
@@ -121,20 +125,22 @@ class Liquidator:
     async def try_liquidate_pnl(self):
         promises = []
         for ch in self.user_chs.values(): 
-            for i in range(self.n_markets):
-                authority = ch.authority
-                if authority == self.liq_ch.authority: 
-                    continue
-                position = await ch.get_user_position(i)
+            for sid in ch.subaccounts:
+                for i in range(self.n_markets):
+                    authority = ch.authority
+                    if authority == self.liq_ch.authority: 
+                        continue
+                    position = await ch.get_user_position(i, sid)
 
-                if position and position.base_asset_amount == 0 and position.quote_asset_amount < 0:
-                    promise = self.liq_ch.get_liquidate_perp_pnl_for_deposit_ix(
-                        authority,
-                        i,
-                        QUOTE_SPOT_MARKET_INDEX,
-                        abs(position.quote_asset_amount) # take it fully on
-                    )
-                    promises.append(promise)
+                    if position and position.base_asset_amount == 0 and position.quote_asset_amount < 0:
+                        promise = self.liq_ch.get_liquidate_perp_pnl_for_deposit_ix(
+                            authority,
+                            i,
+                            QUOTE_SPOT_MARKET_INDEX,
+                            abs(position.quote_asset_amount), # take it fully on
+                            user_subaccount_id=sid
+                        )
+                        promises.append(promise)
         ixs = await asyncio.gather(*promises)
 
         promises = []
@@ -152,9 +158,10 @@ class Liquidator:
             authority = ch.authority
             if authority == self.liq_ch.authority: 
                 continue
-            user = ch.get_user()
-            user_promises.append(user)
-            chs.append(ch)
+            for sid in ch.subaccounts:
+                user = ch.get_user(sid)
+                user_promises.append(user)
+                chs.append(ch)
         users = await asyncio.gather(*user_promises)
 
         ix_names = []
@@ -167,9 +174,9 @@ class Liquidator:
                     position = await ch.get_user_position(i)
                     if position is not None and not is_available(position):
                         promise = self.liq_ch.get_resolve_perp_bankruptcy_ix(
-                            user.authority, i
+                            user.authority, i, user_subaccount_id=user.sub_account_id
                         )
-                        ix_args.append({'market_index': i, 'authority': user.authority})
+                        ix_args.append({'market_index': i, 'authority': user.authority, 'subaccount_id': user.sub_account_id})
                         ix_names.append('perp_bankruptcy')
                         promises.append(promise)
                     
@@ -177,9 +184,9 @@ class Liquidator:
                     position = await ch.get_user_spot_position(i)
                     if position is not None and not is_spot_position_available(position):
                         promise = self.liq_ch.get_resolve_spot_bankruptcy_ix(
-                            user.authority, i
+                            user.authority, i, user_subaccount_id=user.sub_account_id
                         )
-                        ix_args.append({'market_index': i, 'authority': user.authority})
+                        ix_args.append({'market_index': i, 'authority': user.authority, 'subaccount_id': user.sub_account_id})
                         ix_names.append('spot_bankruptcy')
                         promises.append(promise)
 
