@@ -68,6 +68,13 @@ for i in tqdm(range(len(events))):
       print(f'=> {event.user_index} closing position...')
 ```
 
+### How we track the state on backtests
+
+To backtest against the protocol we load the drift program onto a local validator 
+which includes a geyser plugin that records the account states in a postgresql db. 
+After each sim, we parse the database's accounts using AnchorPy and export them to a .csv 
+format. The postgresql geyser plugin is the `solana-accountsdb.../` folder.
+
 ### Adding New Events
 
 to include new events one would need to 
