@@ -17,14 +17,12 @@ from driftpy.setup.helpers import _create_mint, mock_oracle, _airdrop_user, set_
 from driftpy.admin import Admin
 from driftpy.types import OracleSource
 
-from sim.events import * 
 from driftpy.clearing_house import ClearingHouse as SDKClearingHouse
 from driftpy.math.amm import calculate_mark_price_amm
 from driftpy.clearing_house_user import ClearingHouseUser
 from driftpy.accounts import get_perp_market_account, get_spot_market_account, get_user_account, get_state_account
 
 from anchorpy import Provider, Program, create_workspace, WorkspaceType
-from sim.driftsim.clearing_house.state.market import SimulationAMM, SimulationMarket
 import pprint
 import os
 import json
@@ -38,7 +36,7 @@ import subprocess
 from solana.transaction import Transaction
 import asyncio
 from tqdm import tqdm
-from helpers import view_logs
+from sim.events import *
 
 from typing import Optional, Union, cast, Dict
 import json
