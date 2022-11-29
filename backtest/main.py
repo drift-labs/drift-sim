@@ -63,6 +63,7 @@ async def _send_ix(
     slot = (await provider.connection.get_slot())['result']
     compute_used = -1
     err = None
+    sig = None
     logs = None
     try:
         if event_name == SettleLPEvent._event_name:
@@ -97,7 +98,7 @@ async def _send_ix(
 
     ix_args['user_index'] = ch.user_index
     
-    return failed, (slot, event_name, ix_args, err, compute_used)
+    return failed, sig, (slot, event_name, ix_args, err, compute_used)
     
 async def send_ix(
     ch: ClearingHouse, 
@@ -111,7 +112,7 @@ async def send_ix(
     global LOGGER
     global args
 
-    failed, log_args = _send_ix(
+    failed, sig, log_args = _send_ix(
         ch, 
         ix, 
         event_name, 
