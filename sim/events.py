@@ -12,6 +12,8 @@ from backtest.helpers import adjust_oracle_pretrade, set_price_feed_detailed
 from driftpy.setup.helpers import get_set_price_feed_detailed_ix
 from sim.driftsim.clearing_house.lib import ClearingHouse
 
+import numpy as np
+
 @dataclass
 class Event:     
     timestamp: int 
@@ -94,7 +96,7 @@ class DepositCollateralEvent(Event):
     
     def run(self, clearing_house: ClearingHouse, verbose=False) -> ClearingHouse:
         if verbose:
-            print(f'u{self.user_index} deposit...')
+            print(f'u{self.user_index} {self._event_name} {np.format_float_scientific(self.deposit_amount)}...')
         clearing_house = clearing_house.deposit_user_collateral(
             self.user_index, 
             self.deposit_amount, 
@@ -171,6 +173,8 @@ class WithdrawEvent(Event):
     _event_name: str = "withdraw_collateral"
     
     def run(self, clearing_house: ClearingHouse, verbose=False) -> ClearingHouse:
+        if verbose:
+            print(f'u{self.user_index} {self._event_name} {np.format_float_scientific(self.withdraw_amount)}...')
         # pass
         return clearing_house
 
@@ -301,7 +305,7 @@ class OpenPositionEvent(Event):
     
     def run(self, clearing_house: ClearingHouse, verbose=False) -> ClearingHouse:
         if verbose:
-            print(f'u{self.user_index} {self._event_name} {self.direction} {self.quote_amount}...')
+            print(f'u{self.user_index} {self._event_name} {self.direction} {np.format_float_scientific(self.quote_amount)}...')
         direction = {
             "long": PositionDirection.LONG,
             "short": PositionDirection.SHORT,
