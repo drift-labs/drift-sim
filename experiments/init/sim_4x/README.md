@@ -13,7 +13,7 @@ Python 3.10
 Package versions: requirements.txt  
 
 ### Notes:  
-Packages: solana, anchorpy, and soldana had some conflict issues
+Packages: solana, anchorpy, and solders had some conflict issues
 
 In requirements.txt, these versions were installed:  
 solana==0.25.1  
@@ -57,3 +57,6 @@ ClearingHouse: The initialized clearing house.
 `main()`  
 Runs the main simulation and generates .csv files containing information about the events and clearing house objects generated during the simulation.
 
+# Note:
+
+`run_trial()` is run to generate the `Event` objects and `ClearingHouse` objects from the `Agent` object, in this case the `Liquidator` `Agent`, which is combined with the `Event` objects and `ClearingHouse` objects created throughout the script. And `run_trial_events()` is run to generate the necessary .csv files from all of the combined `Event` objects and `ClearingHouse` objects.
