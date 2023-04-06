@@ -218,4 +218,4 @@ def run_trial(agents, ch, path):
     df = pd.DataFrame(json_chs)
     df.to_csv(path/'chs.csv', index=False)
 
-    return events, save_events
+    return events, save_events, clearing_houses
